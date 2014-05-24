@@ -22,6 +22,12 @@
 		3B6942291930C99F00FC4431 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B69420D1930C99F00FC4431 /* CoreData.framework */; };
 		3B6942311930C99F00FC4431 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B69422F1930C99F00FC4431 /* InfoPlist.strings */; };
 		3B6942331930C99F00FC4431 /* GymRegimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B6942321930C99F00FC4431 /* GymRegimeTests.m */; };
+		3B69423D1930C9CB00FC4431 /* main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3B69423C1930C9CB00FC4431 /* main.storyboard */; };
+		3B6942401930CD8800FC4431 /* CoreViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B69423F1930CD8800FC4431 /* CoreViewController.m */; };
+		3B6942431930CD9500FC4431 /* AddBodystatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B6942421930CD9500FC4431 /* AddBodystatViewController.m */; };
+		3B6942461930CDA800FC4431 /* BodyStatTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B6942451930CDA800FC4431 /* BodyStatTableViewController.m */; };
+		3B9A42361930E72600B9A2B5 /* CoreDataTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B9A42351930E72600B9A2B5 /* CoreDataTableViewController.m */; };
+		3B9A423919311E8100B9A2B5 /* BodyStat.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B9A423819311E8100B9A2B5 /* BodyStat.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +59,17 @@
 		3B69422E1930C99F00FC4431 /* GymRegimeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GymRegimeTests-Info.plist"; sourceTree = "<group>"; };
 		3B6942301930C99F00FC4431 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3B6942321930C99F00FC4431 /* GymRegimeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GymRegimeTests.m; sourceTree = "<group>"; };
+		3B69423C1930C9CB00FC4431 /* main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = main.storyboard; sourceTree = "<group>"; };
+		3B69423E1930CD8800FC4431 /* CoreViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreViewController.h; sourceTree = "<group>"; };
+		3B69423F1930CD8800FC4431 /* CoreViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreViewController.m; sourceTree = "<group>"; };
+		3B6942411930CD9500FC4431 /* AddBodystatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddBodystatViewController.h; sourceTree = "<group>"; };
+		3B6942421930CD9500FC4431 /* AddBodystatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddBodystatViewController.m; sourceTree = "<group>"; };
+		3B6942441930CDA800FC4431 /* BodyStatTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BodyStatTableViewController.h; sourceTree = "<group>"; };
+		3B6942451930CDA800FC4431 /* BodyStatTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BodyStatTableViewController.m; sourceTree = "<group>"; };
+		3B9A42341930E72600B9A2B5 /* CoreDataTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataTableViewController.h; sourceTree = "<group>"; };
+		3B9A42351930E72600B9A2B5 /* CoreDataTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataTableViewController.m; sourceTree = "<group>"; };
+		3B9A423719311E8100B9A2B5 /* BodyStat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BodyStat.h; sourceTree = "<group>"; };
+		3B9A423819311E8100B9A2B5 /* BodyStat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BodyStat.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,7 +135,15 @@
 				3B6942181930C99F00FC4431 /* AppDelegate.h */,
 				3B6942191930C99F00FC4431 /* AppDelegate.m */,
 				3B69421E1930C99F00FC4431 /* Images.xcassets */,
-				3B69421B1930C99F00FC4431 /* GymRegime.xcdatamodeld */,
+				3B9A42341930E72600B9A2B5 /* CoreDataTableViewController.h */,
+				3B9A42351930E72600B9A2B5 /* CoreDataTableViewController.m */,
+				3B6942411930CD9500FC4431 /* AddBodystatViewController.h */,
+				3B6942421930CD9500FC4431 /* AddBodystatViewController.m */,
+				3B6942441930CDA800FC4431 /* BodyStatTableViewController.h */,
+				3B6942451930CDA800FC4431 /* BodyStatTableViewController.m */,
+				3B69423C1930C9CB00FC4431 /* main.storyboard */,
+				3B69423E1930CD8800FC4431 /* CoreViewController.h */,
+				3B69423F1930CD8800FC4431 /* CoreViewController.m */,
 				3B6942101930C99F00FC4431 /* Supporting Files */,
 			);
 			path = GymRegime;
@@ -127,6 +152,9 @@
 		3B6942101930C99F00FC4431 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3B69421B1930C99F00FC4431 /* GymRegime.xcdatamodeld */,
+				3B9A423719311E8100B9A2B5 /* BodyStat.h */,
+				3B9A423819311E8100B9A2B5 /* BodyStat.m */,
 				3B6942111930C99F00FC4431 /* GymRegime-Info.plist */,
 				3B6942121930C99F00FC4431 /* InfoPlist.strings */,
 				3B6942151930C99F00FC4431 /* main.m */,
@@ -229,6 +257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3B6942141930C99F00FC4431 /* InfoPlist.strings in Resources */,
+				3B69423D1930C9CB00FC4431 /* main.storyboard in Resources */,
 				3B69421F1930C99F00FC4431 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -249,8 +278,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				3B69421A1930C99F00FC4431 /* AppDelegate.m in Sources */,
+				3B6942431930CD9500FC4431 /* AddBodystatViewController.m in Sources */,
+				3B9A42361930E72600B9A2B5 /* CoreDataTableViewController.m in Sources */,
 				3B6942161930C99F00FC4431 /* main.m in Sources */,
+				3B6942461930CDA800FC4431 /* BodyStatTableViewController.m in Sources */,
 				3B69421D1930C99F00FC4431 /* GymRegime.xcdatamodeld in Sources */,
+				3B6942401930CD8800FC4431 /* CoreViewController.m in Sources */,
+				3B9A423919311E8100B9A2B5 /* BodyStat.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -447,6 +481,7 @@
 				3B6942381930C99F00FC4431 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3B6942391930C99F00FC4431 /* Build configuration list for PBXNativeTarget "GymRegimeTests" */ = {
 			isa = XCConfigurationList;
@@ -455,6 +490,7 @@
 				3B69423B1930C99F00FC4431 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
