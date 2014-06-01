@@ -12,6 +12,7 @@
 @interface CoreViewController ()
 
 @property (nonatomic, strong)NSManagedObjectContext *managedObjectContext;
+@property (nonatomic, strong)UIAlertView *alertView;
 
 @end
 
@@ -57,6 +58,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -64,6 +66,27 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    NSLog(@"touchesBegan:withEvent:");
+    [self.view endEditing:YES];
+    [super touchesBegan:touches withEvent:event];
+}
+
+
+#pragma mark - Information Button
+- (void)informationButton: (NSString *)message title: (NSString *)title {
+    
+    self.alertView = [[UIAlertView alloc]initWithTitle:title
+                                               message:message
+                                              delegate:self
+                                     cancelButtonTitle:nil
+                                     otherButtonTitles:@"Got it!", nil];
+    
+    [self.alertView show];
+    
+}
+
 
 
 

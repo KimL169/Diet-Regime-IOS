@@ -4,9 +4,17 @@
         <attribute name="bodyfat" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="calories" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="progressImage" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="weight" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
     </entity>
+    <entity name="DietGoals" representedClassName="DietGoals" syncable="YES">
+        <attribute name="bodyfatGoal" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="dateCreated" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="dateToAchieve" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="weightGoal" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+    </entity>
     <elements>
-        <element name="BodyStat" positionX="-63" positionY="-18" width="128" height="105"/>
+        <element name="BodyStat" positionX="-63" positionY="-18" width="128" height="118"/>
+        <element name="DietGoals" positionX="-236" positionY="-0" width="128" height="103"/>
     </elements>
 </model>

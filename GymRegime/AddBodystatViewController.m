@@ -9,9 +9,10 @@
 #import "AddBodystatViewController.h"
 
 @interface AddBodystatViewController ()
-@property (strong, nonatomic) IBOutlet UITextField *bodyStatWeight;
-@property (strong, nonatomic) IBOutlet UITextField *bodyStatBodyFat;
-@property (strong, nonatomic) IBOutlet UITextField *bodyStatCalorieIntake;
+@property (weak, nonatomic) IBOutlet UITextField *bodyStatWeight;
+@property (weak, nonatomic) IBOutlet UITextField *bodyStatBodyFat;
+@property (weak, nonatomic) IBOutlet UITextField *bodyStatCalorieIntake;
+@property (weak, nonatomic) IBOutlet UIDatePicker *bodyStatDatePicker;
 
 @end
 
@@ -33,6 +34,7 @@
     addBodyStat.weight = [NSNumber numberWithFloat:[_bodyStatWeight.text floatValue]];
     addBodyStat.bodyfat = [NSNumber numberWithFloat:[_bodyStatBodyFat.text floatValue]];
     addBodyStat.calories = [NSNumber numberWithInteger:[_bodyStatCalorieIntake.text intValue]];
+    addBodyStat.date = _bodyStatDatePicker.date;
     
     [super saveAndDismiss];
 }
@@ -45,17 +47,16 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    NSLog(@"bodystat: %@",self.addBodyStat);
     // Do any additional setup after loading the view.
+    
 }
 
-- (void)didReceiveMemoryWarning
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    [textField resignFirstResponder];
+    
+    return YES;
 }
-
 
 
 /*

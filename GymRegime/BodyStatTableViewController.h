@@ -10,7 +10,7 @@
 #import "CoreDataTableViewController.h"
 #import "BodyStat.h"
 
-@interface BodyStatTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
+@interface BodyStatTableViewController : UITableViewController <NSFetchedResultsControllerDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong)BodyStat *bodyStat;
 @end

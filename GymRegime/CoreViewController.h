@@ -8,10 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@interface CoreViewController : UIViewController
+@interface CoreViewController : UIViewController <UITextFieldDelegate, UIAlertViewDelegate>
 
 - (void) cancelAndDismiss;
 
 - (void) saveAndDismiss;
+
+- (void)informationButton: (NSString *)message title: (NSString *)title;
 
 @end

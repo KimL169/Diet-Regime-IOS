@@ -9,6 +9,9 @@
 #import "BodyStatTableViewController.h"
 #import "AppDelegate.h"
 #import "AddBodystatViewController.h"
+#import "BSEditViewController.h"
+#import "BodyStatTableViewCell.h"
+#import "ProgressPhotoViewController.h"
 
 @interface BodyStatTableViewController ()
 
@@ -16,9 +19,14 @@
 
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
+@property (nonatomic, strong) NSString *sectionTitle;
+
 @end
 
 @implementation BodyStatTableViewController
+
+#define USER_IMAGE 1
+#define DEFAULT_IMAGE 2
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -66,16 +74,51 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"Cell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    static NSString *CellIdentifier = @"BodyStatCell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        // More initializations if needed.
+    }
+
     
-    BodyStat *stat = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    
-    cell.textLabel.text = [NSString stringWithFormat:@"Weight: %.1f kg  Calories: %d", [stat.weight floatValue], [stat.calories integerValue]];
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"Bodyfat: %.1f", [stat.bodyfat floatValue]];
     return cell;
 }
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(BodyStatTableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    BodyStat *stat = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    
+    cell.weightLabel.text = [NSString stringWithFormat:@"Weight: %.1f", [stat.weight floatValue]];
+    cell.caloriesLabel.text = [NSString stringWithFormat:@"Calories: %d", [stat.calories integerValue]];
+    
+    if ([stat.bodyfat floatValue] > 0) {
+        cell.bodyfatLabel.text = [NSString stringWithFormat:@"Bodyfat: %.1f", [stat.bodyfat floatValue]];
+    } else {
+        cell.bodyfatLabel.text = @"";
+    }
+
+    //if the user hasn't uploaded a progress picture, display a default image.
+    if (stat.progressImage == nil) {
+        [cell.progressImageButton setBackgroundImage:[UIImage imageNamed:@"addProgressPicture.png"] forState:UIControlStateNormal];
+    } else  {
+        [cell.progressImageButton setBackgroundImage:[UIImage imageWithData:stat.progressImage] forState:UIControlStateNormal];
+    }
+}
+
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    NSString *rawDateStr = [[[self.fetchedResultsController sections] objectAtIndex:section] name];
+    // Convert rawDateStr string to NSDate...
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-dd HH:mm:ss ZZ"];
+    NSDate *date = [formatter dateFromString:rawDateStr];
+    
+    // Convert NSDate to format we want...
+    [formatter setDateFormat:@"d MMMM yyyy"];
+    NSString *formattedDateStr = [formatter stringFromDate:date];
+    return formattedDateStr;
+}
 
 /*
 // Override to support conditional editing of the table view.
@@ -86,18 +129,22 @@
 }
 */
 
-/*
+
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
+        
+        NSManagedObjectContext *context = [self managedObjectContext];
+        BodyStat *statToDelete = [self.fetchedResultsController objectAtIndexPath:indexPath];
+        [context deleteObject:statToDelete];
+        
+        NSError *error = nil;
+        if (![context save:&error]) {
+            NSLog(@"Error saving delete %@", error);
+        }
+    }
 }
-*/
 
 /*
 // Override to support rearranging the table view.
@@ -136,7 +183,7 @@
     //now assign the sort descriptors to the fetchrequest.
     fetchRequest.sortDescriptors = sortDescriptors;
     
-    _fetchedResultsController = [[NSFetchedResultsController alloc]initWithFetchRequest:fetchRequest managedObjectContext:context sectionNameKeyPath:nil cacheName:nil];
+    _fetchedResultsController = [[NSFetchedResultsController alloc]initWithFetchRequest:fetchRequest managedObjectContext:context sectionNameKeyPath:@"date" cacheName:@"CacheName"];
     
     _fetchedResultsController.delegate = self;
     
@@ -147,11 +194,11 @@
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(UITableViewCell *)sender
 {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    
+
     if ([[segue identifier] isEqualToString:@"addBodyStat"]) {
         UINavigationController *navigationController = segue.destinationViewController;
         AddBodystatViewController *addBodyStatViewController = (AddBodystatViewController *)navigationController.topViewController;
@@ -160,6 +207,30 @@
 
         addBodyStatViewController.addBodyStat = addBodyStat;
     }
+    
+    if ([[segue identifier] isEqualToString:@"editBodyStat"]) {
+        UINavigationController *navigationController = segue.destinationViewController;
+        BSEditViewController *bsEditViewController = (BSEditViewController *)navigationController.topViewController;
+        
+        //we use the sender, UItableview cell to select the BodyStat to edit.
+        NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
+        BodyStat *editBodyStat = (BodyStat *)[self.fetchedResultsController objectAtIndexPath:indexPath];
+        bsEditViewController.editBodyStat = editBodyStat;
+    }
+    
+    if ([[segue identifier] isEqualToString:@"selectProgressPhoto"]) {
+           NSLog(@"I got to the prepare for segue.");
+        UINavigationController *navigationController = segue.destinationViewController;
+        ProgressPhotoViewController *progressPhotoViewController = (ProgressPhotoViewController *)navigationController.topViewController;
+        
+        //get the index path of the button's tableviewcell.
+        CGPoint center= sender.center;
+        CGPoint rootViewPoint = [sender.superview convertPoint:center toView:self.tableView];
+        NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:rootViewPoint];
+        BodyStat *addPhotoBodystat = (BodyStat *)[self.fetchedResultsController objectAtIndexPath:indexPath];
+        progressPhotoViewController.addPhotoBodyStat = addPhotoBodystat;
+    }
+    
 }
 
 
