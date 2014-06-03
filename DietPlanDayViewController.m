@@ -18,11 +18,19 @@
 @property (nonatomic) NSNumber *gramFat;
 @property (nonatomic) NSNumber *gramCarbs;
 @property (nonatomic) NSNumber *calories;
-@property (weak, nonatomic) IBOutlet MacroDietCircularSlider *piechart;
+
+@property (nonatomic, strong)NSString *name;
+
+@property (nonatomic, strong) NSArray *macroPresets;
+@property (nonatomic, strong) NSArray *proteinPresets;
+
+@property (nonatomic, strong) NSString *selectedMacroPreset;
+@property (nonatomic, strong) NSString *selectedProteinPreset;
 
 @end
 
 static const float sliderPieChartIncrements = 3.5;
+
 static const NSInteger tProteinSliderTag = 12;
 static const NSInteger tFatSliderTag = 14;
 static const NSInteger tCarohydrateSliderTag = 16;
@@ -31,20 +39,16 @@ static const NSInteger kcalGramProtein = 4;
 static const NSInteger kcalGramCarbohydrate = 4;
 static const NSInteger kcalGramFat = 9;
 
-
+#define CALORIE_TEXTFIELD 33
+#define NAME_TEXTFIELD 44
 
 @implementation DietPlanDayViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
+
+- (IBAction)nameTextField:(UITextField *)sender {
+    _name = sender.text;
+    self.title = _name;
 }
-
-
 
 - (IBAction)caloriesTextField:(UITextField *)sender {
     _calories = [NSNumber numberWithInteger:[sender.text integerValue]];
@@ -53,64 +57,50 @@ static const NSInteger kcalGramFat = 9;
 }
 
 
-
 -(void)didChangeValueForSlider:(UISlider *)slider {
     slider.value = lround(slider.value);
     
+    //delta, old - new.
+    float diff;
+    
+    //the protein slider is the dominant slider.
     if (slider.tag == tProteinSliderTag) {
-        
-        float diff = slider.value - self.percentageProtein;
-        
-        if (self.percentageCarbs < 1 && self.percentageFats > 1) {
-            self.percentageFats -= diff;
-            
-        } else if (self.percentageFats < 1 && self.percentageCarbs > 1) {
-            self.percentageCarbs -= diff;
-        } else {
-            self.percentageCarbs -= (diff /2.0);
-            self.percentageFats -= (diff/2.0);
-        }
+        diff = slider.value - self.percentageProtein;
         
         self.percentageProtein = slider.value;
         
-        self.fatSlider.value = self.percentageFats;
-        self.carbohydrateSlider.value = self.percentageCarbs;
+        if (self.percentageFats < 0.1) {
+            self.percentageCarbs -=diff;
+        } else if (self.percentageCarbs < 0.1){
+            self.percentageFats -= diff;
+        } else {
+            self.percentageCarbs -= diff/2;
+            self.percentageFats -= diff/2;
+        }
+        self.carbohydrateSlider.maximumValue -= diff;
+        self.fatSlider.maximumValue -= diff;
         
     } else if (slider.tag == tCarohydrateSliderTag) {
         
-        float diff = slider.value - self.percentageCarbs;
-        
-        if (self.percentageProtein < 1 && self.percentageFats > 1) {
-            self.percentageFats -= diff;
-            
-        } else if (self.percentageFats < 1 && self.percentageProtein > 1) {
-            self.percentageProtein -= diff;
-        } else {
-            self.percentageProtein -= (diff /2.0);
-            self.percentageFats -= (diff/2.0);
-        }
+        diff = slider.value - self.percentageCarbs;
         self.percentageCarbs = slider.value;
-        
-        self.fatSlider.value = self.percentageFats;
-        self.proteinSlider.value = self.percentageProtein;
+        self.percentageFats -= diff;
     } else if (slider.tag == tFatSliderTag) {
         
-        float diff = slider.value - self.percentageFats;
-        
-        if (self.percentageProtein < 1 && self.percentageCarbs != 0) {
-            self.percentageCarbs -= diff;
-            
-        } else if (self.percentageCarbs < 1 && self.percentageProtein != 0) {
-            self.percentageProtein -= diff;
-        } else {
-            self.percentageProtein -= (diff /2.0);
-            self.percentageCarbs -= (diff/2.0);
-        }
+        diff = slider.value - self.percentageFats;
         self.percentageFats = slider.value;
-        
-        self.proteinSlider.value = self.percentageProtein;
-        self.carbohydrateSlider.value = self.percentageCarbs;
+        self.percentageCarbs -= diff;
     }
+    
+    if (self.carbohydrateSlider.maximumValue == 0.0) {
+        self.percentageCarbs = 0;
+        self.percentageFats = 0;
+    }
+    
+    self.proteinSlider.value = self.percentageProtein;
+    self.fatSlider.value = self.percentageFats;
+    self.carbohydrateSlider.value = self.percentageCarbs;
+    
     [self calculateMacrosInGrams];
     [self updateMacroLabels];
 }
@@ -122,9 +112,9 @@ static const NSInteger kcalGramFat = 9;
     
 }
 - (void)updateMacroLabels {
-    self.carbsPercentageLabel.text = [NSString stringWithFormat:@"Carbs: %.0f",fabs(self.percentageCarbs)];
-    self.fatPercentageLabel.text = [NSString stringWithFormat:@"Fat: %.0f", fabs(self.percentageFats)];
-    self.proteinPercentageLabel.text = [NSString stringWithFormat:@"Protein: %.0f", fabs(self.percentageProtein)];
+    self.carbsPercentageLabel.text = [NSString stringWithFormat:@"Carbs: %.1f%%", self.percentageCarbs];
+    self.fatPercentageLabel.text = [NSString stringWithFormat:@"Fat: %.1f%%", self.percentageFats];
+    self.proteinPercentageLabel.text = [NSString stringWithFormat:@"Protein: %.1f%%", self.percentageProtein];
     
     self.proteinGramsLabel.text = [NSString stringWithFormat:@"Protein: %d gr", abs([self.gramProtein integerValue])];
     self.carbGramsLabel.text = [NSString stringWithFormat:@"Carbs: %d gr", abs([self.gramCarbs integerValue])];
@@ -136,16 +126,17 @@ static const NSInteger kcalGramFat = 9;
     //set maximum and minimum values
     self.proteinSlider.minimumValue = 0;
     self.proteinSlider.maximumValue = 100;
-    self.carbohydrateSlider.minimumValue = 0;
-    self.carbohydrateSlider.maximumValue = 100;
-    self.fatSlider.minimumValue = 0;
-    self.fatSlider.maximumValue = 100;
     
     
     //set default values for macros:
     self.percentageCarbs = 33.33333;
     self.percentageProtein = 33.3333;
     self.percentageFats = 33.33333;
+    
+    self.carbohydrateSlider.minimumValue = 0;
+    self.carbohydrateSlider.maximumValue = 100 - self.percentageProtein;
+    self.fatSlider.minimumValue = 0;
+    self.fatSlider.maximumValue = 100 - self.percentageProtein;
     
     self.proteinSlider.value = self.percentageProtein;
     self.carbohydrateSlider.value = self.percentageCarbs;
@@ -170,31 +161,73 @@ static const NSInteger kcalGramFat = 9;
     [self updateMacroLabels];
 }
 
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
     //enable the scroll view and set the size.
+    [self setupScrollView];
+    
+    //set the sliders.
+    [self setSliderValues];
+    
+    //set textfield delegates so the textfield respond to events.
+    self.nameTextField.delegate = self;
+    self.caloriesTextField.delegate = self;
+    
+}
+
+
+- (void)setupScrollView {
+    
     [scrollView setScrollEnabled:YES];
     [scrollView setContentSize:CGSizeMake(320, 900)];
     
     
-    self.calories = [NSNumber numberWithInteger:2000];
-    //set the sliders.
-    [self setSliderValues];
-    
+    //add a gesture recognizer to the scrollview.
+    UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(touch:)];
+    [recognizer setNumberOfTapsRequired:1];
+    [recognizer setNumberOfTouchesRequired:1];
+    [scrollView addGestureRecognizer:recognizer];
+}
+
+//The event handling method
+- (void)touch:(UITapGestureRecognizer *)recognizer {
+    [self.view endEditing:YES];
 }
 
 - (IBAction)save:(UIBarButtonItem *)sender {
+    [super saveAndDismiss];
 }
-
 - (IBAction)cancel:(UIBarButtonItem *)sender {
+    [super cancelAndDismiss];
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    NSLog(@"touchesBegan:withEvent:");
+    [self.view endEditing:YES];
+    [super touchesBegan:touches withEvent:event];
+}
+
+-(BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [textField resignFirstResponder];
+    return YES;
+}
+
+//make sure the length of the
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    
+    if (textField.tag == CALORIE_TEXTFIELD) {
+        NSUInteger newLength = [textField.text length] + [string length] - range.length;
+        return (newLength > 5) ? NO : YES;
+    }
+    
+    if (textField.tag == NAME_TEXTFIELD) {
+        NSUInteger newLength = [textField.text length] + [string length] - range.length;
+        return (newLength > 15) ? NO : YES;
+    }
+    return YES;
 }
 
 /*

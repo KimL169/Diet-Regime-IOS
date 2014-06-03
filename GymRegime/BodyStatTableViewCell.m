@@ -9,11 +9,9 @@
 #import "BodyStatTableViewCell.h"
 
 @interface BodyStatTableViewCell()
-    
-@property (weak, nonatomic) IBOutlet UIImageView *imageView;
-
 
 @end
+
 @implementation BodyStatTableViewCell
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
@@ -23,12 +21,15 @@
         // Initialization code
     }
     return self;
+
 }
 
 - (void)awakeFromNib
 {
     // Initialization code
 }
+
+
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
 {

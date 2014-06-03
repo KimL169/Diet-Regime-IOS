@@ -10,15 +10,12 @@
 #import "AppDelegate.h"
 #import "AddBodystatViewController.h"
 #import "BSEditViewController.h"
-#import "BodyStatTableViewCell.h"
 #import "ProgressPhotoViewController.h"
 
 @interface BodyStatTableViewController ()
 
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
-
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
-
 @property (nonatomic, strong) NSString *sectionTitle;
 
 @end
@@ -28,19 +25,20 @@
 #define USER_IMAGE 1
 #define DEFAULT_IMAGE 2
 
-- (id)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
+    //SHOULD THIS BE SOMWHERE ELSE, HOW ABOUT THE INIT METHOD?
+    //check if the user has a profile saved, if not, redirect to the profile page.
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if (!defaults) {
+        //redirect to the profile page.
+    }
+    
+    //set selectedIndex to -1 so no cell is expanded or should expand;
+    selectedIndex = -1;
     
     //load the database data
     NSError *error = nil;
@@ -48,13 +46,58 @@
         NSLog(@"Error fetching: %@", error);
         abort();
     }
+ 
+//    //add a long press gesture recognizer
+//    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(longPressGestureRecognized:)];
+//    [self.tableView addGestureRecognizer:longPress];
 }
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
+//// MOVE THIS CODE TO ANOTHER TABLEVIEWCONTROLLER!!!
+//- (IBAction)longPressGestureRecognized:(id)sender {
+//    UILongPressGestureRecognizer *longPress = (UILongPressGestureRecognizer *)sender;
+//    UIGestureRecognizerState state = longPress.state;
+//    
+//    CGPoint location = [longPress locationInView:self.tableView];
+//    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:location];
+//    
+//    
+//    static UIView *snapshot = nil;
+//    static NSIndexPath *sourceIndexPath = nil;
+//    
+//    switch (state) {
+//        case UIGestureRecognizerStateBegan:
+//            if (indexPath) {
+//                sourceIndexPath = indexPath;
+//                
+//                UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+//                
+//                //take a snapshot of the selected row using helper method.
+//                snapshot = [self customSnapshotFromView:cell];
+//                
+//                // add the snapshot as subview, centered at cell's center
+//                __block CGPoint center = cell.center;
+//                snapshot.center = center;
+//                snapshot.alpha - 0.0;
+//                [self.tableView addSubview:snapshot];
+//                [UIView animateWithDuration: 0.25 animations: ^{
+//                    
+//                    center.y = location.y;
+//                    snapshot.center = center;
+//                    snapshot.transform = CGAffineTransformMakeScale(1.05, 1.05);
+//                    snapshot.alpha = 0.98;
+//                    
+//                    //black out.
+//                    cell.backgroundColor = [UIColor blackColor];
+//                } completion:nil];
+//            }
+//            break;
+//            
+//        default:
+//            break;
+//    }
+//    
+//    // more comming.
+//}
+//
 
 - (NSManagedObjectContext *)managedObjectContext {
     return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
@@ -74,20 +117,46 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"BodyStatCell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    static NSString *CellIdentifier = @"bodyStatCell";
+    
+    BodyStatTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"BodyStatTableViewCell" owner:self options:nil];
+        cell = [nib objectAtIndex:0];
         // More initializations if needed.
     }
-
     
+    if (selectedIndex == indexPath.section) {
+        //do expanded stuff
+        NSLog(@"hello again");
+    }
+    else {
+        //do closed stuff
+        
+    }
+    
+    cell.clipsToBounds = YES;
+    
+    [cell.progressImageButton addTarget:self action:@selector(checkButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+
     return cell;
+}
+
+- (void)checkButtonTapped: (id)sender {
+    UITableViewCell *clickedCell = (UITableViewCell *)[[sender superview] superview];
+    NSIndexPath *clickedButtonPath = [self.tableView indexPathForCell:clickedCell];
+    
+    BodyStat *bodyStat = [self.fetchedResultsController objectAtIndexPath:clickedButtonPath];
+    
+    [self performSegueWithIdentifier:@"selectProgressPhoto" sender:sender];
+    
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(BodyStatTableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     BodyStat *stat = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    
+
     
     cell.weightLabel.text = [NSString stringWithFormat:@"Weight: %.1f", [stat.weight floatValue]];
     cell.caloriesLabel.text = [NSString stringWithFormat:@"Calories: %d", [stat.calories integerValue]];
@@ -120,14 +189,36 @@
     return formattedDateStr;
 }
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    if (selectedIndex == indexPath.section) {
+        return 220;
+    } else {
+        return 95;
+    }
 }
-*/
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    //user taps expanded row
+    
+    if (selectedIndex == indexPath.section) {
+        selectedIndex = -1;
+        [tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        return;
+    }
+    
+    //user taps different row
+    if (selectedIndex != -1) {
+        NSIndexPath *prevPath = [NSIndexPath indexPathForRow: 0 inSection:selectedIndex];
+        selectedIndex = indexPath.section;
+        [tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:prevPath] withRowAnimation:UITableViewRowAnimationFade];
+    }
+    
+    //User taps new row with none expanded
+    selectedIndex = indexPath.section;
+    [tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+}
 
 
 // Override to support editing the table view.
@@ -146,21 +237,10 @@
     }
 }
 
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
 
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
+
+
+
 - (NSFetchedResultsController *)fetchedResultsController {
     if (_fetchedResultsController != nil) {
         return _fetchedResultsController;
@@ -232,6 +312,8 @@
     }
     
 }
+
+#pragma mark - moving tableviewcells
 
 
 

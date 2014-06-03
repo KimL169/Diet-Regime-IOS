@@ -36,6 +36,12 @@
 		3B795DA51939C3C5006BA09A /* DietPlanViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B795DA41939C3C5006BA09A /* DietPlanViewController.m */; };
 		3B795DA8193A4AC4006BA09A /* MacroDietCircularSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B795DA7193A4AC4006BA09A /* MacroDietCircularSlider.m */; };
 		3B7C0710193B0BBE0008DE46 /* DietPlanDayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C070F193B0BBE0008DE46 /* DietPlanDayViewController.m */; };
+		3B7C0720193B34D50008DE46 /* DietPlanTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C071F193B34D50008DE46 /* DietPlanTableViewCell.m */; };
+		3B7C0724193C7AF50008DE46 /* DietPlanDaysTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C0723193C7AF50008DE46 /* DietPlanDaysTableViewController.m */; };
+		3B7C0727193C7EBB0008DE46 /* DietGoals.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C0726193C7EBB0008DE46 /* DietGoals.m */; };
+		3B7C072A193C7EBC0008DE46 /* DietPlan.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C0729193C7EBC0008DE46 /* DietPlan.m */; };
+		3B7C072D193C7EBC0008DE46 /* DietPlanDay.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C072C193C7EBC0008DE46 /* DietPlanDay.m */; };
+		3B7C0730193C7EBC0008DE46 /* BodyStat.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C072F193C7EBC0008DE46 /* BodyStat.m */; };
 		3B9A42361930E72600B9A2B5 /* CoreDataTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B9A42351930E72600B9A2B5 /* CoreDataTableViewController.m */; };
 		3BA58B63193637270012DE95 /* BSWeeklyChangesTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BA58B62193637270012DE95 /* BSWeeklyChangesTableViewController.m */; };
 		3BA58B6A193719E70012DE95 /* BSEditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BA58B69193719E70012DE95 /* BSEditViewController.m */; };
@@ -44,12 +50,11 @@
 		3BA58B74193795460012DE95 /* foto.JPG in Resources */ = {isa = PBXBuildFile; fileRef = 3BA58B73193795460012DE95 /* foto.JPG */; };
 		3BA58B77193797390012DE95 /* ProgressPhotoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BA58B76193797390012DE95 /* ProgressPhotoViewController.m */; };
 		3BA58B7919388F630012DE95 /* silhouette.png in Resources */ = {isa = PBXBuildFile; fileRef = 3BA58B7819388F630012DE95 /* silhouette.png */; };
-		3BA58B7C193892DA0012DE95 /* DietGoals.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BA58B7B193892DA0012DE95 /* DietGoals.m */; };
-		3BA58B7F193892DA0012DE95 /* BodyStat.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BA58B7E193892DA0012DE95 /* BodyStat.m */; };
 		3BA58B811938E0320012DE95 /* emptyImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 3BA58B801938E0320012DE95 /* emptyImage.png */; };
 		3BA58B831938E1430012DE95 /* maleSilhouette.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3BA58B821938E1430012DE95 /* maleSilhouette.jpg */; };
 		3BA58B851938E1580012DE95 /* femaleSilhouette.png in Resources */ = {isa = PBXBuildFile; fileRef = 3BA58B841938E1580012DE95 /* femaleSilhouette.png */; };
 		3BA58B881938E2330012DE95 /* addProgressPicture.png in Resources */ = {isa = PBXBuildFile; fileRef = 3BA58B871938E2330012DE95 /* addProgressPicture.png */; };
+		3BA7E4F5193DD28F003B8BE1 /* UITheme.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BA7E4F4193DD28F003B8BE1 /* UITheme.m */; };
 		3BABCB7A19327CB600465719 /* BSStatisticsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BABCB7919327CB600465719 /* BSStatisticsTableViewController.m */; };
 		3BABCB7D19327CEE00465719 /* CalorieCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BABCB7C19327CEE00465719 /* CalorieCalculator.m */; };
 		3BEBDFE41933515A0013C66C /* BSProfileViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BEBDFE31933515A0013C66C /* BSProfileViewController.m */; };
@@ -184,6 +189,18 @@
 		3B795DA7193A4AC4006BA09A /* MacroDietCircularSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MacroDietCircularSlider.m; path = ../MacroDietCircularSlider.m; sourceTree = "<group>"; };
 		3B7C070E193B0BBE0008DE46 /* DietPlanDayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DietPlanDayViewController.h; path = ../DietPlanDayViewController.h; sourceTree = "<group>"; };
 		3B7C070F193B0BBE0008DE46 /* DietPlanDayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DietPlanDayViewController.m; path = ../DietPlanDayViewController.m; sourceTree = "<group>"; };
+		3B7C071E193B34D50008DE46 /* DietPlanTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DietPlanTableViewCell.h; path = ../DietPlanTableViewCell.h; sourceTree = "<group>"; };
+		3B7C071F193B34D50008DE46 /* DietPlanTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DietPlanTableViewCell.m; path = ../DietPlanTableViewCell.m; sourceTree = "<group>"; };
+		3B7C0722193C7AF50008DE46 /* DietPlanDaysTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DietPlanDaysTableViewController.h; sourceTree = "<group>"; };
+		3B7C0723193C7AF50008DE46 /* DietPlanDaysTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DietPlanDaysTableViewController.m; sourceTree = "<group>"; };
+		3B7C0725193C7EBB0008DE46 /* DietGoals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DietGoals.h; sourceTree = "<group>"; };
+		3B7C0726193C7EBB0008DE46 /* DietGoals.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DietGoals.m; sourceTree = "<group>"; };
+		3B7C0728193C7EBC0008DE46 /* DietPlan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DietPlan.h; sourceTree = "<group>"; };
+		3B7C0729193C7EBC0008DE46 /* DietPlan.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DietPlan.m; sourceTree = "<group>"; };
+		3B7C072B193C7EBC0008DE46 /* DietPlanDay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DietPlanDay.h; sourceTree = "<group>"; };
+		3B7C072C193C7EBC0008DE46 /* DietPlanDay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DietPlanDay.m; sourceTree = "<group>"; };
+		3B7C072E193C7EBC0008DE46 /* BodyStat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BodyStat.h; sourceTree = "<group>"; };
+		3B7C072F193C7EBC0008DE46 /* BodyStat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BodyStat.m; sourceTree = "<group>"; };
 		3B9A42341930E72600B9A2B5 /* CoreDataTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataTableViewController.h; sourceTree = "<group>"; };
 		3B9A42351930E72600B9A2B5 /* CoreDataTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataTableViewController.m; sourceTree = "<group>"; };
 		3BA58B61193637270012DE95 /* BSWeeklyChangesTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSWeeklyChangesTableViewController.h; sourceTree = "<group>"; };
@@ -197,14 +214,12 @@
 		3BA58B75193797390012DE95 /* ProgressPhotoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressPhotoViewController.h; sourceTree = "<group>"; };
 		3BA58B76193797390012DE95 /* ProgressPhotoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressPhotoViewController.m; sourceTree = "<group>"; };
 		3BA58B7819388F630012DE95 /* silhouette.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = silhouette.png; sourceTree = "<group>"; };
-		3BA58B7A193892DA0012DE95 /* DietGoals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DietGoals.h; sourceTree = "<group>"; };
-		3BA58B7B193892DA0012DE95 /* DietGoals.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DietGoals.m; sourceTree = "<group>"; };
-		3BA58B7D193892DA0012DE95 /* BodyStat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BodyStat.h; sourceTree = "<group>"; };
-		3BA58B7E193892DA0012DE95 /* BodyStat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BodyStat.m; sourceTree = "<group>"; };
 		3BA58B801938E0320012DE95 /* emptyImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emptyImage.png; sourceTree = "<group>"; };
 		3BA58B821938E1430012DE95 /* maleSilhouette.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = maleSilhouette.jpg; sourceTree = "<group>"; };
 		3BA58B841938E1580012DE95 /* femaleSilhouette.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = femaleSilhouette.png; sourceTree = "<group>"; };
 		3BA58B871938E2330012DE95 /* addProgressPicture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = addProgressPicture.png; sourceTree = "<group>"; };
+		3BA7E4F3193DD28F003B8BE1 /* UITheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UITheme.h; sourceTree = "<group>"; };
+		3BA7E4F4193DD28F003B8BE1 /* UITheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UITheme.m; sourceTree = "<group>"; };
 		3BABCB7819327CB600465719 /* BSStatisticsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSStatisticsTableViewController.h; sourceTree = "<group>"; };
 		3BABCB7919327CB600465719 /* BSStatisticsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BSStatisticsTableViewController.m; sourceTree = "<group>"; };
 		3BABCB7B19327CEE00465719 /* CalorieCalculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalorieCalculator.h; sourceTree = "<group>"; };
@@ -391,12 +406,7 @@
 			isa = PBXGroup;
 			children = (
 				3B69421E1930C99F00FC4431 /* Images.xcassets */,
-				3B69421B1930C99F00FC4431 /* GymRegime.xcdatamodeld */,
 				3BA58B861938E17E0012DE95 /* stock images */,
-				3BA58B7D193892DA0012DE95 /* BodyStat.h */,
-				3BA58B7E193892DA0012DE95 /* BodyStat.m */,
-				3BA58B7A193892DA0012DE95 /* DietGoals.h */,
-				3BA58B7B193892DA0012DE95 /* DietGoals.m */,
 				3B6942181930C99F00FC4431 /* AppDelegate.h */,
 				3B6942191930C99F00FC4431 /* AppDelegate.m */,
 				3B6942111930C99F00FC4431 /* GymRegime-Info.plist */,
@@ -428,14 +438,26 @@
 		3B7C0711193B0C320008DE46 /* Diet Planner */ = {
 			isa = PBXGroup;
 			children = (
+				3B7C0721193B34F20008DE46 /* Diet plan tableview cell */,
 				3B795DA6193A4AC4006BA09A /* MacroDietCircularSlider.h */,
 				3B795DA7193A4AC4006BA09A /* MacroDietCircularSlider.m */,
 				3B795DA31939C3C5006BA09A /* DietPlanViewController.h */,
 				3B795DA41939C3C5006BA09A /* DietPlanViewController.m */,
+				3B7C0722193C7AF50008DE46 /* DietPlanDaysTableViewController.h */,
+				3B7C0723193C7AF50008DE46 /* DietPlanDaysTableViewController.m */,
 				3B7C070E193B0BBE0008DE46 /* DietPlanDayViewController.h */,
 				3B7C070F193B0BBE0008DE46 /* DietPlanDayViewController.m */,
 			);
 			name = "Diet Planner";
+			sourceTree = "<group>";
+		};
+		3B7C0721193B34F20008DE46 /* Diet plan tableview cell */ = {
+			isa = PBXGroup;
+			children = (
+				3B7C071E193B34D50008DE46 /* DietPlanTableViewCell.h */,
+				3B7C071F193B34D50008DE46 /* DietPlanTableViewCell.m */,
+			);
+			name = "Diet plan tableview cell";
 			sourceTree = "<group>";
 		};
 		3BA58B67193715C90012DE95 /* Body Stat Controllers */ = {
@@ -452,9 +474,9 @@
 				3B6942451930CDA800FC4431 /* BodyStatTableViewController.m */,
 				3BA58B68193719E70012DE95 /* BSEditViewController.h */,
 				3BA58B69193719E70012DE95 /* BSEditViewController.m */,
-				3BABCB7819327CB600465719 /* BSStatisticsTableViewController.h */,
 				3BA58B75193797390012DE95 /* ProgressPhotoViewController.h */,
 				3BA58B76193797390012DE95 /* ProgressPhotoViewController.m */,
+				3BABCB7819327CB600465719 /* BSStatisticsTableViewController.h */,
 				3BABCB7919327CB600465719 /* BSStatisticsTableViewController.m */,
 				3BA58B61193637270012DE95 /* BSWeeklyChangesTableViewController.h */,
 				3BA58B62193637270012DE95 /* BSWeeklyChangesTableViewController.m */,
@@ -491,6 +513,17 @@
 		3BEBDFE5193351670013C66C /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				3B69421B1930C99F00FC4431 /* GymRegime.xcdatamodeld */,
+				3B7C072E193C7EBC0008DE46 /* BodyStat.h */,
+				3BA7E4F3193DD28F003B8BE1 /* UITheme.h */,
+				3BA7E4F4193DD28F003B8BE1 /* UITheme.m */,
+				3B7C072F193C7EBC0008DE46 /* BodyStat.m */,
+				3B7C072B193C7EBC0008DE46 /* DietPlanDay.h */,
+				3B7C072C193C7EBC0008DE46 /* DietPlanDay.m */,
+				3B7C0728193C7EBC0008DE46 /* DietPlan.h */,
+				3B7C0729193C7EBC0008DE46 /* DietPlan.m */,
+				3B7C0725193C7EBB0008DE46 /* DietGoals.h */,
+				3B7C0726193C7EBB0008DE46 /* DietGoals.m */,
 				3BABCB7B19327CEE00465719 /* CalorieCalculator.h */,
 				3BABCB7C19327CEE00465719 /* CalorieCalculator.m */,
 			);
@@ -607,15 +640,16 @@
 				3B795D9F1939B466006BA09A /* AddDietaryGoalViewController.m in Sources */,
 				3B795DA51939C3C5006BA09A /* DietPlanViewController.m in Sources */,
 				3BEBDFE41933515A0013C66C /* BSProfileViewController.m in Sources */,
+				3B7C0727193C7EBB0008DE46 /* DietGoals.m in Sources */,
 				3B69421A1930C99F00FC4431 /* AppDelegate.m in Sources */,
 				3B6942431930CD9500FC4431 /* AddBodystatViewController.m in Sources */,
 				3BA58B63193637270012DE95 /* BSWeeklyChangesTableViewController.m in Sources */,
 				3B9A42361930E72600B9A2B5 /* CoreDataTableViewController.m in Sources */,
-				3BA58B7F193892DA0012DE95 /* BodyStat.m in Sources */,
 				3B6942161930C99F00FC4431 /* main.m in Sources */,
 				3BA58B6D19377C010012DE95 /* BodyStatTableViewCell.m in Sources */,
-				3BA58B7C193892DA0012DE95 /* DietGoals.m in Sources */,
 				3B6942461930CDA800FC4431 /* BodyStatTableViewController.m in Sources */,
+				3B7C072A193C7EBC0008DE46 /* DietPlan.m in Sources */,
+				3B7C072D193C7EBC0008DE46 /* DietPlanDay.m in Sources */,
 				3BABCB7D19327CEE00465719 /* CalorieCalculator.m in Sources */,
 				3BA58B6A193719E70012DE95 /* BSEditViewController.m in Sources */,
 				3B795DA8193A4AC4006BA09A /* MacroDietCircularSlider.m in Sources */,
@@ -623,6 +657,10 @@
 				3B6942401930CD8800FC4431 /* CoreViewController.m in Sources */,
 				3BABCB7A19327CB600465719 /* BSStatisticsTableViewController.m in Sources */,
 				3BA58B77193797390012DE95 /* ProgressPhotoViewController.m in Sources */,
+				3B7C0720193B34D50008DE46 /* DietPlanTableViewCell.m in Sources */,
+				3B7C0724193C7AF50008DE46 /* DietPlanDaysTableViewController.m in Sources */,
+				3BA7E4F5193DD28F003B8BE1 /* UITheme.m in Sources */,
+				3B7C0730193C7EBC0008DE46 /* BodyStat.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

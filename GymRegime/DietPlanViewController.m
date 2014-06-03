@@ -7,196 +7,148 @@
 //
 
 #import "DietPlanViewController.h"
+#import "DietPlanTableViewCell.h"
+#import "DietPlan.h"
+#import "AppDelegate.h"
 
 @interface DietPlanViewController ()
 
-@property (strong, nonatomic) IBOutlet UIScrollView *scrollView;
-@property (nonatomic) float percentageProtein;
-@property (nonatomic) float percentageCarbs;
-@property (nonatomic) float percentageFats;
-@property (weak, nonatomic) IBOutlet UILabel *carbsPercentageLabel;
-@property (weak, nonatomic) IBOutlet UILabel *fatPercentageLabel;
-@property (weak, nonatomic) IBOutlet UILabel *proteinPercentageLabel;
-@property (nonatomic) NSNumber *gramProtein;
-@property (nonatomic) NSNumber *gramFat;
-@property (nonatomic) NSNumber *gramCarbs;
-@property (nonatomic) NSNumber *calories;
-@property (weak, nonatomic) IBOutlet MacroDietCircularSlider *piechart;
+@property (nonatomic, strong) DietPlan *dietPlan;
+@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+
+@property (weak, nonatomic) IBOutlet UITextField *startDateTextField;
+@property (weak, nonatomic) IBOutlet UITextField *numberOfWeeksTextField;
+@property (weak, nonatomic) IBOutlet UITextField *endDateTextField;
+@property (weak, nonatomic) IBOutlet UIButton *setGoalsButton;
+@property (weak, nonatomic) IBOutlet UIButton *addCurrentBodyStatButton;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *cyclicalDietSegmentControl;
+@property (weak, nonatomic) IBOutlet UIButton *addEditDietDaysButton;
+
+@property (weak, nonatomic) IBOutlet UILabel *dietDaysNumberLabel;
+@property (weak, nonatomic) IBOutlet UILabel *totalDietarySurplusDeficitLabel;
+@property (weak, nonatomic) IBOutlet UILabel *estimatedTotalWeightChangeLabel;
+
+
+#define NUMBER_OF_WEEKS_TEXT_FIELD 123
+#define START_DATE_TEXT_FIELD 345
+#define END_DATE_TEXT_FIELD 547
 
 @end
 
-static const float sliderPieChartIncrements = 3.5;
-static const NSInteger tProteinSliderTag = 12;
-static const NSInteger tFatSliderTag = 14;
-static const NSInteger tCarohydrateSliderTag = 16;
-
-static const NSInteger kcalGramProtein = 4;
-static const NSInteger kcalGramCarbohydrate = 4;
-static const NSInteger kcalGramFat = 9;
-
-
-
 @implementation DietPlanViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
-
-
-- (IBAction)caloriesTextField:(UITextField *)sender {
-    _calories = [NSNumber numberWithInteger:[sender.text integerValue]];
-    [self calculateMacrosInGrams];
-    [self updateMacroLabels];
-}
-
-
-
--(void)didChangeValueForSlider:(UISlider *)slider {
-        slider.value = lround(slider.value);
+- (NSManagedObjectContext *)managedObjectContext {
+    return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
     
-    if (slider.tag == tProteinSliderTag) {
-
-        float diff = slider.value - self.percentageProtein;
-        
-        if (self.percentageCarbs < 1 && self.percentageFats > 1) {
-            self.percentageFats -= diff;
-            
-        } else if (self.percentageFats < 1 && self.percentageCarbs > 1) {
-            self.percentageCarbs -= diff;
-        } else {
-            self.percentageCarbs -= (diff /2.0);
-            self.percentageFats -= (diff/2.0);
-        }
-    
-        self.percentageProtein = slider.value;
-
-        self.fatSlider.value = self.percentageFats;
-        self.carbohydrateSlider.value = self.percentageCarbs;
-        
-    } else if (slider.tag == tCarohydrateSliderTag) {
-        
-        float diff = slider.value - self.percentageCarbs;
-        
-        if (self.percentageProtein < 1 && self.percentageFats > 1) {
-            self.percentageFats -= diff;
-            
-        } else if (self.percentageFats < 1 && self.percentageProtein > 1) {
-            self.percentageProtein -= diff;
-        } else {
-            self.percentageProtein -= (diff /2.0);
-            self.percentageFats -= (diff/2.0);
-        }
-        self.percentageCarbs = slider.value;
-        
-        self.fatSlider.value = self.percentageFats;
-        self.proteinSlider.value = self.percentageProtein;
-    } else if (slider.tag == tFatSliderTag) {
-        
-        float diff = slider.value - self.percentageFats;
-        
-        if (self.percentageProtein < 1 && self.percentageCarbs != 0) {
-            self.percentageCarbs -= diff;
-            
-        } else if (self.percentageCarbs < 1 && self.percentageProtein != 0) {
-            self.percentageProtein -= diff;
-        } else {
-            self.percentageProtein -= (diff /2.0);
-            self.percentageCarbs -= (diff/2.0);
-        }
-        self.percentageFats = slider.value;
-        
-        self.proteinSlider.value = self.percentageProtein;
-        self.carbohydrateSlider.value = self.percentageCarbs;
-    }
-    [self calculateMacrosInGrams];
-    [self updateMacroLabels];
-}
-
-- (void)calculateMacrosInGrams {
-    _gramCarbs = [NSNumber numberWithFloat:([_calories integerValue] * (self.percentageCarbs / 100)) / kcalGramCarbohydrate ];
-    _gramFat = [NSNumber numberWithFloat:([_calories integerValue] * (self.percentageFats / 100)) / kcalGramFat];
-    _gramProtein = [NSNumber numberWithFloat:([_calories integerValue] * (self.percentageProtein / 100)) / kcalGramProtein];
-    
-}
-- (void)updateMacroLabels {
-    self.carbsPercentageLabel.text = [NSString stringWithFormat:@"Carbs: %.0f",fabs(self.percentageCarbs)];
-    self.fatPercentageLabel.text = [NSString stringWithFormat:@"Fat: %.0f", fabs(self.percentageFats)];
-    self.proteinPercentageLabel.text = [NSString stringWithFormat:@"Protein: %.0f", fabs(self.percentageProtein)];
-    
-    self.proteinGramsLabel.text = [NSString stringWithFormat:@"Protein: %d gr", [self.gramProtein integerValue]];
-    self.carbGramsLabel.text = [NSString stringWithFormat:@"Carbs: %d gr", [self.gramCarbs integerValue]];
-    self.fatGramsLabel.text = [NSString stringWithFormat:@"Fat: %d gr", [self.gramFat integerValue]];
-}
-
-- (void)setSliderValues {
-
-    //set maximum and minimum values
-    self.proteinSlider.minimumValue = 0;
-    self.proteinSlider.maximumValue = 100;
-    self.carbohydrateSlider.minimumValue = 0;
-    self.carbohydrateSlider.maximumValue = 100;
-    self.fatSlider.minimumValue = 0;
-    self.fatSlider.maximumValue = 100;
-    
-    
-    //set default values for macros:
-    self.percentageCarbs = 33.33333;
-    self.percentageProtein = 33.3333;
-    self.percentageFats = 33.33333;
-    
-    self.proteinSlider.value = self.percentageProtein;
-    self.carbohydrateSlider.value = self.percentageCarbs;
-    self.fatSlider.value = self.percentageFats;
-    
-    //set colors.
-    self.proteinSlider.minimumTrackTintColor = [UIColor colorWithRed: 0.41 green: 1 blue: 0.114 alpha: 1];
-    self.fatSlider.minimumTrackTintColor = [UIColor colorWithRed: 1 green: 0.114 blue: 0.114 alpha: 1];
-    self.carbohydrateSlider.minimumTrackTintColor = [UIColor colorWithRed: 0.343 green: 0.343 blue: 1 alpha: 1];
-    
-    //set tags
-    self.proteinSlider.tag = tProteinSliderTag;
-    self.fatSlider.tag = tFatSliderTag;
-    self.carbohydrateSlider.tag = tCarohydrateSliderTag;
-    
-    //set target actions
-    [self.proteinSlider addTarget:self action:@selector(didChangeValueForSlider:) forControlEvents:UIControlEventValueChanged];
-    [self.fatSlider addTarget:self action:@selector(didChangeValueForSlider:) forControlEvents:UIControlEventValueChanged];
-    [self.carbohydrateSlider addTarget:self action:@selector(didChangeValueForSlider:) forControlEvents:UIControlEventValueChanged];
-    
-    [self calculateMacrosInGrams];
-    [self updateMacroLabels];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    self.scrollView.contentSize = self.scrollView.frame.size;
-
+    //load the existing diet plan, else
+    //if the diet plan doesn't exist, initialize it.
+    if (!_dietPlan) {
+        self.dietPlan = [NSEntityDescription insertNewObjectForEntityForName:@"DietPlan" inManagedObjectContext:[self managedObjectContext]];
+    }
     
-    self.calories = [NSNumber numberWithInteger:2000];
-    //set the sliders.
-    [self setSliderValues];
+    [self setupScrollView];
+    
+    self.numberOfWeeksTextField.tag = NUMBER_OF_WEEKS_TEXT_FIELD;
+    self.numberOfWeeksTextField.delegate = self;
+    self.startDateTextField.delegate = self;
+    self.endDateTextField.delegate = self;
+}
+
+- (void)setupUI {
+    if (_dietPlan) {
+        // set up the ui so it shows the current diet plan.
+    }
     
 }
 
-- (IBAction)save:(UIBarButtonItem *)sender {
+
+- (void)setupScrollView {
+    
+    [scrollView setScrollEnabled:YES];
+    [scrollView setContentSize:CGSizeMake(320, 900)];
+    
+    //add a gesture recognizer to the scrollview.
+    UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(touch:)];
+    [recognizer setNumberOfTapsRequired:1];
+    [recognizer setNumberOfTouchesRequired:1];
+    [scrollView addGestureRecognizer:recognizer];
 }
 
-- (IBAction)cancel:(UIBarButtonItem *)sender {
+//The event handling method
+- (void)touch:(UITapGestureRecognizer *)recognizer {
+    [self.view endEditing:YES];
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    NSLog(@"touchesBegan:withEvent:");
+    [self.view endEditing:YES];
+    [super touchesBegan:touches withEvent:event];
 }
+
+-(BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [textField resignFirstResponder];
+    return YES;
+}
+
+
+- (IBAction)saveAndEdit:(UIBarButtonItem *)sender {
+    if ([sender.title isEqualToString:@"Save"]) {
+        [super saveAndDismiss];
+        //set the title to edit.
+        sender.title = @"Edit";
+        [self disableUI];
+    } else if ([sender.title isEqualToString:@"Edit"]){
+        
+        sender.title = @"Save";
+        [self enableUI];
+    }
+ 
+}
+
+- (void)disableUI {
+    self.startDateTextField.enabled = NO;
+    self.numberOfWeeksTextField.enabled = NO;
+    self.endDateTextField.enabled = NO;
+    self.startDateTextField.borderStyle = UITextBorderStyleNone;
+    self.numberOfWeeksTextField.borderStyle = UITextBorderStyleNone;
+    
+    self.setGoalsButton.enabled = NO;
+    self.addCurrentBodyStatButton.enabled = NO;
+    self.cyclicalDietSegmentControl.enabled = NO;
+    self.addEditDietDaysButton.enabled = NO;
+}
+
+- (void)enableUI {
+    self.startDateTextField.enabled = YES;
+    self.numberOfWeeksTextField.enabled = YES;
+    self.endDateTextField.enabled = YES;
+    self.startDateTextField.borderStyle = UITextBorderStyleRoundedRect;
+    self.numberOfWeeksTextField.borderStyle = UITextBorderStyleRoundedRect;
+    
+    self.setGoalsButton.enabled = YES;
+    self.addCurrentBodyStatButton.enabled = YES;
+    self.cyclicalDietSegmentControl.enabled = YES;
+    self.addEditDietDaysButton.enabled = YES;
+    
+}
+
+//make sure the length of the textfields is okay.
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    //set the numberOfWeeks text field to a 2 char length maximum.
+    if (textField.tag == NUMBER_OF_WEEKS_TEXT_FIELD) {
+        NSUInteger newLength = [textField.text length] + [string length] - range.length;
+        return (newLength > 2) ? NO : YES;
+    }
+    return YES;
+}
+
 
 /*
 #pragma mark - Navigation

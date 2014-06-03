@@ -73,6 +73,11 @@
     [super touchesBegan:touches withEvent:event];
 }
 
+-(BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [textField resignFirstResponder];
+    return YES;
+}
+
 
 #pragma mark - Information Button
 - (void)informationButton: (NSString *)message title: (NSString *)title {

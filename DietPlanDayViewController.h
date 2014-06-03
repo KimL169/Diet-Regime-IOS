@@ -9,22 +9,33 @@
 #import <UIKit/UIKit.h>
 #import "MacroDietCircularSlider.h"
 #import "CoreViewController.h"
+#import "DietPlanDay.h"
 
 
-@interface DietPlanDayViewController : CoreViewController {
-    
+@interface DietPlanDayViewController : CoreViewController <UITextFieldDelegate>
+{
     IBOutlet UIScrollView *scrollView;
 }
 
 @property (weak, nonatomic) IBOutlet UISlider *carbohydrateSlider;
 @property (weak, nonatomic) IBOutlet UISlider *fatSlider;
 @property (weak, nonatomic) IBOutlet UISlider *proteinSlider;
-@property (weak, nonatomic) IBOutlet UIView *macroPieChartView;
 @property (weak, nonatomic) IBOutlet UILabel *proteinGramsLabel;
 @property (weak, nonatomic) IBOutlet UILabel *carbGramsLabel;
 @property (weak, nonatomic) IBOutlet UILabel *fatGramsLabel;
 @property (weak, nonatomic) IBOutlet UILabel *carbsPercentageLabel;
 @property (weak, nonatomic) IBOutlet UILabel *fatPercentageLabel;
 @property (weak, nonatomic) IBOutlet UILabel *proteinPercentageLabel;
+@property (weak, nonatomic) IBOutlet UITextField *nameTextField;
+@property (weak, nonatomic) IBOutlet UITextField *caloriesTextField;
+@property (weak, nonatomic) IBOutlet UILabel *currentMaintenanceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *caloricDeficitSurplusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carbGramPerKgLabel;
+@property (weak, nonatomic) IBOutlet UILabel *proteinGramPerKgLabel;
+@property (weak, nonatomic) IBOutlet UILabel *fatGramPerKgLabel;
+
+@property (weak, nonatomic) IBOutlet UISegmentedControl *lbmBwSegmentControl;
+
+@property (nonatomic, strong) DietPlanDay *addDietPlanDay;
 
 @end
