@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CoreDataTableViewController.h"
+#import "CoreTableViewController.h"
 #import "BodyStat.h"
 #import "CoreViewController.h"
 
-@interface BSEditViewController : CoreViewController
+@interface BSEditViewController : CoreViewController <UIAlertViewDelegate>
 
 @property (nonatomic, strong) BodyStat *editBodyStat;
 

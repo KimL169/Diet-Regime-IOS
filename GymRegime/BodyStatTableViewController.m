@@ -17,6 +17,9 @@
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 @property (nonatomic, strong) NSString *sectionTitle;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *optionsButton;
+
+@property (nonatomic, strong) UIAlertView *alertView;
 
 @end
 
@@ -33,71 +36,57 @@
     //SHOULD THIS BE SOMWHERE ELSE, HOW ABOUT THE INIT METHOD?
     //check if the user has a profile saved, if not, redirect to the profile page.
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    if (!defaults) {
+    if (![defaults integerForKey:@"firstTimeUser"]) {
         //redirect to the profile page.
+        [defaults setInteger:1 forKey:@"firstTimeUser"];
+        [defaults synchronize];
+        [self noProfileAlert];
     }
     
     //set selectedIndex to -1 so no cell is expanded or should expand;
     selectedIndex = -1;
     
+    //set the navigationbar color.
+    [self.navigationController.navigationBar setBarTintColor:[UIColor colorWithRed:.10 green:.10 blue:.10 alpha:0]];
+    NSDictionary *textAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    [UIColor whiteColor],NSForegroundColorAttributeName,
+                                    [UIColor whiteColor],NSBackgroundColorAttributeName,nil];
+    self.navigationController.navigationBar.titleTextAttributes = textAttributes;
+
     //load the database data
     NSError *error = nil;
     if (![[self fetchedResultsController] performFetch:&error]) {
         NSLog(@"Error fetching: %@", error);
         abort();
     }
- 
-//    //add a long press gesture recognizer
-//    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(longPressGestureRecognized:)];
-//    [self.tableView addGestureRecognizer:longPress];
 }
-//// MOVE THIS CODE TO ANOTHER TABLEVIEWCONTROLLER!!!
-//- (IBAction)longPressGestureRecognized:(id)sender {
-//    UILongPressGestureRecognizer *longPress = (UILongPressGestureRecognizer *)sender;
-//    UIGestureRecognizerState state = longPress.state;
-//    
-//    CGPoint location = [longPress locationInView:self.tableView];
-//    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:location];
-//    
-//    
-//    static UIView *snapshot = nil;
-//    static NSIndexPath *sourceIndexPath = nil;
-//    
-//    switch (state) {
-//        case UIGestureRecognizerStateBegan:
-//            if (indexPath) {
-//                sourceIndexPath = indexPath;
-//                
-//                UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
-//                
-//                //take a snapshot of the selected row using helper method.
-//                snapshot = [self customSnapshotFromView:cell];
-//                
-//                // add the snapshot as subview, centered at cell's center
-//                __block CGPoint center = cell.center;
-//                snapshot.center = center;
-//                snapshot.alpha - 0.0;
-//                [self.tableView addSubview:snapshot];
-//                [UIView animateWithDuration: 0.25 animations: ^{
-//                    
-//                    center.y = location.y;
-//                    snapshot.center = center;
-//                    snapshot.transform = CGAffineTransformMakeScale(1.05, 1.05);
-//                    snapshot.alpha = 0.98;
-//                    
-//                    //black out.
-//                    cell.backgroundColor = [UIColor blackColor];
-//                } completion:nil];
-//            }
-//            break;
-//            
-//        default:
-//            break;
-//    }
-//    
-//    // more comming.
-//}
-//
+
+
+
+-(void)noProfileAlert {
+    
+    NSString *message = @"Welcome to the diet regime app! In order to utilise the full functionality of this app you will need to fill in a bit of information about yourself so we can calculate your caloric need. Would you like to do this now?";
+    self.alertView = [[UIAlertView alloc]initWithTitle:@"Welcome!"
+                                               message:message
+                                              delegate:self
+                                     cancelButtonTitle: @"No"
+                                     otherButtonTitles:@"Yes", nil];
+    
+    [self.alertView show];
+    
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    
+    if (buttonIndex == [alertView cancelButtonIndex]) {
+        //do nothing
+    } else {
+        [self performSegueWithIdentifier:@"profilePage" sender:self];
+    }
+    
+}
+
 
 - (NSManagedObjectContext *)managedObjectContext {
     return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
@@ -125,59 +114,66 @@
         cell = [nib objectAtIndex:0];
         // More initializations if needed.
     }
-    
     if (selectedIndex == indexPath.section) {
-        //do expanded stuff
-        NSLog(@"hello again");
+        
+        //set the cell UI to the expanded style
+        [cell expandedStyle];
     }
     else {
-        //do closed stuff
-        
+        //set the cell UI to the non-expanded style.
+        [cell nonExpandedStyle];
     }
-    
+    //make sure the tableview clips the labels to the tablviewcellheight.
     cell.clipsToBounds = YES;
     
-    [cell.progressImageButton addTarget:self action:@selector(checkButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [cell.progressImageButton addTarget:self action:@selector(checkPhotoButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
 
     return cell;
 }
 
-- (void)checkButtonTapped: (id)sender {
-    UITableViewCell *clickedCell = (UITableViewCell *)[[sender superview] superview];
-    NSIndexPath *clickedButtonPath = [self.tableView indexPathForCell:clickedCell];
-    
-    BodyStat *bodyStat = [self.fetchedResultsController objectAtIndexPath:clickedButtonPath];
-    
+- (void)checkPhotoButtonTapped: (id)sender {
+        NSLog(@"sender: %@", sender);
     [self performSegueWithIdentifier:@"selectProgressPhoto" sender:sender];
-    
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(BodyStatTableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     BodyStat *stat = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
-
-    
-    cell.weightLabel.text = [NSString stringWithFormat:@"Weight: %.1f", [stat.weight floatValue]];
-    cell.caloriesLabel.text = [NSString stringWithFormat:@"Calories: %d", [stat.calories integerValue]];
-    
-    if ([stat.bodyfat floatValue] > 0) {
-        cell.bodyfatLabel.text = [NSString stringWithFormat:@"Bodyfat: %.1f", [stat.bodyfat floatValue]];
-    } else {
-        cell.bodyfatLabel.text = @"";
-    }
-
-    //if the user hasn't uploaded a progress picture, display a default image.
-    if (stat.progressImage == nil) {
-        [cell.progressImageButton setBackgroundImage:[UIImage imageNamed:@"addProgressPicture.png"] forState:UIControlStateNormal];
-    } else  {
+    if (stat.progressImage) {
+        [cell.progressImageButton setTitle:@"" forState:UIControlStateNormal];
         [cell.progressImageButton setBackgroundImage:[UIImage imageWithData:stat.progressImage] forState:UIControlStateNormal];
     }
+    if ([stat.weight floatValue]!= 0) {
+        cell.weightValueLabel.text = [NSString stringWithFormat:@"%.1f", [[stat weight] floatValue]];
+    } else {
+        cell.weightValueLabel.text = @"-";
+    }
+    if ([stat.calories integerValue] != 0) {
+        cell.caloriesValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[stat calories] integerValue]];
+    } else {
+        cell.caloriesValueLabel.text = @"-";
+    }
+    if ([stat.bodyfat floatValue] != 0) {
+        cell.bodyfatValueLabel.text = [NSString stringWithFormat:@"%.1f", [[stat bodyfat] floatValue]];
+    } else {
+        cell.bodyfatValueLabel.text = @"";
+        cell.bodyfatLabel.text = @"";
+    }
+    cell.sideView.backgroundColor = [self checkDiscrepancyPlanAndLog:stat];
+    [cell.accesoryEditButton addTarget:self action:@selector(accessoryEditButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+
+}
+
+- (void)accessoryEditButtonTapped: (id)sender {
+    NSLog(@"sender: %@", sender);
+    [self performSegueWithIdentifier:@"editBodyStat" sender:sender];
 }
 
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     NSString *rawDateStr = [[[self.fetchedResultsController sections] objectAtIndex:section] name];
+    
     // Convert rawDateStr string to NSDate...
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:@"yyyy-MM-dd HH:mm:ss ZZ"];
@@ -186,16 +182,30 @@
     // Convert NSDate to format we want...
     [formatter setDateFormat:@"d MMMM yyyy"];
     NSString *formattedDateStr = [formatter stringFromDate:date];
-    return formattedDateStr;
+    
+    UIView *sectionView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 18)];
+    
+    //Add label to view
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, tableView.frame.size.width, 18)];
+    titleLabel.text = formattedDateStr;
+    [titleLabel setFont:[UIFont systemFontOfSize:13]];
+    [sectionView addSubview:titleLabel];
+    
+    return sectionView;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     
+    // return height for expanded or collapsed tableview cell.
     if (selectedIndex == indexPath.section) {
         return 220;
     } else {
         return 95;
     }
+}
+
+-(UIStatusBarStyle)preferredStatusBarStyle {
+    return UIStatusBarStyleLightContent;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -238,8 +248,7 @@
 }
 
 
-
-
+#pragma mark -fetchedResultsControllerMethod
 
 - (NSFetchedResultsController *)fetchedResultsController {
     if (_fetchedResultsController != nil) {
@@ -292,8 +301,19 @@
         UINavigationController *navigationController = segue.destinationViewController;
         BSEditViewController *bsEditViewController = (BSEditViewController *)navigationController.topViewController;
         
-        //we use the sender, UItableview cell to select the BodyStat to edit.
-        NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
+        //get the indexpath of the button's tableviewcell
+        UIView *parentCell = sender.superview;
+        
+        while (![parentCell isKindOfClass:[UITableViewCell class]]) {
+            parentCell = parentCell.superview;
+        }
+        UIView *parentView = parentCell.superview;
+        while (![parentView isKindOfClass:[UITableView class]]) {
+            parentView = parentView.superview;
+        }
+        UITableView *tableView = (UITableView *)parentView;
+        NSIndexPath *indexPath = [tableView indexPathForCell:(UITableViewCell *)parentCell];
+        //hand the bodystat of the tableviewcell to the editviewcontroller.
         BodyStat *editBodyStat = (BodyStat *)[self.fetchedResultsController objectAtIndexPath:indexPath];
         bsEditViewController.editBodyStat = editBodyStat;
     }
@@ -314,7 +334,30 @@
 }
 
 #pragma mark - moving tableviewcells
-
+- (UIColor *)checkDiscrepancyPlanAndLog: (BodyStat *)stat {
+    
+    int dietPlanKcal = 1500;
+    if ([stat.calories integerValue] < 1) {
+        //show purple color, kcal not filled in
+        return [UIColor purpleColor];
+    }
+    ///TODO!!!
+    // need to fetch a dietplan day for the same date as the bodystat day. Then we can check similarity.
+    if ([stat.calories integerValue] < (dietPlanKcal + 100) && [stat.calories integerValue] > (dietPlanKcal - 100)) {
+        //show a green sideview
+        return [UIColor greenColor];
+    } else if ([stat.calories integerValue] < (dietPlanKcal + 200) && [stat.calories integerValue] > (dietPlanKcal - 200)) {
+        //show yellow sideview.
+        return [UIColor yellowColor];
+    } else if ([stat.calories integerValue] < (dietPlanKcal + 300) && [stat.calories integerValue] > (dietPlanKcal - 300)) {
+        //show orange sideview.
+        return [UIColor orangeColor];
+    } else {
+        //show red color;
+        return [UIColor redColor];
+    }
+    
+}
 
 
 #pragma mark - NSFetchedResultsControllerDelegate

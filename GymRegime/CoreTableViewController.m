@@ -5,9 +5,9 @@
 //  Copyright 2013 Stanford University. All rights reserved.
 //
 
-#import "CoreDataTableViewController.h"
+#import "CoreTableViewController.h"
 
-@implementation CoreDataTableViewController
+@implementation CoreTableViewController
 
 #pragma mark - Fetching
 
@@ -146,6 +146,26 @@
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
 {
     [self.tableView endUpdates];
+}
+
+#pragma mark - form validation
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+//make sure the user can not include multiple points in the decimal he inputs.
+    NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    
+    NSString *expression = @"^([0-9]+)?(\\.([0-9]{1})?)?$";
+    
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:expression
+                                                                           options:NSRegularExpressionCaseInsensitive
+                                                                             error:nil];
+    NSUInteger numberOfMatches = [regex numberOfMatchesInString:newString
+                                                        options:0
+                                                          range:NSMakeRange(0, [newString length])];
+    if (numberOfMatches == 0)
+        return NO;
+
+    return YES;
 }
 
 @end

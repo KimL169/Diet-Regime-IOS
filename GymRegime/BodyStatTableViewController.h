@@ -7,14 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CoreDataTableViewController.h"
+#import "CoreTableViewController.h"
 #import "BodyStat.h"
 #import "BodyStatTableViewCell.h"
 
-@interface BodyStatTableViewController : UITableViewController <NSFetchedResultsControllerDelegate, UIGestureRecognizerDelegate> {
+
+@interface BodyStatTableViewController : UITableViewController <NSFetchedResultsControllerDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate> {
     
     int selectedIndex;
+    
 }
 
 @property (nonatomic, strong)BodyStat *bodyStat;
+
+
 @end

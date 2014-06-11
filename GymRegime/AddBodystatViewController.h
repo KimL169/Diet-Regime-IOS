@@ -11,10 +11,14 @@
 #import "BodyStat.h"
 
 
-@interface AddBodystatViewController : CoreViewController
+@interface AddBodystatViewController : CoreViewController <UIAlertViewDelegate>
 
 @property (nonatomic, strong) BodyStat *addBodyStat;
 
 - (IBAction)cancel:(UIBarButtonItem *)sender;
 - (IBAction)save:(UIBarButtonItem *)sender;
+
+//to check if the BSeditViewController dismissed.
+@property (nonatomic) BOOL hasModal;
+
 @end

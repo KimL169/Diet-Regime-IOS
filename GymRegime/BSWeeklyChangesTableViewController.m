@@ -37,11 +37,11 @@
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-    if (self.currentBodyStats) {
-        NSLog(@"succesful segue");
+    if ([self.currentBodyStats count] > 0) {
+        [self getTheDatesSpanningOneWeek];
     }
     
-    [self getTheDatesSpanningOneWeek];
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -54,14 +54,12 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-#warning Potentially incomplete method implementation.
     // Return the number of sections.
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-#warning Incomplete method implementation.
     // Return the number of rows in the section.
     return [self.weeklyStats count]-1;
 }

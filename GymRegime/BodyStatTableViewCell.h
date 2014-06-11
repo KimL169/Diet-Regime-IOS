@@ -10,9 +10,37 @@
 
 @interface BodyStatTableViewCell : UITableViewCell
 
+//nonexpanded section
+@property (weak, nonatomic) IBOutlet UILabel *weightValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *caloriesValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *bodyfatValueLabel;
+@property (weak, nonatomic) IBOutlet UIButton *progressImageButton;
+
+//expanding section
+@property (weak, nonatomic) IBOutlet UILabel *proteinValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carbsValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *fatValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *waistValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *deficitSurplusValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *plannedCaloriesValueLabel;
+
+//static title labels.
+@property (weak, nonatomic) IBOutlet UILabel *proteinLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carbsLabel;
+@property (weak, nonatomic) IBOutlet UILabel *fatLabel;
+@property (weak, nonatomic) IBOutlet UILabel *waistLabel;
+@property (weak, nonatomic) IBOutlet UILabel *deficitSurplusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *plannedCaloriesLabel;
 @property (weak, nonatomic) IBOutlet UILabel *weightLabel;
 @property (weak, nonatomic) IBOutlet UILabel *caloriesLabel;
 @property (weak, nonatomic) IBOutlet UILabel *bodyfatLabel;
-@property (weak, nonatomic) IBOutlet UIButton *progressImageButton;
+
+@property (weak, nonatomic) IBOutlet UIButton *accesoryEditButton;
+
+@property (weak, nonatomic) IBOutlet UIView *sideView;
+
+- (void)expandedStyle;
+- (void)nonExpandedStyle;
+
 
 @end

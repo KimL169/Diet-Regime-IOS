@@ -17,6 +17,10 @@
 @property (weak, nonatomic) IBOutlet UIDatePicker *bodystatDatePicker;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *editSaveButton;
 
+@property (strong, nonatomic) UIAlertView *alertView;
+
+@property (nonatomic, strong) NSDate *editDate;
+
 - (IBAction)editSave:(UIBarButtonItem *)sender;
 - (IBAction)cancel:(UIBarButtonItem *)sender;
 
@@ -30,18 +34,24 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    NSLog(@"editstat: %@", editBodyStat);
 
     //the user has to press the edit button to change values.
     [self setupInteractionDisabledUI];
     
-    [self setupOutletValuesValuesForEditBodyStat];
+    [self setupOutletValuesForEditBodyStat];
+    
+    //set the decimal textfield delegates for validation.
+    self.weightTextField.delegate = self;
+    self.bodyfatTextField.delegate = self;
     
 }
 
-- (void)setupOutletValuesValuesForEditBodyStat {
+- (void)setupOutletValuesForEditBodyStat {
     _weightTextField.text = [NSString stringWithFormat:@"%.1f", [editBodyStat.weight floatValue]];
     _bodyfatTextField.text = [NSString stringWithFormat:@"%.1f", [editBodyStat.bodyfat floatValue]];
-    _caloriesTextField.text = [NSString stringWithFormat:@"%d", [editBodyStat.calories integerValue]];
+    _caloriesTextField.text = [NSString stringWithFormat:@"%ld", (long)[editBodyStat.calories integerValue]];
     _bodystatDatePicker.date = editBodyStat.date;
 }
 
@@ -101,22 +111,46 @@
     editBodyStat.weight = [NSNumber numberWithFloat:[_weightTextField.text floatValue]];
     editBodyStat.bodyfat = [NSNumber numberWithFloat:[_bodyfatTextField.text floatValue]];
     editBodyStat.calories = [NSNumber numberWithInteger:[_caloriesTextField.text integerValue]];
-    editBodyStat.date = _bodystatDatePicker.date;
     
-    [super saveAndDismiss];
-
+    //set the right date. Set it to midnight for easy lookup/comparison. Only 1 bodystat per day allowed.
+    NSCalendar *calendar = [NSCalendar autoupdatingCurrentCalendar];
+    NSUInteger preservedComponents = (NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit);
+    NSDate *date = [calendar dateFromComponents:[calendar components:preservedComponents fromDate:_bodystatDatePicker.date]];
+    
+    self.editBodyStat.date = date;
+    
+    //check if there is already a bodystat with that date.
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"date == %@", self.editBodyStat.date];
+    if ([super checkObjectsWithEntityName:@"BodyStat" predicate:predicate sortDescriptor:nil] < 2) {
+        [super saveAndDismiss];
+    } else {
+        //rollback transaction.
+        //save the date to edit for if the user wishes to edit existing record.
+        self.editDate = date;
+        [self bodyStatWithDateExistsAlert];
+        //display message and redirect option to edit mode.
+    }
 }
+
+- (void)bodyStatWithDateExistsAlert {
+    
+    NSString *message = @"You have already filled in a bodystat with that date. Would you like to edit the existing one?";
+    
+    self.alertView = [[UIAlertView alloc]initWithTitle:@""
+                                               message:message
+                                              delegate:self
+                                     cancelButtonTitle:@"No"
+                                     otherButtonTitles:@"Yes", nil];
+    
+    [self.alertView show];
+}
+
 - (IBAction)cancel:(UIBarButtonItem *)sender {
     
     [super cancelAndDismiss];
 }
 
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 /*
 #pragma mark - Navigation

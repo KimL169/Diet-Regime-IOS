@@ -13,6 +13,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *takePhotoButton;
 @property (weak, nonatomic) IBOutlet UIButton *selectPhotoButton;
 @property (strong, nonatomic) IBOutlet UIBarButtonItem *saveButton;
+@property (weak, nonatomic) IBOutlet UIButton *removePhotoButton;
 
 @end
 
@@ -48,6 +49,10 @@
     [self presentViewController:picker animated:YES completion:NULL];
     
     [self toggleBarButton:YES];
+}
+- (IBAction)removePhoto:(UIButton *)sender {
+    self.addPhotoBodyStat.progressImage = nil;
+    [super saveAndDismiss];
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
@@ -89,7 +94,7 @@
     if (show == YES) {
         self.saveButton.style = UIBarButtonItemStyleBordered;
         self.saveButton.enabled = true;
-        self.saveButton.title = @"Save";
+        self.saveButton.title = @"save";
     } else {
         self.saveButton.style = UIBarButtonItemStylePlain;
         self.saveButton.enabled = false;
@@ -105,7 +110,11 @@
     //if the user has already set an image, show it.
     [self showImage];
     
-    NSLog(@"bodystat: %@", addPhotoBodyStat);
+    if (self.addPhotoBodyStat.progressImage == nil) {
+        _removePhotoButton.userInteractionEnabled = NO;
+        _removePhotoButton.tintColor = [UIColor lightGrayColor];
+        [self toggleBarButton:NO];
+    }
     
     //check if the user's device has a camera, if not, disable the takePicture button.
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
@@ -115,6 +124,7 @@
         self.takePhotoButton.tintColor = [UIColor lightGrayColor];
     }
 }
+
 
 - (void)didReceiveMemoryWarning
 {

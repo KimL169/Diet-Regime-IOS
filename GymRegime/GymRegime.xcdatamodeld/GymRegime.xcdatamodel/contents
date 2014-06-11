@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13C64" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13D65" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="BodyStat" representedClassName="BodyStat" syncable="YES">
         <attribute name="bodyfat" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="calories" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="progressImage" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="weight" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="dietPlan" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DietPlan" inverseName="bodyStats" inverseEntity="DietPlan" syncable="YES"/>
     </entity>
     <entity name="DietGoal" representedClassName="DietGoals" syncable="YES">
         <attribute name="bodyfatGoal" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
@@ -18,6 +19,7 @@
         <attribute name="endDate" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="startDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="bodyStats" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BodyStat" inverseName="dietPlan" inverseEntity="BodyStat" syncable="YES"/>
         <relationship name="dietGoal" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DietGoal" inverseName="dietPlan" inverseEntity="DietGoal" syncable="YES"/>
         <relationship name="dietPlanDays" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DietPlanDay" inverseName="dietPlan" inverseEntity="DietPlanDay" syncable="YES"/>
     </entity>
@@ -31,9 +33,9 @@
         <relationship name="dietPlan" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DietPlan" inverseName="dietPlanDays" inverseEntity="DietPlan" syncable="YES"/>
     </entity>
     <elements>
-        <element name="BodyStat" positionX="-63" positionY="-18" width="128" height="118"/>
-        <element name="DietGoal" positionX="-236" positionY="-0" width="128" height="118"/>
-        <element name="DietPlan" positionX="-270" positionY="-198" width="128" height="118"/>
-        <element name="DietPlanDay" positionX="-56" positionY="-223" width="128" height="148"/>
+        <element name="BodyStat" positionX="-11" positionY="8" width="128" height="133"/>
+        <element name="DietGoal" positionX="-279" positionY="80" width="128" height="118"/>
+        <element name="DietPlan" positionX="-270" positionY="-198" width="128" height="133"/>
+        <element name="DietPlanDay" positionX="-2" positionY="-225" width="128" height="148"/>
     </elements>
 </model>

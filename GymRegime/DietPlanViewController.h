@@ -10,7 +10,7 @@
 #import "CoreViewController.h"
 
 
-@interface DietPlanViewController : CoreViewController <UITextFieldDelegate>
+@interface DietPlanViewController : CoreViewController <UITextFieldDelegate, UIAlertViewDelegate>
 {
         IBOutlet UIScrollView *scrollView;
 }

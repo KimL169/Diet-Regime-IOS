@@ -10,10 +10,20 @@
 
 @interface CoreViewController : UIViewController <UITextFieldDelegate, UIAlertViewDelegate>
 
-- (void) cancelAndDismiss;
+- (void)cancelAndDismiss;
 
-- (void) saveAndDismiss;
+- (void)saveAndDismiss;
 
 - (void)informationButton: (NSString *)message title: (NSString *)title;
+
+- (void)managedObjectContextRollBack;
+
+- (NSInteger)checkObjectsWithEntityName:(NSString *)entityName
+                              predicate:(NSPredicate *)predicate
+                         sortDescriptor:(NSSortDescriptor *)sortDescriptor;
+
+- (NSArray *)performFetchWithEntityName:(NSString *)entityName
+                              predicate:(NSPredicate *)predicate
+                         sortDescriptor:(NSSortDescriptor *)sortDescriptor;
 
 @end

@@ -34,6 +34,7 @@
 
 }
 
+
 - (NSManagedObjectContext *)managedObjectContext {
     return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
     
@@ -54,21 +55,10 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
-    
-}
+- (void)managedObjectContextRollBack { [self.managedObjectContext rollback]; }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-    NSLog(@"touchesBegan:withEvent:");
     [self.view endEditing:YES];
     [super touchesBegan:touches withEvent:event];
 }
@@ -92,6 +82,70 @@
     
 }
 
+- (NSInteger)checkObjectsWithEntityName:(NSString *)entityName
+                              predicate:(NSPredicate *)predicate
+                         sortDescriptor:(NSSortDescriptor *)sortDescriptor {
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:self.managedObjectContext];
+    [fetchRequest setEntity:entity];
+    // Specify criteria for filtering which objects to fetch
+    [fetchRequest setPredicate:predicate];
+    // Specify how the fetched objects should be sorted
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortDescriptor, nil]];
+
+    NSError *error = nil;
+    NSUInteger count = [self.managedObjectContext countForFetchRequest:fetchRequest error:&error];
+    NSLog(@"count: %d", count);
+    if (!error) {
+        return count;
+    } else {
+        NSLog(@"error: %@", error);
+        return 1;
+    }
+
+}
+
+- (NSArray *)performFetchWithEntityName:(NSString *)entityName
+                              predicate:(NSPredicate *)predicate
+                         sortDescriptor:(NSSortDescriptor *)sortDescriptor {
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:self.managedObjectContext];
+    [fetchRequest setEntity:entity];
+    // Specify criteria for filtering which objects to fetch
+    [fetchRequest setPredicate:predicate];
+    // Specify how the fetched objects should be sorted
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortDescriptor, nil]];
+    
+    NSError *error = nil;
+    NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    if (fetchedObjects == nil) {
+        NSLog(@"error fetching: %@", error);
+    }
+    
+    return fetchedObjects;
+}
+
+#pragma mark - form validation
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    //make sure the user can not include multiple points in the decimal he inputs.
+    NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    
+    NSString *expression = @"^([0-9]+)?(\\.([0-9]{1})?)?$";
+    
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:expression
+                                                                           options:NSRegularExpressionCaseInsensitive
+                                                                             error:nil];
+    NSUInteger numberOfMatches = [regex numberOfMatchesInString:newString
+                                                        options:0
+                                                          range:NSMakeRange(0, [newString length])];
+    if (numberOfMatches == 0)
+        return NO;
+
+    return YES;
+}
 
 
 

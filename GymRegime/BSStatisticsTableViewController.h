@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CoreViewController.h"
+#import "CoreTableViewController.h"
 
-@interface BSStatisticsTableViewController : UITableViewController <UIAlertViewDelegate>
+@interface BSStatisticsTableViewController : CoreTableViewController <UIAlertViewDelegate>
 
 @end

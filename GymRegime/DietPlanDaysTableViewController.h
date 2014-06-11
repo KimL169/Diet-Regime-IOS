@@ -9,8 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "DietPlanDay.h"
 
-@interface DietPlanDaysTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
+@interface DietPlanDaysTableViewController : UITableViewController <NSFetchedResultsControllerDelegate, UIGestureRecognizerDelegate>
 
-@property (nonatomic, strong) DietPlanDay *day;
+@property (nonatomic, strong) DietPlan *dietPlan;
 
 @end

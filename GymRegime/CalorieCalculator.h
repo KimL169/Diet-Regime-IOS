@@ -7,13 +7,28 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "CoreData.h"
 
-@interface CalorieCalculator : NSObject
-
-- (NSDictionary *)harrisBenedict:(NSNumber *)weightInKg;
+@interface CalorieCalculator : CoreData
 
 - (NSString *)goalAndActualWeightChangeDiscrepancyAdvice;
 
-- (NSString *)weeklyRateOfWeightChange: (NSArray *)bodystats;
+- (NSString *)weeklyRateOfWeightChange;
+
+- (NSDictionary *)returnUserMaintenanceAndBmr;
+- (NSDictionary *)returnUserBmi;
+
+typedef enum{
+    DefaultBMR, HarrisBenedict, KatchMcCardle, MifflinStJeor, Custom, BodyWeightMultiplier
+    
+}CalorieFormula;
+
+typedef enum {
+    DefaultTDEE, CustomTDEE, ActivityMultiplierTDEE, BodyWeightMultiplierTDEE
+    
+}MaintenanceMultiplier;
+
+//designated initializer
+- (instancetype)init;
 
 @end

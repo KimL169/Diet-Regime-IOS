@@ -7,13 +7,13 @@
 //
 
 #import "BSProfileViewController.h"
+#import "ALAlertBanner.h"
 
 @interface BSProfileViewController ()
 
 
 @property (nonatomic, strong) UIAlertView *alertView;
 @property (strong, nonatomic) IBOutlet UILabel *activityMultiplierLabel;
-@property (strong, nonatomic) IBOutlet UIPickerView *activityLevelPickerView;
 @property (strong, nonatomic) IBOutlet UITextField *ageInYearsTextField;
 @property (strong, nonatomic) IBOutlet UITextField *heightInCmTextField;
 @property (strong, nonatomic) IBOutlet UISegmentedControl *genderSegmentControl;
@@ -24,6 +24,9 @@
 @property (nonatomic) NSInteger activityLevel;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *editSaveButton;
 
+@property (weak, nonatomic) IBOutlet UISlider *activitySlider;
+@property (weak, nonatomic) IBOutlet UILabel *activityLevelDescriptionsLabel;
+
 @end
 
 @implementation BSProfileViewController
@@ -32,29 +35,16 @@
 #define GENDER_MALE 0
 
 #pragma mark - Activity Picker
-
-- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+- (IBAction)activitySlider:(UISlider *)sender {
+    UISlider *slider = (UISlider *)sender;
+    slider.value = lround(slider.value);
     
-    return 1;
+    self.activityLevelDescriptionsLabel.text = [NSString stringWithFormat:@"%@", [_activityLevelDescriptions objectAtIndex:slider.value]];
+    self.activityMultiplierLabel.text = [NSString stringWithFormat:@"Activity multiplier: %.2f", [[_activityMultipliers objectAtIndex:slider.value] floatValue]];
+    self.activityLevel = slider.value;
 }
 
-- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
-    
-    return [self.activityLevelDescriptions count];
-}
 
-
-- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
-    
-    return self.activityLevelDescriptions[row];
-}
-
--(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
-    
-    self.activityMultiplierLabel.text = [NSString stringWithFormat:@"Activity Multiplier: %.2f",[[self.activityMultipliers objectAtIndex:row]floatValue]];
-    
-    self.activityLevel = row;
-}
 - (IBAction)genderSegmentControl:(UISegmentedControl *)sender {
     if (sender.selectedSegmentIndex == 0) {
         self.gender = GENDER_MALE;
@@ -67,15 +57,18 @@
 - (IBAction)informationButton {
     
     NSString *message = @"The information you fill in here will be used to calculate your Basal Metabolic Rate as well as your Maintenance caloric need. You can adjust the calculation method that is used in the 'settings'menu. The 'Calculator Calibration' you manually add or substract calories from the calculated result to suit your personal need. ";
-    self.alertView = [[UIAlertView alloc]initWithTitle:@"Profile Page"
-                                               message:message
-                                              delegate:self
-                                     cancelButtonTitle:nil
-                                     otherButtonTitles:@"Got it!", nil];
-    
-    [self.alertView show];
+
+    ALAlertBanner *banner = [ALAlertBanner alertBannerForView:self.view
+                                                        style:ALAlertBannerStyleNotify
+                                                     position:ALAlertBannerPositionTop
+                                                        title:@"Info"
+                                                     subtitle:message];
+    banner.secondsToShow = 0;
+    //        [self informationButton:message];
+    [banner show];
 
 }
+
 
 - (IBAction)editOrSaveAndDismiss:(UIBarButtonItem *)sender {
     
@@ -114,11 +107,11 @@
     
     //set the title to edit.
     _editSaveButton.title = @"Edit";
-    
-    _activityLevelPickerView.userInteractionEnabled = NO;
+
     _ageInYearsTextField.userInteractionEnabled = NO;
     _heightInCmTextField.userInteractionEnabled = NO;
     _genderSegmentControl.userInteractionEnabled = NO;
+    _activitySlider.userInteractionEnabled = NO;
     
     _ageInYearsTextField.borderStyle = UITextBorderStyleNone;
     _heightInCmTextField.borderStyle = UITextBorderStyleNone;
@@ -129,13 +122,16 @@
     //set the title to edit.
     _editSaveButton.title = @"Save";
     
-    _activityLevelPickerView.userInteractionEnabled = YES;
     _ageInYearsTextField.userInteractionEnabled = YES;
     _heightInCmTextField.userInteractionEnabled = YES;
     _genderSegmentControl.userInteractionEnabled = YES;
+    _activitySlider.userInteractionEnabled = YES;
     
     _ageInYearsTextField.borderStyle = UITextBorderStyleRoundedRect;
     _heightInCmTextField.borderStyle = UITextBorderStyleRoundedRect;
+    
+    _ageInYearsTextField.textColor = [UIColor blackColor];
+    _heightInCmTextField.textColor = [UIColor blackColor];
 }
 
 - (IBAction)cancelAndDismiss {
@@ -145,34 +141,40 @@
 
 -(void)alertMessageMissingData {
     NSString *message = @"You have not filled in all profile information, we need this in order to calculate your maintenance and bmr. Please fill in all the fields before saving the data.";
-    self.alertView = [[UIAlertView alloc]initWithTitle:@"Profile Page"
-                                               message:message
-                                              delegate:self
-                                     cancelButtonTitle:nil
-                                     otherButtonTitles:@"Return", nil];
     
-    [self.alertView show];
-}
-
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    
-    if (buttonIndex == [alertView cancelButtonIndex]) {
-        // nothing
-    } else {
-        
-    }
+    ALAlertBanner *banner = [ALAlertBanner alertBannerForView:self.view
+                                                        style:ALAlertBannerStyleWarning
+                                                     position:ALAlertBannerPositionTop
+                                                        title:@"Incomplete submission"
+                                                     subtitle:message];
+    banner.secondsToShow = 0;
+    [banner show];
 }
 
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    //set the navigationbar color.
+    [self.navigationController.navigationBar setBarTintColor:[UIColor colorWithRed:.10 green:.10 blue:.10 alpha:0]];
+    NSDictionary *textAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    [UIColor whiteColor],NSForegroundColorAttributeName,
+                                    [UIColor whiteColor],NSBackgroundColorAttributeName,nil];
+    
+    self.navigationController.navigationBar.titleTextAttributes = textAttributes;
+    
     // Do any additional setup after loading the view.
-    self.activityLevelDescriptions = @[@"Sedentary", @"Lightly Active", @"Moderately Active", @"Very Active", @"Extremely Active"];
+    self.activityLevelDescriptions = @[@"Sedentary: little to no exercise",
+                                       @"Lightly Active: 1-2x a week exercise",
+                                       @"Moderately Active: 3-4x a week exercise",
+                                       @"Very Active: 5-7x a week exercise",
+                                       @"Extremely Active: twice a day exercise"];
     
     self.activityMultipliers = @[@1.2, @1.375, @1.55, @1.725, @1.9];
-
+    
+    self.activitySlider.maximumValue = 4;
+    self.activitySlider.minimumValue = 0;
     [self setupCurrentProfile];
     //set the picker view control.
 }
@@ -184,6 +186,8 @@
     //check if the user has already filled in a profile, if so, change the save button to an edit button and disable the fields.
     if ([defaults integerForKey:@"userHeightInCm"]) {
         [self setupInteractionDisabledUI];
+    } else {
+        [self setupInteractionEnabledUI];
     }
     
     if (self.gender) {
@@ -198,6 +202,7 @@
         self.activityLevel = [defaults integerForKey:@"userActivityMultiplier"];
     }
     self.activityMultiplierLabel.text = [NSString stringWithFormat:@"Activity Multiplier: %.2f",[[self.activityMultipliers objectAtIndex:self.activityLevel]floatValue]];
+    self.activityLevelDescriptionsLabel.text = [NSString stringWithFormat:@"%@", [_activityLevelDescriptions objectAtIndex:(self.activityLevel)]];
     
     //set the textfields to display the existing value, if it exists.
     if ([defaults integerForKey:@"userHeightInCm"]) {
@@ -206,18 +211,15 @@
     if ([defaults integerForKey:@"userAgeInYears"]) {
         self.ageInYearsTextField.text = [NSString stringWithFormat:@"%ld", (long)[defaults integerForKey:@"userAgeInYears"]];
     }
-
-}
-
-- (void)viewDidAppear:(BOOL)animated {
     
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSUInteger activityLevel = [defaults integerForKey:@"userActivityMultiplier"];
-    [self.activityLevelPickerView selectRow:activityLevel inComponent:0 animated:YES];
-
+    if (activityLevel) {
+        self.activitySlider.value = activityLevel;
+    } else {
+        self.activityLevel = 0;
+        self.activitySlider.value = 0;
+    }
 }
-
-
 
 /*
 #pragma mark - Navigation

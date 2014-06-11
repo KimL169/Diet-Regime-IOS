@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "CoreViewController.h"
 
-@interface BSProfileViewController : CoreViewController <UIAlertViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate>
+@interface BSProfileViewController : CoreViewController <UIAlertViewDelegate>
 
 @end

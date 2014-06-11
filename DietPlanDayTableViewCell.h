@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface DietPlanTableViewCell : UITableViewCell
+@interface DietPlanDayTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *caloriesLabel;
 @property (weak, nonatomic) IBOutlet UILabel *proteinLabel;
 @property (weak, nonatomic) IBOutlet UILabel *carbsLabel;
@@ -17,11 +17,13 @@
 @property (weak, nonatomic) IBOutlet UILabel *carbPercentageLabel;
 @property (weak, nonatomic) IBOutlet UILabel *fatPercentageLabel;
 @property (weak, nonatomic) IBOutlet UILabel *deficitSurplusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *proteinValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *carbValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *fatValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *caloriesValueLabel;
 
-@property (nonatomic) NSInteger proteinGram;
-@property (nonatomic) NSInteger carbGram;
-@property (nonatomic) NSInteger fatGram;
-@property (nonatomic) NSInteger calories;
-@property (nonatomic) NSInteger deficitSurplus;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *dayNumberLabel;
+
 
 @end

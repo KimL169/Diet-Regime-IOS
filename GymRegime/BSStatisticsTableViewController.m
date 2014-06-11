@@ -11,12 +11,20 @@
 #import "BodyStat.h"
 #import "AppDelegate.h"
 #import "BSWeeklyChangesTableViewController.h"
+#import "ALAlertBanner.h"
+#import "NSDate+Utilities.h"
 
 @interface BSStatisticsTableViewController ()
 
 @property (strong, nonatomic) CalorieCalculator *calculator;
 @property (strong, nonatomic) IBOutlet UILabel *bmrLabel;
 @property (strong, nonatomic) IBOutlet UILabel *maintenanceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *bmrValueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *maintenanceValueLabel;
+
+@property (strong, nonatomic) IBOutlet UILabel *bmiValueLabel;
+@property (strong, nonatomic) IBOutlet UILabel *bmiCategoryValueLabel;
+
 @property (strong, nonatomic) IBOutlet UILabel *weeklyWeightChangeLabel;
 @property (strong, nonatomic) IBOutlet UILabel *personalGoalLabel;
 @property (strong, nonatomic) IBOutlet UILabel *advisedCalorieAdjustmentLabel;
@@ -27,8 +35,6 @@
 
 @property (strong, nonatomic) NSNumber *bmr;
 @property (strong, nonatomic) NSNumber *maintenance;
-
-@property (strong, nonatomic) BodyStat *lastBodyStat;
 
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @end
@@ -46,16 +52,29 @@
 {
     [super viewDidLoad];
     
+    //set the navigationbar color.
+    [self.navigationController.navigationBar setBarTintColor:[UIColor colorWithRed:.10 green:.10 blue:.10 alpha:0]];
+    NSDictionary *textAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    [UIColor whiteColor],NSForegroundColorAttributeName,
+                                    [UIColor whiteColor],NSBackgroundColorAttributeName,nil];
+    
+    self.navigationController.navigationBar.titleTextAttributes = textAttributes;
+    
+    //init the calorie calculator class to acces bmr and maintenance calculation methods.
+    self.calculator = [[CalorieCalculator alloc]init];
+    
+    //fetch the bodystats
+    
 }
 - (IBAction)calorieCalculatorHelp:(UIButton *)sender {
-        NSString *message = @"This page shows you your Basal Metabolic Rate (BMR) and maintenance caloric need. The calculator that is used to calculate this information can be changed in the 'settings' menu. To use the calculator please fill in your profile in the profile menu. You need to have at least one bodystat recorded to calculate a maintenance and bmr. ";
+        NSString *message = @"This page shows you your Basal Metabolic Rate (BMR) and maintenance caloric need. The equations that are used to calculate this information can be changed in the 'settings' menu. To use this feature please fill in your profile in the profile menu. You need to have at least one bodystat recorded to calculate a maintenance and bmr. ";
     
     [self informationButton:message];
     
 }
 - (IBAction)goalsAndProgressHelp:(UIButton *)sender {
     
-    NSString *message = @"This page displays your progress towards the goals you have set in";
+    NSString *message = @"This page displays your progress on the diet plan you can set in the diet planner section.";
     
     [self informationButton:message];
 }
@@ -67,16 +86,21 @@
     [self informationButton:message];
 }
 
-- (void)informationButton:(NSString *)message {
-    
 
-    self.alertView = [[UIAlertView alloc]initWithTitle:@"Help"
-                                               message:message
-                                              delegate:self
-                                     cancelButtonTitle:nil
-                                     otherButtonTitles:@"Got it!", nil];
+- (void)informationButton:(NSString *)message {
+
+    ALAlertBanner *banner = [ALAlertBanner alertBannerForView:self.view
+                                                        style:ALAlertBannerStyleNotify
+                                                     position:ALAlertBannerPositionTop
+                                                        title:@"Info"
+                                                     subtitle:message];
     
-    [self.alertView show];
+    /*
+     optionally customize banner properties here...
+     */
+    banner.secondsToShow = 0;
+    //        [self informationButton:message];
+    [banner show];
 }
 
 
@@ -102,21 +126,22 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:YES];
     
-    //fetch the BodyStats from the database.
-    [self performFetch];
-    
-    //calculate maintenance and BMR of the users last inputted bodystat.
-    [self calculateMaintenanceAndBmr];
-    
     //set all the user statistics labels.
     [self setUserStatisticsLabels];
 }
 
 - (void)setUserStatisticsLabels {
     
-    self.bmrLabel.text = [NSString stringWithFormat:@"BMR: %ld", (long)[self.bmr integerValue]];
-    self.maintenanceLabel.text = [NSString stringWithFormat:@"Maintenance: %ld", (long)[self.maintenance integerValue]];
+    //get the user's maintenance and BMR
+    self.maintenance = [[self.calculator returnUserMaintenanceAndBmr] valueForKey:@"maintenance"];
+    self.bmr = [[self.calculator returnUserMaintenanceAndBmr] valueForKey:@"bmr"];
 
+
+    if (self.bmr != 0 && self.maintenance != 0) {
+        self.bmrValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[self.bmr integerValue]];
+        self.maintenanceValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[self.maintenance integerValue]];
+    }
+   
     
     self.personalGoalLabel.text = [NSString stringWithFormat:@"Weekly weight change goal: %@",@0.15];
     self.advisedCalorieAdjustmentLabel.text = [NSString stringWithFormat:@"Advised caloric adjustment: %@", [self.calculator goalAndActualWeightChangeDiscrepancyAdvice]];
@@ -125,26 +150,21 @@
     if (weightChange) {
         self.weeklyWeightChangeLabel.text = [NSString stringWithFormat:@"Weekly rate of weight change: %.2f kg", [weightChange floatValue]];
     }
-}
-
-- (void) calculateMaintenanceAndBmr {
-    //initialize a calculator to estimate caloric need and BMR.
-    self.calculator = [[CalorieCalculator alloc]init];
     
-    BodyStat *lastBodyStat = [self.fetchedBodyStats firstObject];
+    NSNumber *bmi = [[self.calculator returnUserBmi]valueForKey:@"bmi"];
+    NSString *bmiCategory = [[self.calculator returnUserBmi]valueForKey:@"category"];
     
-    self.maintenance = [[self.calculator harrisBenedict:lastBodyStat.weight] valueForKey:@"maintenance"];
-    self.bmr = [[self.calculator harrisBenedict:lastBodyStat.weight] valueForKey:@"bmr"];
-
+    self.bmiCategoryValueLabel.text = [NSString stringWithFormat:@"%@", bmiCategory];
+    self.bmiValueLabel.text = [NSString stringWithFormat:@"%.1f", [bmi floatValue]];
+    
 }
-
 
 //check the weekly weight progress
 - (NSNumber *)checkWeeklyWeightProgress: (NSArray *)bodystats {
     
     for (BodyStat *s in bodystats) {
 
-        if ([self daysBetweenDate:[NSDate date] andDate:s.date] == -7) {
+        if ([NSDate daysBetweenDate:[NSDate date] andDate:s.date] == -7) {
             float result = [[[bodystats firstObject] weight] floatValue] - [s.weight floatValue];
             return [NSNumber numberWithFloat:result];
         }
@@ -152,81 +172,20 @@
     return nil;
 }
 
--(NSInteger) daysBetweenDate:(NSDate *)firstDate andDate:(NSDate *)secondDate {
-    
-    NSCalendar *currentCalendar = [NSCalendar currentCalendar];
-    NSDateComponents *components = [currentCalendar components: NSDayCalendarUnit fromDate: firstDate toDate: secondDate options: 0];
-    
-    NSInteger days = [components day];
-    
-    return days;
-}
 
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-#warning Potentially incomplete method implementation.
     // Return the number of sections.
     return 4;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-#warning Incomplete method implementation.
     // Return the number of rows in the section.
     return 1;
 }
-
-/*
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
-    
-    // Configure the cell...
-    
-    return cell;
-}
-*/
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
 
 #pragma mark - Navigation
 
@@ -243,6 +202,7 @@
         
     }
 }
+
 
 
 @end

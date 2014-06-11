@@ -7,6 +7,7 @@
 //
 
 #import "DietPlanDayViewController.h"
+#import "CoreData.h"
 
 @interface DietPlanDayViewController ()
 
@@ -111,6 +112,7 @@ static const NSInteger kcalGramFat = 9;
     _gramProtein = [NSNumber numberWithFloat:([_calories integerValue] * (self.percentageProtein / 100)) / kcalGramProtein];
     
 }
+
 - (void)updateMacroLabels {
     self.carbsPercentageLabel.text = [NSString stringWithFormat:@"Carbs: %.1f%%", self.percentageCarbs];
     self.fatPercentageLabel.text = [NSString stringWithFormat:@"Fat: %.1f%%", self.percentageFats];
@@ -120,6 +122,7 @@ static const NSInteger kcalGramFat = 9;
     self.carbGramsLabel.text = [NSString stringWithFormat:@"Carbs: %d gr", abs([self.gramCarbs integerValue])];
     self.fatGramsLabel.text = [NSString stringWithFormat:@"Fat: %d gr", abs([self.gramFat integerValue])];
 }
+
 
 - (void)setSliderValues {
     
@@ -180,6 +183,7 @@ static const NSInteger kcalGramFat = 9;
 
 
 - (void)setupScrollView {
+    self.automaticallyAdjustsScrollViewInsets = NO;
     
     [scrollView setScrollEnabled:YES];
     [scrollView setContentSize:CGSizeMake(320, 900)];
@@ -197,8 +201,14 @@ static const NSInteger kcalGramFat = 9;
     [self.view endEditing:YES];
 }
 
-- (IBAction)save:(UIBarButtonItem *)sender {
-    [super saveAndDismiss];
+- (IBAction)add:(UIBarButtonItem *)sender {
+    self.addDietPlanDay.fatGrams = _gramFat;
+    self.addDietPlanDay.carbGrams = _gramCarbs;
+    self.addDietPlanDay.proteinGrams = _gramProtein;
+    self.addDietPlanDay.name = _name;
+    self.addDietPlanDay.calories = _calories;
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 - (IBAction)cancel:(UIBarButtonItem *)sender {
     [super cancelAndDismiss];
