@@ -287,9 +287,7 @@
 		3BFB1C631945BDA70066AAEB /* BSAccordionDietDetailsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BSAccordionDietDetailsView.m; sourceTree = "<group>"; };
 		3BFB1C671945BDF70066AAEB /* BSAccordionBodyMeasurementsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSAccordionBodyMeasurementsView.h; sourceTree = "<group>"; };
 		3BFB1C681945BDF70066AAEB /* BSAccordionBodyMeasurementsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BSAccordionBodyMeasurementsView.m; sourceTree = "<group>"; };
-		4CF5D0CC9BDC45FB845B9083 /* Pods-GymRegime.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GymRegime.xcconfig"; path = "Pods/Pods-GymRegime.xcconfig"; sourceTree = "<group>"; };
 		607DDC7F6AFF44469559837B /* libPods-GymRegimeTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-GymRegimeTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9ACE0A3F16B3460683AE7CFA /* Pods-GymRegimeTests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GymRegimeTests.xcconfig"; path = "Pods/Pods-GymRegimeTests.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -453,8 +451,6 @@
 				3B69422C1930C99F00FC4431 /* GymRegimeTests */,
 				3B6942061930C99F00FC4431 /* Frameworks */,
 				3B6942051930C99F00FC4431 /* Products */,
-				4CF5D0CC9BDC45FB845B9083 /* Pods-GymRegime.xcconfig */,
-				9ACE0A3F16B3460683AE7CFA /* Pods-GymRegimeTests.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1017,7 +1013,6 @@
 		};
 		3B6942371930C99F00FC4431 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4CF5D0CC9BDC45FB845B9083 /* Pods-GymRegime.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -1041,7 +1036,6 @@
 		};
 		3B6942381930C99F00FC4431 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4CF5D0CC9BDC45FB845B9083 /* Pods-GymRegime.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -1064,7 +1058,6 @@
 		};
 		3B69423A1930C99F00FC4431 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9ACE0A3F16B3460683AE7CFA /* Pods-GymRegimeTests.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/GymRegime.app/GymRegime";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1087,7 +1080,6 @@
 		};
 		3B69423B1930C99F00FC4431 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9ACE0A3F16B3460683AE7CFA /* Pods-GymRegimeTests.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/GymRegime.app/GymRegime";
 				FRAMEWORK_SEARCH_PATHS = (
