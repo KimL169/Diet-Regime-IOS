@@ -7,9 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "CoreData.h"
+#import "CoreDataHelper.h"
 
-@interface CalorieCalculator : CoreData
+@interface CalorieCalculator : CoreDataHelper
 
 - (NSString *)goalAndActualWeightChangeDiscrepancyAdvice;
 
@@ -19,7 +19,7 @@
 - (NSDictionary *)returnUserBmi;
 
 typedef enum{
-    DefaultBMR, HarrisBenedict, KatchMcCardle, MifflinStJeor, Custom, BodyWeightMultiplier
+    DefaultBMR, HarrisBenedict, KatchMcArdle, MifflinStJeor, Custom, BodyWeightMultiplier
     
 }CalorieFormula;
 

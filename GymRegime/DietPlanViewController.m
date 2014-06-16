@@ -177,7 +177,7 @@
         if ([self dateValidation] == NO && [self goalsAndDietDaysValidation] == NO) {
             
             [super saveAndDismiss];
-            
+            [self.navigationController popViewControllerAnimated:YES];
             //set the save button and ui to edit mode.
             sender.title = @"Edit";
             [self disableUI];

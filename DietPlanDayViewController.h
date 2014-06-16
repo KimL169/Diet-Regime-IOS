@@ -7,9 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MacroDietCircularSlider.h"
 #import "CoreViewController.h"
 #import "DietPlanDay.h"
+#import "DLPieChart.h"
 
 
 @interface DietPlanDayViewController : CoreViewController <UITextFieldDelegate>
@@ -28,14 +28,12 @@
 @property (weak, nonatomic) IBOutlet UILabel *proteinPercentageLabel;
 @property (weak, nonatomic) IBOutlet UITextField *nameTextField;
 @property (weak, nonatomic) IBOutlet UITextField *caloriesTextField;
-@property (weak, nonatomic) IBOutlet UILabel *currentMaintenanceLabel;
-@property (weak, nonatomic) IBOutlet UILabel *caloricDeficitSurplusLabel;
-@property (weak, nonatomic) IBOutlet UILabel *carbGramPerKgLabel;
-@property (weak, nonatomic) IBOutlet UILabel *proteinGramPerKgLabel;
-@property (weak, nonatomic) IBOutlet UILabel *fatGramPerKgLabel;
+
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *lbmBwSegmentControl;
 
 @property (nonatomic, strong) DietPlanDay *addDietPlanDay;
+
+@property (nonatomic, retain) IBOutlet DLPieChart *pieChartView;
 
 @end

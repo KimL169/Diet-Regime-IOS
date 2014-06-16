@@ -42,5 +42,7 @@
 - (void)expandedStyle;
 - (void)nonExpandedStyle;
 
+#define EXPANDED_CELL_HEIGHT 220
+#define COLLAPSED_CELL_HEIGHT 95
 
 @end

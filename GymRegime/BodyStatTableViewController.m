@@ -8,16 +8,24 @@
 
 #import "BodyStatTableViewController.h"
 #import "AppDelegate.h"
-#import "AddBodystatViewController.h"
+#import "BSAddViewControlller.h"
 #import "BSEditViewController.h"
 #import "ProgressPhotoViewController.h"
+#import "GoalColorScheme.h"
+#import "NSDate+Utilities.h"
+#import "PNChart.h"
+#import "PNCircleChart.h"
+
 
 @interface BodyStatTableViewController ()
 
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
-@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
+@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsControllerBodyStat;
+@property (nonatomic, strong) NSFetchedResultsController *fetchedResultsControllerDietPlan;
 @property (nonatomic, strong) NSString *sectionTitle;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *optionsButton;
+
+@property (nonatomic, strong) UIView *progressView;
 
 @property (nonatomic, strong) UIAlertView *alertView;
 
@@ -53,12 +61,46 @@
                                     [UIColor whiteColor],NSBackgroundColorAttributeName,nil];
     self.navigationController.navigationBar.titleTextAttributes = textAttributes;
 
-    //load the database data
+    //load the bodystat data
     NSError *error = nil;
-    if (![[self fetchedResultsController] performFetch:&error]) {
+    if (![[self fetchedResultsControllerBodyStat] performFetch:&error]) {
         NSLog(@"Error fetching: %@", error);
         abort();
     }
+    
+    //load the dietplan data
+//    error = nil;
+//    if (![[self fetchedResultsControllerDietPlan] performFetch:&error]) {
+//        NSLog(@"Error fetching: %@", error);
+//        abort();
+//    }
+    
+    //first check if a diet plan is in progress. if so:
+    self.progressView = [[UIView alloc] initWithFrame:CGRectMake((self.view.frame.size.width/2 -20),
+                                                                 15.0f,
+                                                                 48.0f,
+                                                                 48.0f)];
+    self.progressView.backgroundColor = [UIColor colorWithRed:.10 green:.10 blue:.10 alpha:0];
+    
+    PNCircleChart* progressChart = [[PNCircleChart alloc]initWithFrame:CGRectMake(3,
+                                                                                  3,
+                                                                                  35.0f,
+                                                                                  35.0f)
+                                                              andTotal:[NSNumber numberWithInt:100] andCurrent:[NSNumber numberWithInt:60] andClockwise:NO andShadow:YES];
+
+    progressChart.backgroundColor = [UIColor clearColor];
+    [progressChart setStrokeColor:[UIColor redColor]];
+    [progressChart strokeChart];
+    [self.progressView addSubview:progressChart];
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [[[UIApplication sharedApplication] keyWindow] addSubview:_progressView];
+}
+-(void)viewDidDisappear:(BOOL)animated
+{
+    [_progressView removeFromSuperview];
 }
 
 
@@ -95,12 +137,14 @@
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return [[self.fetchedResultsController sections]count];
+    
+    //return the number of sections in both the bodystat and diet plan fetchedresultscontroller.
+    return [[self.fetchedResultsControllerBodyStat sections]count];
 }
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsController sections]objectAtIndex:section];
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[self.fetchedResultsControllerBodyStat sections]objectAtIndex:section];
     
     return [sectionInfo numberOfObjects];
 }
@@ -138,11 +182,14 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(BodyStatTableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    BodyStat *stat = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    BodyStat *stat = [self.fetchedResultsControllerBodyStat objectAtIndexPath:indexPath];
     
     if (stat.progressImage) {
         [cell.progressImageButton setTitle:@"" forState:UIControlStateNormal];
         [cell.progressImageButton setBackgroundImage:[UIImage imageWithData:stat.progressImage] forState:UIControlStateNormal];
+    } else {
+        [cell.progressImageButton setTitle:@"add image" forState:UIControlStateNormal];
+        [cell.progressImageButton setBackgroundImage:nil forState:UIControlStateNormal];
     }
     if ([stat.weight floatValue]!= 0) {
         cell.weightValueLabel.text = [NSString stringWithFormat:@"%.1f", [[stat weight] floatValue]];
@@ -160,9 +207,10 @@
         cell.bodyfatValueLabel.text = @"";
         cell.bodyfatLabel.text = @"";
     }
-    cell.sideView.backgroundColor = [self checkDiscrepancyPlanAndLog:stat];
+//    cell.sideView.backgroundColor = [self checkDiscrepancyPlanAndLog:stat];
     [cell.accesoryEditButton addTarget:self action:@selector(accessoryEditButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-
+    
+    [cell.sideView setBackgroundColor:[GoalColorScheme colorforGoal:80 startStat:70 currentStat:[[stat weight] floatValue]]];
 }
 
 - (void)accessoryEditButtonTapped: (id)sender {
@@ -172,12 +220,47 @@
 
 
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    NSString *rawDateStr = [[[self.fetchedResultsController sections] objectAtIndex:section] name];
+    NSString *rawDateStr = [[[self.fetchedResultsControllerBodyStat sections] objectAtIndex:section] name];
     
+    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsControllerBodyStat sections] [section];
     // Convert rawDateStr string to NSDate...
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setDateFormat:@"yyyy-MM-dd HH:mm:ss ZZ"];
     NSDate *date = [formatter dateFromString:rawDateStr];
+
+    BodyStat *stat = [[sectionInfo objects] objectAtIndex:0];
+    
+    NSLog(@"stat: %@", stat);
+    
+    NSDate *endDate = [NSDate setDateToMidnight:[NSDate date]];
+    //check if the stat corresponds with the end of a diet.
+    if (stat.date == endDate)
+    {
+        // Convert NSDate to format we want...
+        [formatter setDateFormat:@"d MMMM"];
+        NSString *formattedDateStr = [formatter stringFromDate:date];
+        UIView *sectionView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 50)];
+        
+        //set the section background color to the same one as the side view.
+        sectionView.backgroundColor = [GoalColorScheme colorforGoal:80 startStat:70 currentStat:[[stat weight] floatValue]];
+        UILabel *dateLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 0, 70, 50)];
+        UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(90, 5, tableView.frame.size.width, 18)];
+        UILabel *subtitleLabel = [[UILabel alloc]initWithFrame:CGRectMake(90, 25, tableView.frame.size.width, 18)];
+        titleLabel.text = @"Dietplan End Date";
+        subtitleLabel.text = @"90% of goals reached!";
+        dateLabel.text = formattedDateStr;
+        
+        [titleLabel setFont:[UIFont boldSystemFontOfSize:14]];
+        [dateLabel setFont:[UIFont boldSystemFontOfSize:18]];
+        [subtitleLabel setFont:[UIFont systemFontOfSize:14]];
+        [titleLabel setTextColor:[UIColor whiteColor]];
+        [dateLabel setTextColor:[UIColor whiteColor]];
+        [subtitleLabel setTextColor:[UIColor whiteColor]];
+        [sectionView addSubview:titleLabel];
+        [sectionView addSubview:subtitleLabel];
+        [sectionView addSubview:dateLabel];
+        return sectionView;
+    }
     
     // Convert NSDate to format we want...
     [formatter setDateFormat:@"d MMMM yyyy"];
@@ -198,9 +281,9 @@
     
     // return height for expanded or collapsed tableview cell.
     if (selectedIndex == indexPath.section) {
-        return 220;
+        return EXPANDED_CELL_HEIGHT;
     } else {
-        return 95;
+        return COLLAPSED_CELL_HEIGHT;
     }
 }
 
@@ -237,7 +320,7 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         
         NSManagedObjectContext *context = [self managedObjectContext];
-        BodyStat *statToDelete = [self.fetchedResultsController objectAtIndexPath:indexPath];
+        BodyStat *statToDelete = [self.fetchedResultsControllerBodyStat objectAtIndexPath:indexPath];
         [context deleteObject:statToDelete];
         
         NSError *error = nil;
@@ -246,13 +329,27 @@
         }
     }
 }
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    
+    id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsControllerBodyStat sections] [section];
+    
+    
+    BodyStat *stat = [[sectionInfo objects] objectAtIndex:0];
+    NSDate *endDate = [NSDate setDateToMidnight:[NSDate date]];
+    
+    if (stat.date == endDate) {
+        return 50;
+    } else {
+        return 18;
+    }
+}
 
 
 #pragma mark -fetchedResultsControllerMethod
 
-- (NSFetchedResultsController *)fetchedResultsController {
-    if (_fetchedResultsController != nil) {
-        return _fetchedResultsController;
+- (NSFetchedResultsController *)fetchedResultsControllerBodyStat {
+    if (_fetchedResultsControllerBodyStat != nil) {
+        return _fetchedResultsControllerBodyStat;
     }
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc]init];
     
@@ -272,13 +369,41 @@
     //now assign the sort descriptors to the fetchrequest.
     fetchRequest.sortDescriptors = sortDescriptors;
     
-    _fetchedResultsController = [[NSFetchedResultsController alloc]initWithFetchRequest:fetchRequest managedObjectContext:context sectionNameKeyPath:@"date" cacheName:@"CacheName"];
+    _fetchedResultsControllerBodyStat = [[NSFetchedResultsController alloc]initWithFetchRequest:fetchRequest managedObjectContext:context sectionNameKeyPath:@"date" cacheName:@"CacheName"];
     
-    _fetchedResultsController.delegate = self;
+    _fetchedResultsControllerBodyStat.delegate = self;
     
-    return _fetchedResultsController;
+    return _fetchedResultsControllerBodyStat;
 }
 
+- (NSFetchedResultsController *)fetchedResultsControllerDietPlan {
+    if (_fetchedResultsControllerDietPlan != nil) {
+        return _fetchedResultsControllerDietPlan;
+    }
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc]init];
+    
+    NSManagedObjectContext *context = [self managedObjectContext];
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"DietPlan" inManagedObjectContext:context];
+    
+    //set the fetch request to the Patient entity
+    [fetchRequest setEntity:entity];
+    
+    //sort on patients last name, ascending;
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]initWithKey:@"startDate" ascending:NO];
+    
+    //make an array of the descriptor because the fetchrequest argument takes an array.
+    NSArray *sortDescriptors = [[NSArray alloc]initWithObjects:sortDescriptor, nil];
+    
+    //now assign the sort descriptors to the fetchrequest.
+    fetchRequest.sortDescriptors = sortDescriptors;
+    
+    _fetchedResultsControllerDietPlan = [[NSFetchedResultsController alloc]initWithFetchRequest:fetchRequest managedObjectContext:context sectionNameKeyPath:@"startDate" cacheName:@"CacheName"];
+    
+    _fetchedResultsControllerDietPlan.delegate = self;
+    
+    return _fetchedResultsControllerDietPlan;
+}
 
 #pragma mark - Navigation
 
@@ -290,11 +415,14 @@
 
     if ([[segue identifier] isEqualToString:@"addBodyStat"]) {
         UINavigationController *navigationController = segue.destinationViewController;
-        AddBodystatViewController *addBodyStatViewController = (AddBodystatViewController *)navigationController.topViewController;
+        BSAddViewControlller *addBodyStatViewController = (BSAddViewControlller *)navigationController.topViewController;
         
         BodyStat *addBodyStat = [NSEntityDescription insertNewObjectForEntityForName:@"BodyStat" inManagedObjectContext:[self managedObjectContext]];
 
         addBodyStatViewController.addBodyStat = addBodyStat;
+        
+        //removew progressview
+        [_progressView removeFromSuperview];
     }
     
     if ([[segue identifier] isEqualToString:@"editBodyStat"]) {
@@ -314,8 +442,12 @@
         UITableView *tableView = (UITableView *)parentView;
         NSIndexPath *indexPath = [tableView indexPathForCell:(UITableViewCell *)parentCell];
         //hand the bodystat of the tableviewcell to the editviewcontroller.
-        BodyStat *editBodyStat = (BodyStat *)[self.fetchedResultsController objectAtIndexPath:indexPath];
+        BodyStat *editBodyStat = (BodyStat *)[self.fetchedResultsControllerBodyStat objectAtIndexPath:indexPath];
         bsEditViewController.editBodyStat = editBodyStat;
+        
+        //removew progressview
+        [_progressView removeFromSuperview];
+
     }
     
     if ([[segue identifier] isEqualToString:@"selectProgressPhoto"]) {
@@ -327,8 +459,11 @@
         CGPoint center= sender.center;
         CGPoint rootViewPoint = [sender.superview convertPoint:center toView:self.tableView];
         NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:rootViewPoint];
-        BodyStat *addPhotoBodystat = (BodyStat *)[self.fetchedResultsController objectAtIndexPath:indexPath];
+        BodyStat *addPhotoBodystat = (BodyStat *)[self.fetchedResultsControllerBodyStat objectAtIndexPath:indexPath];
         progressPhotoViewController.addPhotoBodyStat = addPhotoBodystat;
+        
+        //removew progressview
+        [_progressView removeFromSuperview];
     }
     
 }
@@ -419,10 +554,6 @@
 {
     [self.tableView endUpdates];
 }
-
-
-
-
 
 
 @end

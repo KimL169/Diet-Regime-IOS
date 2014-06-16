@@ -13,7 +13,7 @@
 @interface CalorieSettingsTableViewController ()
 @property (strong, nonatomic) IBOutlet UITableViewCell *harrisBenedictEquationCell;
 @property (strong, nonatomic) IBOutlet UITableViewCell *mifflinStJeorEquationCell;
-@property (strong, nonatomic) IBOutlet UITableViewCell *katchMcCardleEquationCell;
+@property (strong, nonatomic) IBOutlet UITableViewCell *katchMcArdleEquationCell;
 @property (strong, nonatomic) IBOutlet UITableViewCell *bodyWeightMultiplierBmrCell;
 @property (strong, nonatomic) IBOutlet UITableViewCell *customBmrCell;
 @property (strong, nonatomic) IBOutlet UITableViewCell *calculatedMaintenanceCell;
@@ -154,8 +154,8 @@
             self.bodyWeightMultiplierBmrCell.accessoryType =
             UITableViewCellAccessoryCheckmark;
             break;
-        case KatchMcCardle:
-            self.katchMcCardleEquationCell.accessoryType =
+        case KatchMcArdle:
+            self.katchMcArdleEquationCell.accessoryType =
             UITableViewCellAccessoryCheckmark;
             break;
             
@@ -184,7 +184,7 @@
 #pragma mark - textfields
 - (IBAction)calorieCalibrationTextField:(UITextField *)sender {
     
-    NSInteger calibration = [_calorieCalibrationTextField.text integerValue];
+    int calibration = [_calorieCalibrationTextField.text integerValue];
     self.calibrationTDEE = calibration;
 }
 - (IBAction)bmrBodyWeightMultiplierTextField:(UITextField *)sender {
@@ -231,8 +231,8 @@
     }
     if ([[cell reuseIdentifier] isEqualToString:@"KatchMcCardleBmr"]) {
         NSLog(@"katch");
-        [_userDefaults setInteger:KatchMcCardle forKey:@"bmrEquation"];
-        self.katchMcCardleEquationCell.accessoryType = UITableViewCellAccessoryCheckmark;
+        [_userDefaults setInteger:KatchMcArdle forKey:@"bmrEquation"];
+        self.katchMcArdleEquationCell.accessoryType = UITableViewCellAccessoryCheckmark;
     }
     if ([[cell reuseIdentifier] isEqualToString:@"BodyWeightMultiplierBmr"]) {
         [_userDefaults setInteger:BodyWeightMultiplier forKey:@"bmrEquation"];
@@ -284,7 +284,7 @@
     if (section == BMR_SECTION) {
         self.harrisBenedictEquationCell.accessoryType  = UITableViewCellAccessoryNone;
         self.mifflinStJeorEquationCell.accessoryType = UITableViewCellAccessoryNone;
-        self.katchMcCardleEquationCell.accessoryType = UITableViewCellAccessoryNone;
+        self.katchMcArdleEquationCell.accessoryType = UITableViewCellAccessoryNone;
         self.bodyWeightMultiplierBmrCell.accessoryType = UITableViewCellAccessoryNone;
         self.customBmrCell.accessoryType = UITableViewCellAccessoryNone;
 

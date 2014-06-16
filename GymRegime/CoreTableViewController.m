@@ -95,6 +95,8 @@
     [self.tableView beginUpdates];
 }
 
+
+
 //if changes to a section occured.
 - (void)controller:(NSFetchedResultsController *)controller
   didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo

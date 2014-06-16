@@ -112,10 +112,11 @@
 - (NSNumber *)katchMcCardleEquation {
 
     //fetch the latest stat where the user has filled in a BodyFat level. This is necessary for this formula.
-    BodyStat *latestStatWithBf = [super fetchLatestBodystatWithBodyfatEntry];
+    //the amount of days since last bodyfat check may be no more than 12.
+    BodyStat *latestStatWithBf = [super fetchLatestBodystatWithBodyfatEntry:12];
     
     //check if the bodyfat stat is recent enough (less than 12 days old), else, return a mifflinStJeor bmr and maintenance.
-    if (!latestStatWithBf || [NSDate daysBetweenDate:[latestStatWithBf date] andDate:[NSDate date]] > 12) {
+    if (!latestStatWithBf) {
         return [self mifflinStJeorEquation];
     }
     
@@ -251,7 +252,7 @@
             case BodyWeightMultiplier:
                 bmr = [self bodyWeightBmrEquation];
                 break;
-            case KatchMcCardle:
+            case KatchMcArdle:
                 bmr = [self katchMcCardleEquation];
                 break;
                 

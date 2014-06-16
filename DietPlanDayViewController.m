@@ -7,7 +7,8 @@
 //
 
 #import "DietPlanDayViewController.h"
-#import "CoreData.h"
+#import "CoreDataHelper.h"
+#import "CalorieCalculator.h"
 
 @interface DietPlanDayViewController ()
 
@@ -27,6 +28,25 @@
 
 @property (nonatomic, strong) NSString *selectedMacroPreset;
 @property (nonatomic, strong) NSString *selectedProteinPreset;
+
+@property (nonatomic, retain) NSMutableArray *chartDataArray;
+
+@property (nonatomic, strong) CoreDataHelper *dataTool;
+@property (nonatomic, strong) BodyStat *currentStat;
+
+@property (strong, nonatomic) IBOutlet UILabel *proteinGramPerKgValueLabel;
+@property (strong, nonatomic) IBOutlet UILabel *carbGramPerKgValueLabel;
+@property (strong, nonatomic) IBOutlet UILabel *fatGramPerKgValueLabel;
+@property (strong, nonatomic) IBOutlet UILabel *currentMaintenanceValueLabel;
+@property (strong, nonatomic) IBOutlet UILabel *caloricDeficitSurplusValueLabel;
+
+@property (strong, nonatomic) IBOutlet UILabel *proteinGramPerWeightLabel;
+@property (strong, nonatomic) IBOutlet UILabel *carbGramPerWeightLabel;
+@property (strong, nonatomic) IBOutlet UILabel *fatGramPerWeightLabel;
+@property (strong, nonatomic) IBOutlet UILabel *bodyWeightLabel;
+@property (strong, nonatomic) IBOutlet UILabel *lbmLabel;
+
+@property (strong, nonatomic) CalorieCalculator *calculator;
 
 @end
 
@@ -55,6 +75,8 @@ static const NSInteger kcalGramFat = 9;
     _calories = [NSNumber numberWithInteger:[sender.text integerValue]];
     [self calculateMacrosInGrams];
     [self updateMacroLabels];
+    [self updateGramPerWeightLabels];
+    [self updateMaintenanceAndDeficitLabels];
 }
 
 
@@ -102,9 +124,46 @@ static const NSInteger kcalGramFat = 9;
     self.fatSlider.value = self.percentageFats;
     self.carbohydrateSlider.value = self.percentageCarbs;
     
+    // calculate the macro grams for the gramlabels and update the labels.
     [self calculateMacrosInGrams];
     [self updateMacroLabels];
+    
+    //reload the piechart
+    [self loadPieChart];
+    
+    [self updateGramPerWeightLabels];
+    
 }
+
+- (void)updateMaintenanceAndDeficitLabels {
+    NSNumber *maintenance = [[_calculator returnUserMaintenanceAndBmr] objectForKey:@"maintenance"];
+    self.currentMaintenanceValueLabel.text = [NSString stringWithFormat:@"%d", [maintenance intValue]];
+    if (_calories) {
+        self.caloricDeficitSurplusValueLabel.text = [NSString stringWithFormat:@"%d", ([_calories intValue]- [maintenance intValue])];
+    }
+}
+
+- (void)updateGramPerWeightLabels {
+    //check if a bodystat with a weight entry was loaded.
+    if (self.currentStat) {
+        _bodyWeightLabel.text = [NSString stringWithFormat:@"bw: %.1fkg",[[_currentStat weight] floatValue]];
+        
+        //check if the calories have been filled in
+        if (_calories) {
+            //calculate the gram per Bodyweight.
+            float proteinPerGram = [_gramProtein intValue] / [[_currentStat weight] floatValue];
+            float fatPerGram = [_gramFat intValue] / [[_currentStat weight] floatValue];
+            float carbPerGram = [_gramCarbs intValue] / [[_currentStat weight] floatValue];
+            
+            //update the labels
+            _proteinGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f",proteinPerGram];
+            _fatGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", fatPerGram];
+            _carbGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", carbPerGram];
+
+        }
+    }
+}
+
 
 - (void)calculateMacrosInGrams {
     _gramCarbs = [NSNumber numberWithFloat:([_calories integerValue] * (self.percentageCarbs / 100)) / kcalGramCarbohydrate ];
@@ -129,12 +188,6 @@ static const NSInteger kcalGramFat = 9;
     //set maximum and minimum values
     self.proteinSlider.minimumValue = 0;
     self.proteinSlider.maximumValue = 100;
-    
-    
-    //set default values for macros:
-    self.percentageCarbs = 33.33333;
-    self.percentageProtein = 33.3333;
-    self.percentageFats = 33.33333;
     
     self.carbohydrateSlider.minimumValue = 0;
     self.carbohydrateSlider.maximumValue = 100 - self.percentageProtein;
@@ -169,16 +222,52 @@ static const NSInteger kcalGramFat = 9;
 {
     [super viewDidLoad];
     
-    //enable the scroll view and set the size.
+    //setup scroll view
     [self setupScrollView];
     
-    //set the sliders.
+    //init the chart data array
+    self.chartDataArray = [[NSMutableArray alloc]init];
+    //set default values for macros:
+    self.percentageCarbs = 33.33333;
+    self.percentageProtein = 33.3333;
+    self.percentageFats = 33.33333;
+
+    //set sliders and chartview.
     [self setSliderValues];
-    
+    [self loadPieChart];
     //set textfield delegates so the textfield respond to events.
     self.nameTextField.delegate = self;
     self.caloriesTextField.delegate = self;
     
+    //call piechart method
+    self.dataTool =[[CoreDataHelper alloc]init];
+    //get the last inputted weight entry, allow a 7 gap between the log entries.
+    self.currentStat = [_dataTool fetchLatestBodystatWithWeightEntry: 7];
+    
+    //update the statistics labels
+    [self updateGramPerWeightLabels];
+    
+    //load the caloriecalculator
+    self.calculator = [[CalorieCalculator alloc]init];
+    //set the maintenance and deficit labels
+    [self updateMaintenanceAndDeficitLabels];
+}
+
+- (void)loadPieChart {
+    
+    //remove all previous objects in the array.
+    [_chartDataArray removeAllObjects];
+    
+    NSNumber *fat = [NSNumber numberWithInt:(int)_percentageFats];
+    NSNumber *carbs = [NSNumber numberWithInt:(int)_percentageCarbs];
+    NSNumber *protein = [NSNumber numberWithInt:(int)_percentageProtein];
+    
+    //add to the data array
+    [_chartDataArray addObject:protein];
+    [_chartDataArray addObject:carbs];
+    [_chartDataArray addObject:fat];
+
+    [self.pieChartView renderInLayer:self.pieChartView dataArray:self.chartDataArray];
 }
 
 

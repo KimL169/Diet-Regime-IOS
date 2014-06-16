@@ -28,6 +28,14 @@
     _weightValueLabel.textColor = [UIColor whiteColor];
     _caloriesValueLabel.textColor = [UIColor whiteColor];
     _bodyfatValueLabel.textColor = [UIColor whiteColor];
+    
+    //set the sideview to expanded Height;
+    CGRect frameRect = _sideView.frame;
+    frameRect.size.height = EXPANDED_CELL_HEIGHT;
+    _sideView.frame = frameRect;
+    
+    //show editButton
+    _accesoryEditButton.hidden = NO;
 
     //expanding section
     _proteinValueLabel.textColor = [UIColor whiteColor];
@@ -55,6 +63,13 @@
     
     [_progressImageButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     
+    //set the sideview to the non-expandedHeight;
+    CGRect frameRect = _sideView.frame;
+    frameRect.size.height = COLLAPSED_CELL_HEIGHT;
+    _sideView.frame = frameRect;
+    
+    //hide the edit button
+    _accesoryEditButton.hidden = YES;
 
     //nonexpanded section
     _weightValueLabel.textColor = [UIColor blackColor];
