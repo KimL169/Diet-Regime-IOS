@@ -7,7 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DietPlan.h"
 
 @interface DietPlanTableViewController : UITableViewController <UITextFieldDelegate, UIAlertViewDelegate>
+
+@property (nonatomic, strong) DietPlan *dietPlan;
 
 @end

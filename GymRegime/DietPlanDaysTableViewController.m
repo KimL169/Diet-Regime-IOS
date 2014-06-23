@@ -9,6 +9,7 @@
 #import "DietPlanDaysTableViewController.h"
 #import "DietPlanDayTableViewCell.h"
 #import "AppDelegate.h"
+#import "CalorieCalculator.h"
 #import "DietPlanDayViewController.h"
 
 
@@ -19,6 +20,8 @@
 
 @property (nonatomic) NSInteger *numberOfDays;
 @property (nonatomic) int touchCount;
+
+@property (nonatomic, strong) CalorieCalculator *calculator;
 @end
 
 @implementation DietPlanDaysTableViewController
@@ -38,6 +41,9 @@
                                     [UIColor whiteColor],NSBackgroundColorAttributeName,nil];
     self.navigationController.navigationBar.titleTextAttributes = textAttributes;
     
+    //initialize the calculator class to check user maintenance.
+    self.calculator = [[CalorieCalculator alloc]init];
+
 }
 
 - (void)didTapOTableView: (UIGestureRecognizer *)recognizer {
@@ -100,14 +106,59 @@
 - (void)tableView:(UITableView *)tableView willDisplayCell:(DietPlanDayTableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     DietPlanDay *dietPlanDay = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    //setup the cell here.
-    cell.proteinValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[dietPlanDay proteinGrams] integerValue]];
-    cell.carbValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[dietPlanDay carbGrams] integerValue]];
-    cell.fatValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[dietPlanDay proteinGrams] integerValue]];
-    cell.caloriesValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[dietPlanDay calories] integerValue]];
     
-    cell.nameLabel.text = [NSString stringWithFormat:@"%@", dietPlanDay.name];
-    cell.dayNumberLabel.text = [NSString stringWithFormat:@"Day %ld", (long)[[dietPlanDay dayNumber] integerValue]];
+    //setup the cell
+    [self setCellValueLabels:cell diePlanDay:dietPlanDay];
+    [self setCellPercentageLabels:cell diePlanDay:dietPlanDay];
+    [self setCellDeficitSurplusLabel:cell diePlanDay:dietPlanDay];
+}
+
+- (void)setCellPercentageLabels: (DietPlanDayTableViewCell *)cell diePlanDay: (DietPlanDay *)day {
+    
+    //check if the day has any calories, if so fill in the percentages, else remove the percentage signs.
+    if ([day.calories intValue] != 0) {
+        float proteinPercentage =  (([day.proteinGrams floatValue] * 4) / [day.calories floatValue]) * 100;
+        float carbPercentage =  (([day.carbGrams floatValue] * 4) / [day.calories floatValue]) * 100;
+        float fatPercentage =  (([day.fatGrams floatValue] * 9) / [day.calories floatValue]) * 100;
+        
+        cell.proteinPercentageLabel.text = [NSString stringWithFormat:@"%.1f%%",proteinPercentage];
+        cell.carbPercentageLabel.text = [NSString stringWithFormat:@"%.1f%%", carbPercentage];
+        cell.fatPercentageLabel.text = [NSString stringWithFormat:@"%.1f%%", fatPercentage];
+    } else {
+        cell.proteinPercentageLabel.text = @"";
+        cell.carbPercentageLabel.text = @"";
+        cell.fatPercentageLabel.text = @"";
+    }
+    
+
+}
+
+- (void)setCellValueLabels: (DietPlanDayTableViewCell *)cell diePlanDay: (DietPlanDay *)day {
+    
+    //set up the cell's Value Labels.
+    cell.proteinValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[day proteinGrams] integerValue]];
+    cell.carbValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[day carbGrams] integerValue]];
+    cell.fatValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[day proteinGrams] integerValue]];
+    cell.caloriesValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[day calories] integerValue]];
+    
+    cell.nameLabel.text = [NSString stringWithFormat:@"%@", day.name];
+    cell.dayNumberLabel.text = [NSString stringWithFormat:@"Day %ld", (long)[[day dayNumber] integerValue]];
+}
+
+- (void)setCellDeficitSurplusLabel:(DietPlanDayTableViewCell *)cell diePlanDay: (DietPlanDay *)day {
+    
+    //get the user's current maintenance.
+    NSNumber *maintenance = [[self.calculator returnUserMaintenanceAndBmr] objectForKey:@"maintenance"];
+    
+    //get the user's maintenance if it exists.
+    if ([maintenance integerValue] != 0) {
+        int deficitSurplus = [day.calories integerValue] - [maintenance integerValue];
+        cell.deficitSurplusLabel.text = [NSString stringWithFormat:@"%d",deficitSurplus];
+    } else {
+        cell.deficitSurplusLabel.text = @"";
+    }
+
+    
 }
 
 -(BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
@@ -121,7 +172,7 @@
     
     NSMutableArray *days = [[self.fetchedResultsController fetchedObjects] mutableCopy];
     
-    //get the item we wish to move
+    //make sure the dayNumber and order of the other dietdays gets updated.
     NSManagedObject *day = [[self fetchedResultsController]objectAtIndexPath:sourceIndexPath];
     [days removeObject:day];
     [days insertObject:day atIndex:[destinationIndexPath row]];
@@ -150,10 +201,25 @@
         DietPlanDay *dayToDelete = [self.fetchedResultsController objectAtIndexPath:indexPath];
         [context deleteObject:dayToDelete];
         
+        //now make sure the dayNumber of the other diet days gets updated.
+        NSMutableArray *days = [[self.fetchedResultsController fetchedObjects] mutableCopy];
+        NSManagedObject *day = [[self fetchedResultsController]objectAtIndexPath:indexPath];
+        [days removeObject:day];
+        
+        //update each items display order.
+        int i = 1;
+        for (NSManagedObject *day in days) {
+            [day setValue:[NSNumber numberWithInt:i++] forKey:@"dayNumber"];
+        }
         NSError *error = nil;
         if (![context save:&error]) {
             NSLog(@"Error saving delete %@", error);
         }
+        
+        self.fetchedResultsController.delegate = self;
+        
+        [[self fetchedResultsController] performFetch:nil];
+        [self.tableView reloadData];
     }
 }
 
@@ -162,15 +228,13 @@
         return _fetchedResultsController;
     }
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc]init];
-    
     NSManagedObjectContext *context = [self managedObjectContext];
-    
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"DietPlanDay" inManagedObjectContext:context];
     
-    //set the fetch request to the Patient entity
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dietPlan == %@", _dietPlan];
     [fetchRequest setEntity:entity];
+    [fetchRequest setPredicate:predicate];
     
-    //sort on patients last name, ascending;
     NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc]initWithKey:@"dayNumber" ascending:YES];
     
     //make an array of the descriptor because the fetchrequest argument takes an array.

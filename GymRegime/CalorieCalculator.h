@@ -16,7 +16,7 @@
 - (NSString *)weeklyRateOfWeightChange;
 
 - (NSDictionary *)returnUserMaintenanceAndBmr;
-- (NSDictionary *)returnUserBmi;
+- (NSDictionary *)returnUserBmi:(float)weight;
 
 typedef enum{
     DefaultBMR, HarrisBenedict, KatchMcArdle, MifflinStJeor, Custom, BodyWeightMultiplier

@@ -47,10 +47,9 @@
 @property (strong, nonatomic) IBOutlet UILabel *lbmLabel;
 
 @property (strong, nonatomic) CalorieCalculator *calculator;
+@property (nonatomic) float leanBodyMass;
 
 @end
-
-static const float sliderPieChartIncrements = 3.5;
 
 static const NSInteger tProteinSliderTag = 12;
 static const NSInteger tFatSliderTag = 14;
@@ -62,6 +61,9 @@ static const NSInteger kcalGramFat = 9;
 
 #define CALORIE_TEXTFIELD 33
 #define NAME_TEXTFIELD 44
+
+#define BODYWEIGHT_SEGMENT_INDEX 0
+#define LBM_SEGMENT_INDEX 1
 
 @implementation DietPlanDayViewController
 
@@ -79,6 +81,11 @@ static const NSInteger kcalGramFat = 9;
     [self updateMaintenanceAndDeficitLabels];
 }
 
+- (IBAction)lbmBodyweightSegmentControl:(UISegmentedControl *)sender {
+    //update the labels.
+    _lbmBwSegmentControl.selectedSegmentIndex = sender.selectedSegmentIndex;
+    [self updateGramPerWeightLabels];
+}
 
 -(void)didChangeValueForSlider:(UISlider *)slider {
     slider.value = lround(slider.value);
@@ -128,9 +135,8 @@ static const NSInteger kcalGramFat = 9;
     [self calculateMacrosInGrams];
     [self updateMacroLabels];
     
-    //reload the piechart
+    //reload the piechart and update the labels.
     [self loadPieChart];
-    
     [self updateGramPerWeightLabels];
     
 }
@@ -138,32 +144,66 @@ static const NSInteger kcalGramFat = 9;
 - (void)updateMaintenanceAndDeficitLabels {
     NSNumber *maintenance = [[_calculator returnUserMaintenanceAndBmr] objectForKey:@"maintenance"];
     self.currentMaintenanceValueLabel.text = [NSString stringWithFormat:@"%d", [maintenance intValue]];
-    if (_calories) {
+    if (_calories && [maintenance intValue] > 0) {
         self.caloricDeficitSurplusValueLabel.text = [NSString stringWithFormat:@"%d", ([_calories intValue]- [maintenance intValue])];
     }
 }
 
 - (void)updateGramPerWeightLabels {
-    //check if a bodystat with a weight entry was loaded.
-    if (self.currentStat) {
-        _bodyWeightLabel.text = [NSString stringWithFormat:@"bw: %.1fkg",[[_currentStat weight] floatValue]];
+    
+    //check the segmentControl for Bodyweight or LBM
+    if (_lbmBwSegmentControl.selectedSegmentIndex == LBM_SEGMENT_INDEX) {
         
-        //check if the calories have been filled in
-        if (_calories) {
-            //calculate the gram per Bodyweight.
-            float proteinPerGram = [_gramProtein intValue] / [[_currentStat weight] floatValue];
-            float fatPerGram = [_gramFat intValue] / [[_currentStat weight] floatValue];
-            float carbPerGram = [_gramCarbs intValue] / [[_currentStat weight] floatValue];
+        //check if the LBM was calculated.
+        if (_leanBodyMass) {
             
-            //update the labels
-            _proteinGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f",proteinPerGram];
-            _fatGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", fatPerGram];
-            _carbGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", carbPerGram];
-
+            //update the description Labels
+            _proteinGramPerWeightLabel.text = [NSString stringWithFormat:@"Protein gram per kg lbm:"];
+            _fatGramPerWeightLabel.text = [NSString stringWithFormat:@"Fat gram per kg lbm:"];
+            _carbGramPerWeightLabel.text = [NSString stringWithFormat:@"Carb gram per kg lbm:"];
+            
+            //check if the calories have been filled in
+            if (_calories) {
+                //calculate the gram per Bodyweight.
+                float proteinPerGram = [_gramProtein intValue] / _leanBodyMass;
+                float fatPerGram = [_gramFat intValue] / _leanBodyMass;
+                float carbPerGram = [_gramCarbs intValue] / _leanBodyMass;
+                //update the Value labels
+                _proteinGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f",proteinPerGram];
+                _fatGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", fatPerGram];
+                _carbGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", carbPerGram];
+                
+            }
+        }
+        
+    } else {
+        
+        //check if a stat with a weight entry was loaded.
+        if (self.currentStat) {
+            _bodyWeightLabel.text = [NSString stringWithFormat:@"%.1fkg",[[_currentStat weight] floatValue]];
+            
+            //update the description Labels
+            _proteinGramPerWeightLabel.text = [NSString stringWithFormat:@"Protein gram per kg bw:"];
+            _fatGramPerWeightLabel.text = [NSString stringWithFormat:@"Fat gram per kg bw:"];
+            _carbGramPerWeightLabel.text = [NSString stringWithFormat:@"Carb gram per kg bw:"];
+            
+            //check if the calories have been filled in
+            if (_calories) {
+                //calculate the gram per Bodyweight.
+                float proteinPerGram = [_gramProtein intValue] / [[_currentStat weight] floatValue];
+                float fatPerGram = [_gramFat intValue] / [[_currentStat weight] floatValue];
+                float carbPerGram = [_gramCarbs intValue] / [[_currentStat weight] floatValue];
+                
+                //update the labels
+                _proteinGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f",proteinPerGram];
+                _fatGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", fatPerGram];
+                _carbGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", carbPerGram];
+                
+            }
         }
     }
-}
 
+}
 
 - (void)calculateMacrosInGrams {
     _gramCarbs = [NSNumber numberWithFloat:([_calories integerValue] * (self.percentageCarbs / 100)) / kcalGramCarbohydrate ];
@@ -177,9 +217,9 @@ static const NSInteger kcalGramFat = 9;
     self.fatPercentageLabel.text = [NSString stringWithFormat:@"Fat: %.1f%%", self.percentageFats];
     self.proteinPercentageLabel.text = [NSString stringWithFormat:@"Protein: %.1f%%", self.percentageProtein];
     
-    self.proteinGramsLabel.text = [NSString stringWithFormat:@"Protein: %d gr", abs([self.gramProtein integerValue])];
-    self.carbGramsLabel.text = [NSString stringWithFormat:@"Carbs: %d gr", abs([self.gramCarbs integerValue])];
-    self.fatGramsLabel.text = [NSString stringWithFormat:@"Fat: %d gr", abs([self.gramFat integerValue])];
+    self.proteinGramsLabel.text = [NSString stringWithFormat:@"Protein: %d gr", abs([self.gramProtein intValue])];
+    self.carbGramsLabel.text = [NSString stringWithFormat:@"Carbs: %d gr", abs([self.gramCarbs intValue])];
+    self.fatGramsLabel.text = [NSString stringWithFormat:@"Fat: %d gr", abs([self.gramFat intValue])];
 }
 
 
@@ -237,10 +277,12 @@ static const NSInteger kcalGramFat = 9;
     [self loadPieChart];
     //set textfield delegates so the textfield respond to events.
     self.nameTextField.delegate = self;
+    self.nameTextField.tag = NAME_TEXTFIELD;
     self.caloriesTextField.delegate = self;
+    self.caloriesTextField.tag = CALORIE_TEXTFIELD;
     
     //call piechart method
-    self.dataTool =[[CoreDataHelper alloc]init];
+    self.dataTool = [[CoreDataHelper alloc]init];
     //get the last inputted weight entry, allow a 7 gap between the log entries.
     self.currentStat = [_dataTool fetchLatestBodystatWithWeightEntry: 7];
     
@@ -249,10 +291,29 @@ static const NSInteger kcalGramFat = 9;
     
     //load the caloriecalculator
     self.calculator = [[CalorieCalculator alloc]init];
+    
     //set the maintenance and deficit labels
     [self updateMaintenanceAndDeficitLabels];
+    
+    //set the user lbm label
+    [self updateUserLBM];
 }
 
+- (void)updateUserLBM {
+    
+    //check if the user has a bodyfat level in the past 14 days.
+    BodyStat *bodyFatStat = [_dataTool fetchLatestBodystatWithBodyfatEntry:14];
+    
+    //if so, calculate the user's leanBodyMass.
+    if ([bodyFatStat.bodyfat floatValue] > 0) {
+        _leanBodyMass = [_currentStat.weight floatValue] - ([_currentStat.weight floatValue] * ([bodyFatStat.bodyfat floatValue] / 100));
+        
+        //set the label.
+        self.lbmLabel.text = [NSString stringWithFormat:@"%.1fkg", _leanBodyMass];
+    }
+    
+
+}
 - (void)loadPieChart {
     
     //remove all previous objects in the array.

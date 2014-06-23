@@ -90,10 +90,46 @@
     return [fetchedObjects firstObject];
 }
 
+- (NSArray *)fetchDietPlanDaysForDietPlan: (DietPlan *)dietPlan {
+    NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"dayNumber" ascending:NO];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dietPlan == %@", dietPlan];
+    NSArray *fetchedObjects = [self performFetchWithEntityName:@"DietPlanDay" predicate:predicate sortDescriptor:sortDescr];
+    
+    
+    return fetchedObjects;
+    
+}
+
 - (NSArray *)fetchDietPlans {
     NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"endDate" ascending:NO];
     NSArray *fetchedObjects = [self performFetchWithEntityName:@"DietPlan" predicate:nil sortDescriptor:sortDescr];
     
     return fetchedObjects;
+}
+
+
+///REPLACE THE OTHER METHODS (latest with bodyfat and weight) WITH THIS METHOD!!
+- (BodyStat *)fetchLatestBodystatWithStat:(NSString *)stat maxDaysAgo:(NSInteger)daysAgoAllowed {
+    NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:NO];
+    //get the bodystats of which the names are not nil
+    NSString *predicateStr = [NSString stringWithFormat:@"%@ > 0", stat];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateStr];
+    NSArray * fetchedObjects = [self performFetchWithEntityName:@"BodyStat" predicate:predicate sortDescriptor:sortDescr];
+    
+    NSInteger days;
+    //get the days between the bodystat input date and the current date.
+    if ([fetchedObjects count] > 0) {
+        days = [NSDate daysBetweenDate:[[fetchedObjects firstObject] date]  andDate:[NSDate date]];
+        
+    } else {
+        return nil;
+    }
+    
+    if (days > daysAgoAllowed) {
+        return nil;
+    } else {
+        return [fetchedObjects firstObject];
+    }
+    
 }
 @end

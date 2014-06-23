@@ -8,6 +8,7 @@
 
 #import "BSEditViewController.h"
 #import "AppDelegate.h"
+#import "BodyStat+Helper.h"
 
 @interface BSEditViewController ()
 
@@ -119,6 +120,8 @@
     
     self.editBodyStat.date = date;
     
+    [editBodyStat setBmi];
+    [editBodyStat setLbm];
     //check if there is already a bodystat with that date.
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"date == %@", self.editBodyStat.date];
     if ([super checkObjectsWithEntityName:@"BodyStat" predicate:predicate sortDescriptor:nil] < 2) {

@@ -11,4 +11,6 @@
 
 @interface BSStatisticsTableViewController : CoreTableViewController <UIAlertViewDelegate>
 
+- (void)setUserStatisticsLabels;
+
 @end

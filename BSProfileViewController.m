@@ -7,6 +7,7 @@
 //
 
 #import "BSProfileViewController.h"
+#import "BSStatisticsTableViewController.h"
 #import "ALAlertBanner.h"
 
 @interface BSProfileViewController ()
@@ -88,7 +89,15 @@
             
             //make the keyboard dissapear
             [self.view endEditing:YES];
-            [self dismissViewControllerAnimated:YES completion:nil];
+
+            //dismiss viewcontroller with completion handler.
+            [self dismissViewControllerAnimated: YES completion: ^{
+            
+                //post notification to let the statistics viewcontroller know.
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"BSProfileViewControllerDismissed"
+                                                                    object:nil
+                                                                  userInfo:nil];
+            }];
             
         } else {
             

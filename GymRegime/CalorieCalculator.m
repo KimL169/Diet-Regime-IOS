@@ -39,6 +39,8 @@
         //set the bmr calculator and multiplier to 100 to check if user defined them.
         self.bmrCalculator = CHECK_NIL;
         self.maintenanceMultiplierType = CHECK_NIL;
+        
+        //load the user profile and settings data.
     }
     return self;
 }
@@ -197,13 +199,19 @@
 }
 
 
-- (NSDictionary *)returnUserBmi {
-    BodyStat *latestStat = [super fetchLatestBodystat];
-    if (!latestStat.weight || !_userHeightInCm) {
+- (NSDictionary *)returnUserBmi:(float)weight {
+    [self loadUserDefaults];
+    
+    //check if a bodystat was entered, else grab the latest out of the database. It may be 5 days old.
+    if (weight == 0) {
+        weight = [[[super fetchLatestBodystatWithWeightEntry:5] weight] floatValue];
+    }
+    
+    if (weight == 0 || !_userHeightInCm) {
         return @{@"bmi" : [NSNumber numberWithInt:0], @"category" : @"-"};
     }
     
-    float bmi = [[latestStat weight] floatValue] / (((float)_userHeightInCm / 100) * ((float)_userHeightInCm /100));
+    float bmi = weight / (((float)_userHeightInCm / 100) * ((float)_userHeightInCm /100));
 
     NSString *category;
     if (bmi < 15) {
@@ -232,7 +240,7 @@
 
 - (NSDictionary *)returnUserMaintenanceAndBmr {
     [self loadUserDefaults];
-    
+
     NSNumber *bmr;
     NSNumber *maintenance;
     

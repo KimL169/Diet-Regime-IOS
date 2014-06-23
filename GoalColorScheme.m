@@ -13,8 +13,9 @@
 + (UIColor *)colorforGoal:(float)goalStat startStat: (float)startStat currentStat:(float)currentStat {
     
     if (currentStat < startStat || currentStat > goalStat) {
-        return [UIColor whiteColor];
+        return [UIColor darkGrayColor];
     }
+    
     int redStartVariable = 173;
     int greenStartVariable = 48;
     int blueStartVariable = 48;

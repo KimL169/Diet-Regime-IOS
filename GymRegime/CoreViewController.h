@@ -26,4 +26,7 @@
                               predicate:(NSPredicate *)predicate
                          sortDescriptor:(NSSortDescriptor *)sortDescriptor;
 
+
+- (void)setNavigationBarTitleWithTextColor:(UIColor *)color title:(NSString *)title;
+
 @end

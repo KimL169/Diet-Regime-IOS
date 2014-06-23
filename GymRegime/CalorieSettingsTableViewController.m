@@ -129,7 +129,7 @@
     [_userDefaults setInteger:calibration forKey:@"calorieFormulaCalibration"];
     
     [_userDefaults synchronize];
-  
+    
     [self.navigationController popViewControllerAnimated:YES];
 }
 

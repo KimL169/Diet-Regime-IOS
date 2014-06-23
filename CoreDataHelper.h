@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "BodyStat.h"
 #import "DietPlan.h"
+#import "DietGoal+Helper.h"
 
 
 /*****************
@@ -28,4 +29,8 @@
 - (BodyStat *)fetchLatestBodystatWithBodyfatEntry: (NSInteger)daysAgoAllowed;
 - (BodyStat *)fetchLatestBodystatWithWeightEntry: (NSInteger)daysAgoAllowed;
 - (DietPlan *)fetchCurrentDietPlan;
+- (NSArray *)fetchDietPlanDaysForDietPlan: (DietPlan *)dietPlan;
+- (BodyStat *)fetchLatestBodystatWithStat:(NSString *)stat maxDaysAgo:(NSInteger)daysAgoAllowed;
+
+
 @end

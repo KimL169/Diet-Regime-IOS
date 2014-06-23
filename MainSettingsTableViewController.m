@@ -10,7 +10,6 @@
 #import "CalorieCalculator.h"
 
 @interface MainSettingsTableViewController ()
-@property (strong, nonatomic) IBOutlet UILabel *calorieEquationLabel;
 @property (strong, nonatomic) IBOutlet UITableViewCell *themeCellDark;
 @property (strong, nonatomic) IBOutlet UITableViewCell *themeCellLight;
 @property (strong, nonatomic) IBOutlet UITableViewCell *unitsCellMetrics;
@@ -35,48 +34,12 @@
 {
     [super viewDidLoad];
     
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
-}
+ }
+
+
 
 -(void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:YES];
-    [self setCalorieEquationLabel:_calorieEquationLabel];
-}
-
-- (void)setCalorieEquationLabel:(UILabel *)calorieEquationLabel {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    
-    NSInteger bmrCalculator;
-    if ([defaults integerForKey:@"bmrEquation"]) {
-        bmrCalculator = [defaults integerForKey:@"bmrEquation"];
-    }
-    
-    switch (bmrCalculator) {
-        case HarrisBenedict:
-            calorieEquationLabel.text = @"Harris-Benedict";
-            break;
-        case MifflinStJeor:
-            calorieEquationLabel.text = @"Mifflin St-Jeor";
-        case Custom:
-            calorieEquationLabel.text = @"Custom";
-        case KatchMcArdle:
-            calorieEquationLabel.text = @"Katch-McArdle";
-        case BodyWeightMultiplier:
-            calorieEquationLabel.text = @"Bodyweight Multiplier";
-        default:
-            calorieEquationLabel.text = @"Mifflin St-Jeor";
-            break;
-    }
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 

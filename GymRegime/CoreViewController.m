@@ -27,6 +27,18 @@
     return self;
 }
 
+- (void)setNavigationBarTitleWithTextColor:(UIColor *)color title:(NSString *)title {
+    NSDictionary *textAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    color,NSForegroundColorAttributeName,
+                                    color,NSBackgroundColorAttributeName,nil];
+    self.navigationController.navigationBar.titleTextAttributes = textAttributes;
+    if (title) {
+        NSLog(@"title:%@", title);
+        [self setTitle:title];
+    }
+    
+}
+
 - (void)cancelAndDismiss {
     //roll back any transaction that has been made.
     [self.managedObjectContext rollback];
@@ -96,7 +108,6 @@
 
     NSError *error = nil;
     NSUInteger count = [self.managedObjectContext countForFetchRequest:fetchRequest error:&error];
-    NSLog(@"count: %d", count);
     if (!error) {
         return count;
     } else {
