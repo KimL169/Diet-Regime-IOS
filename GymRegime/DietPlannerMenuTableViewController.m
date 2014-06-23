@@ -43,6 +43,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     
     [super viewWillAppear:YES];
+    
     //check if there is a current diet plan in progress.
     if ([_dataHelper fetchCurrentDietPlan]) {
         self.dietPlan = [_dataHelper fetchCurrentDietPlan];

@@ -65,14 +65,13 @@
     
     //set the navigationbar color.
     [self.navigationController.navigationBar setBarTintColor:[UIColor colorWithRed:.10 green:.10 blue:.10 alpha:0]];
-
+    
     //load the bodystat data
     NSError *error = nil;
     if (![[self fetchedResultsControllerBodyStat] performFetch:&error]) {
         NSLog(@"Error fetching: %@", error);
         abort();
     }
-
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -80,17 +79,23 @@
     
     self.dataHelper = [[CoreDataHelper alloc]init];
     self.calculator = [[CalorieCalculator alloc]init];
-    
-    //first check if a diet plan is in progress. if so add progressview and check if a startdate or enddate was reached.
-    //if so, check if a bodystat exists for this date and add it if it doesnt'
+
+    //first check if a diet plan is in progress.
     if ((_currentDietPlan = [_dataHelper fetchCurrentDietPlan])) {
         
-        //add a progress circlechart instead of a title
-        [self setNavigationBarTitleWithTextColor:[UIColor clearColor] title:nil];
-
-        [self addProgressChart];
+        //check if a progress view must be added.
+        if ([NSDate daysBetweenDate:_currentDietPlan.endDate andDate:[NSDate date]] <= 0 &&
+            _currentDietPlan.dietGoal.count > 0) {
+            //add a progress circlechart instead of a title
+            [self addProgressChart];
+        } else {
+            //add a title instead of the progress chart.
+            [self setNavigationBarTitleWithTextColor:[UIColor whiteColor] title:@"Logbook"];
+        }
         
         //check if dietPlan start and enddate bodystats need to be added to the database.
+        //if the user hasn't filled in a bodystat on that day, an empty one needs to be created so that
+        //the dietplan start and enddate always appear in the logbook if these dates have passed.
         [self checkDietPlanStartEndEntries];
         
         //do not show the schedule button if the user has not filled in any dietplan days.
@@ -103,7 +108,7 @@
         }
 
     } else {
-        //add a progress circlechart instead of a title
+        //add a title instead of the progress chart.
         [self setNavigationBarTitleWithTextColor:[UIColor whiteColor] title:@"Logbook"];
         self.progressView = nil;
         self.scheduleButton.enabled = NO;
@@ -111,6 +116,15 @@
     }
     
     [self.tableView reloadData];
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [[[UIApplication sharedApplication] keyWindow] addSubview:_progressView];
+}
+-(void)viewDidDisappear:(BOOL)animated
+{
+    [_progressView removeFromSuperview];
 }
 
 
@@ -164,16 +178,10 @@
     }
 }
 
--(void)viewDidAppear:(BOOL)animated
-{
-    [[[UIApplication sharedApplication] keyWindow] addSubview:_progressView];
-}
--(void)viewDidDisappear:(BOOL)animated
-{
-    [_progressView removeFromSuperview];
-}
-
 - (void)addProgressChart {
+    //set the navigation bar title to dissapear.
+    [self setNavigationBarTitleWithTextColor:[UIColor clearColor] title:nil];
+
     self.progressView = [[UIView alloc] initWithFrame:CGRectMake((self.view.frame.size.width/2 -20),15.0f,48.0f,48.0f)];
     self.progressView.backgroundColor = [UIColor colorWithRed:.10 green:.10 blue:.10 alpha:0];
     
@@ -250,8 +258,6 @@
     
     return [sectionInfo numberOfObjects];
 }
-
-
 
 
 #pragma mark - Tableview cell setup.
@@ -361,6 +367,7 @@
 }
 
 - (void)setSideViewColorSchemeForDietPlan: (DietPlan *)dietPlan cell:(BodyStatTableViewCell *)cell bodyStat: (BodyStat *)stat {
+    //check is the stat is within dietplan range.
     if (dietPlan) {
         if ([NSDate daysBetweenDate:stat.date andDate:dietPlan.startDate] <= 0 &&
             [NSDate daysBetweenDate:stat.date andDate:dietPlan.endDate] >= 0) {
@@ -388,7 +395,9 @@
     }
 }
 
-- (void)setDietPlanDayPlanningLabelsForDietPlan: (DietPlan *)dietPlan cell:(BodyStatTableViewCell *)cell bodyStat: (BodyStat *)stat {
+- (void)setDietPlanDayPlanningLabelsForDietPlan: (DietPlan *)dietPlan
+                                           cell:(BodyStatTableViewCell *)cell
+                                       bodyStat: (BodyStat *)stat {
     
     //get the dietplan day for the date today.
     DietPlanDay * planDay = [dietPlan returnDietPlanDayForDate:stat.date];
@@ -399,13 +408,17 @@
         cell.plannedCarbValueLabel.text = [NSString stringWithFormat:@"%d", [planDay.carbGrams intValue]];
         cell.plannedFatValueLabel.text = [NSString stringWithFormat:@"%d", [planDay.fatGrams intValue]];
         
-        //check if the user has a maintenance set, if so set the deficit/surplus label
-        NSNumber *mainteance = [[_calculator returnUserMaintenanceAndBmr] objectForKey:@"maintenance"];
-        
-        if ([mainteance integerValue] > 0 && [stat.calories integerValue] > 0) {
+        //check if the user has a maintenance set, if so set the deficit/surplus label (this maintenance calculation
+        // uses the stat beloning to the tableviewcell to calculate maintenance, not the latest stat.
+        //so if the stat for this cell does not have a weight, set deficit/surplus to 0.
+        NSNumber *maintenance = [NSNumber numberWithInt:0];
+        if (stat.weight != 0) {
+            maintenance = [[_calculator returnUserMaintenanceAndBmr:stat] objectForKey:@"maintenance"];
+        }
+        if ([maintenance integerValue] > 0 && [stat.calories integerValue] > 0) {
             
             // get the deficit or surplus:
-            NSInteger surplusDeficit = [stat.calories integerValue] - [mainteance integerValue];
+            NSInteger surplusDeficit = [stat.calories integerValue] - [maintenance integerValue];
             if (surplusDeficit > 0) {
                 cell.deficitSurplusLabel.text = @"Surplus:";
             } else {
@@ -413,6 +426,12 @@
             }
             cell.deficitSurplusValueLabel.text = [NSString stringWithFormat:@"%ld", surplusDeficit];
         }
+    } else {
+        cell.plannedCaloriesValueLabel.text = @"-";
+        cell.plannedProteinValueLabel.text = @"-";
+        cell.plannedCarbValueLabel.text = @"-";
+        cell.plannedFatValueLabel.text = @"-";
+        cell.deficitSurplusValueLabel.text = @"-";
     }
 }
 
@@ -422,6 +441,8 @@
     [self performSegueWithIdentifier:@"editBodyStat" sender:sender];
 }
 
+
+#pragma mark - Schedule View.
 - (IBAction)scheduleButtonTapped:(UIBarButtonItem *)sender {
 
     //init a schedule view and set the labels to the current dietplan day.
@@ -443,6 +464,7 @@
     self.scheduleButton.enabled = YES;
 }
 
+#pragma mark - TableView Section header.
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     NSString *rawDateStr = [[[self.fetchedResultsControllerBodyStat sections] objectAtIndex:section] name];
     
@@ -466,29 +488,23 @@
             [formatter setDateFormat:@"d MMMM"];
             NSString *formattedDateStr = [formatter stringFromDate:date];
             UIView *sectionView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 50)];
-            
-            //set the sectionviewcolor to the right color according to the goalprogress colorscheme.
-            NSNumber *startValue = [NSNumber numberWithInt:0];
-            NSNumber *currentValue = [NSNumber numberWithInt:0];
-            NSNumber *goalValue = [NSNumber numberWithInt:0];
-            
-            DietGoal *goal = [DietGoal getMainDietPlanGoal: _currentDietPlan];
+
             // get the main goal start, current and goal values.
+            DietGoal *goal = [DietGoal getMainDietPlanGoal: _currentDietPlan];
             NSArray *startCurrentValue = [DietGoal getStartingValueAndCurrentValueForGoal:goal dietPlan:_currentDietPlan bodyStat:stat];
             if (startCurrentValue.count > 1) {
-                startValue = [startCurrentValue objectAtIndex:0];
-                currentValue = [startCurrentValue objectAtIndex:1];
-                goalValue = [startCurrentValue objectAtIndex:2];
+               NSNumber *startValue = [startCurrentValue objectAtIndex:0];
+               NSNumber *currentValue = [startCurrentValue objectAtIndex:1];
+               NSNumber *goalValue = [startCurrentValue objectAtIndex:2];
                 
                 sectionView.backgroundColor = [GoalColorScheme colorforGoal:[goalValue floatValue]
                                                                   startStat:[startValue floatValue]
                                                                 currentStat:[currentValue floatValue]];
-
             } else {
                 sectionView.backgroundColor = [UIColor darkGrayColor];
             }
 
-            
+            //create labels to hold the section header text.
             UILabel *dateLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 0, 70, 50)];
             UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(90, 5, tableView.frame.size.width, 18)];
             UILabel *subtitleLabel = [[UILabel alloc]initWithFrame:CGRectMake(90, 25, tableView.frame.size.width, 18)];
@@ -503,7 +519,8 @@
             } else if ([NSDate daysBetweenDate:stat.date andDate:_currentDietPlan.endDate] == 0) {
                 titleLabel.text = @"Dietplan End Date";
                 
-                if (_currentDietPlan.dietGoal) {
+                //check if goals exist for the dietplan, if so set the progress in the enddate sectionheader.
+                if (_currentDietPlan.dietGoal.count > 0) {
                     //check the progress on the main goal.
                     subtitleLabel.text = [NSString stringWithFormat:@"%.0f%% of goals reached!", [DietGoal checkMainGoalProgress:_currentDietPlan]];
                 } else {
@@ -511,6 +528,7 @@
                 }
                 
             }
+            
             dateLabel.text = formattedDateStr;
             [titleLabel setFont:[UIFont boldSystemFontOfSize:14]];
             [dateLabel setFont:[UIFont boldSystemFontOfSize:18]];
@@ -524,7 +542,7 @@
             
             return sectionView;
         }
-    }
+}
     
     
     //else add the ordinary section header: the bodystat date.
@@ -660,15 +678,9 @@
         
         BodyStat *addBodyStat = [NSEntityDescription insertNewObjectForEntityForName:@"BodyStat" inManagedObjectContext:[self managedObjectContext]];
         
-        //check if the bodystat belongs to the current dietplan, set the relationship.
-        if (_currentDietPlan) {
-            addBodyStat.dietPlan = _currentDietPlan;
-            addBodyStatViewController.dietPlan = _currentDietPlan;
-        }
-        
         addBodyStatViewController.bodyStat = addBodyStat;
         
-        //removew progressview
+        //remove progressview
         [_progressView removeFromSuperview];
     }
     
@@ -691,10 +703,8 @@
         
         //hand the bodystat of the tableviewcell to the editviewcontroller.
         BodyStat *editBodyStat = (BodyStat *)[self.fetchedResultsControllerBodyStat objectAtIndexPath:indexPath];
-        bsEditViewController.bodyStat= editBodyStat;
-        
-        //get the dietplan for that bodystat.
-#warning Need to pass the dietplan for that bodystat here.
+        bsEditViewController.bodyStat = editBodyStat;
+
         //removew progressview
         [_progressView removeFromSuperview];
 
@@ -716,70 +726,6 @@
         [_progressView removeFromSuperview];
     }
     
-}
-
-#pragma mark - moving tableviewcells
-
-
-
-#pragma mark - NSFetchedResultsControllerDelegate
-
-- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
-{
-    [self.tableView beginUpdates];
-}
-
-//if changes to a section occured.
-- (void)controller:(NSFetchedResultsController *)controller
-  didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo
-		   atIndex:(NSUInteger)sectionIndex
-	 forChangeType:(NSFetchedResultsChangeType)type
-{
-    switch(type)
-    {
-        case NSFetchedResultsChangeInsert:
-            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeDelete:
-            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-    }
-}
-
-//if changes to an object occured.
-- (void)controller:(NSFetchedResultsController *)controller
-   didChangeObject:(id)anObject
-	   atIndexPath:(NSIndexPath *)indexPath
-	 forChangeType:(NSFetchedResultsChangeType)type
-	  newIndexPath:(NSIndexPath *)newIndexPath
-{
-    
-    // responses for type (insert, delete, update, move).
-    switch(type)
-    {
-        case NSFetchedResultsChangeInsert:
-            [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeDelete:
-            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeUpdate:
-            [self.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeMove:
-            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-    }
-}
-
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
-{
-    [self.tableView endUpdates];
 }
 
 

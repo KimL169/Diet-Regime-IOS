@@ -34,8 +34,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-//
-//    self.addGoal = [NSEntityDescription insertNewObjectForEntityForName:@"DietPlan" inManagedObjectContext:[self managedObjectContext]];
+
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
@@ -73,6 +72,7 @@
     }
     
 }
+
 
 - (BOOL)checkIfMainGoalSelected {
     //if there is only one diet goal, set it to the maingoal.

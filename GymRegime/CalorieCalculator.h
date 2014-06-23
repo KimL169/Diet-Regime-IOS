@@ -11,12 +11,14 @@
 
 @interface CalorieCalculator : CoreDataHelper
 
+//get the caloric calibration advice based on the users weight and calorie intake.
 - (NSString *)goalAndActualWeightChangeDiscrepancyAdvice;
 
-- (NSString *)weeklyRateOfWeightChange;
-
-- (NSDictionary *)returnUserMaintenanceAndBmr;
+//return user's body mass index and the string with it's meaning.
 - (NSDictionary *)returnUserBmi:(float)weight;
+
+//return users BMR and daily caloric need (maintenance)
+- (NSDictionary *)returnUserMaintenanceAndBmr:(BodyStat *)stat;
 
 typedef enum{
     DefaultBMR, HarrisBenedict, KatchMcArdle, MifflinStJeor, Custom, BodyWeightMultiplier
@@ -27,8 +29,5 @@ typedef enum {
     DefaultTDEE, CustomTDEE, ActivityMultiplierTDEE, BodyWeightMultiplierTDEE
     
 }MaintenanceMultiplier;
-
-//designated initializer
-- (instancetype)init;
 
 @end

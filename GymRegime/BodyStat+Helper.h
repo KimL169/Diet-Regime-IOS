@@ -17,9 +17,12 @@
 - (void)setBmi;
 
 //returns the weekly progress on weight statistic.
-+ (NSNumber *)checkWeeklyWeightProgress: (NSArray *)bodystats;
++ (NSNumber *)checkWeeklyWeightProgressOnStat: (BodyStat *)firstStat secondStat: (BodyStat *)secondStat;
 
 //check if the bodystat contains bodymeasurements.
 - (BOOL)hasMeasurements;
+
+//set the right dietplan for a bodystat.
+- (DietPlan *)setDietPlanForBodyStat;
 
 @end

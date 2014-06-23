@@ -32,7 +32,6 @@
 {
     NSString * segueName = segue.identifier;
     if ([segueName isEqualToString: @"toContainer"]) {
-        NSLog(@"hello");
         BSInputMeasurementTableViewController *vc = segue.destinationViewController;
         vc.bodyStat = _bodyStat;
         if (_dietPlan) {

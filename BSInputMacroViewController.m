@@ -27,7 +27,6 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    NSLog(@"macroStat: %@", _bodyStat);
     _proteinField.delegate = self;
     _carbField.delegate = self;
     _fatField.delegate = self;
@@ -37,8 +36,6 @@
     
     //check if the dietplan has dietdays. If so, set the plan labels.
     [self setPlannedLabels];
-    NSLog(@"date: %@", _bodyStat.date);
-    NSLog(@"dietPlan: %@", _dietPlan);
 }
 
 - (void)setValueLabels {
@@ -103,7 +100,6 @@
     NSString *newString = [textField.text stringByReplacingCharactersInRange:range withString:string];
     
     NSString  *expression = @"^([0-9]{1,3}+)?(\\.([0-9]{1})?)?$";
-
     
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:expression
                                                                            options:NSRegularExpressionCaseInsensitive

@@ -21,6 +21,9 @@
 
 + (NSInteger)daysBetweenDate:(NSDate*)fromDateTime andDate:(NSDate*)toDateTime {
     
+    if (fromDateTime == nil || toDateTime == nil) {
+        return 0;
+    }
     
     NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     NSDateComponents *components = [gregorianCalendar components:NSDayCalendarUnit
@@ -29,6 +32,32 @@
                                                          options:0];
     
     return [components day];
+}
+
+
++ (BOOL)isDate:(NSDate *)date inRangeFirstDate:(NSDate *)firstDate lastDate:(NSDate *)lastDate {
+    NSDateComponents *startCalendarDate = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:firstDate];
+    
+    NSDateComponents *endCalendarDate = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:lastDate];
+    
+    NSDateComponents *comparisonDate = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:date];
+    
+    BOOL afterStartDate = NO;
+    BOOL beforeEndDate = NO;
+    
+    //check if the date is between the start and endate of the range.
+    if ([comparisonDate day] >= [startCalendarDate day] && [comparisonDate month] >= [startCalendarDate month] && [comparisonDate year] >= [startCalendarDate year]) {
+        afterStartDate = YES;
+    }
+    if ([comparisonDate day] <= [endCalendarDate day] && [comparisonDate month] <= [endCalendarDate month] && [comparisonDate year] <= [endCalendarDate year]) {
+        beforeEndDate = YES;
+    }
+        
+    if (beforeEndDate == YES && afterStartDate == YES) {
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 - (NSString *)stringFromDateMediumFormatStyle {
@@ -40,4 +69,17 @@
     return dateStr;
 }
 
+-(NSString *)returnFormattedDateString {
+    //create comparison calendar dates.
+    NSDateComponents *calendarDate = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:self];
+    
+    NSDateComponents *today = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:[NSDate date]];
+    
+    //return today if the dates match, if not return the date string medium format style.
+    if ([calendarDate day] == [today day] && [calendarDate month] == [today month] && [calendarDate year] == [today year]) {
+        return @"Today";
+    } else {
+        return [self stringFromDateMediumFormatStyle];
+    }
+}
 @end

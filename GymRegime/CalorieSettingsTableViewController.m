@@ -39,6 +39,7 @@
 @property (nonatomic) NSInteger bmrCustom;
 @property (nonatomic) NSInteger maintenanceCustom;
 
+@property (nonatomic, strong) UIGestureRecognizer *tapGestureRecognizer;
 @end
 
 #define BMR_SECTION 0
@@ -49,24 +50,11 @@
 
 @implementation CalorieSettingsTableViewController
 
-- (instancetype)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+
     
     //load user defaults.
     _userDefaults = [NSUserDefaults standardUserDefaults];
@@ -84,14 +72,18 @@
     [self setSelectedOptions];
     
     self.calculator = [[CalorieCalculator alloc]init];
+    
+    //add a tap recognizer to dismiss the keyboard.
+    _tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
+    [self.tableView addGestureRecognizer:_tapGestureRecognizer];
+    //make sure the user can still select table cells.
+    _tapGestureRecognizer.cancelsTouchesInView = NO;
 }
 
-
-
-////The event handling method
-//- (void)touch:(UITapGestureRecognizer *)recognizer {
-//    [self.view endEditing:YES];
-//}
+- (void)hideKeyboard {
+    //resign keyboard.
+    [self.tableView endEditing:YES];
+}
 
 - (void)setOutletValues {
     //check if a calorie calibration exists, if so add it to the textfield.
@@ -184,7 +176,7 @@
 #pragma mark - textfields
 - (IBAction)calorieCalibrationTextField:(UITextField *)sender {
     
-    int calibration = [_calorieCalibrationTextField.text integerValue];
+    int calibration = [_calorieCalibrationTextField.text intValue];
     self.calibrationTDEE = calibration;
 }
 - (IBAction)bmrBodyWeightMultiplierTextField:(UITextField *)sender {
@@ -230,7 +222,6 @@
         UITableViewCellAccessoryCheckmark;
     }
     if ([[cell reuseIdentifier] isEqualToString:@"KatchMcCardleBmr"]) {
-        NSLog(@"katch");
         [_userDefaults setInteger:KatchMcArdle forKey:@"bmrEquation"];
         self.katchMcArdleEquationCell.accessoryType = UITableViewCellAccessoryCheckmark;
     }
@@ -263,7 +254,7 @@
         self.maintenanceMultiplierType = [_userDefaults integerForKey:@"maintenanceMultiplierType"];
     }
     if ([_userDefaults integerForKey:@"calorieFormulaCalibration"]) {
-        self.calibrationTDEE = [_userDefaults integerForKey:@"calorieFormulaCalibration"];
+        self.calibrationTDEE = (int)[_userDefaults integerForKey:@"calorieFormulaCalibration"];
     }
     if ([_userDefaults integerForKey:@"bodyWeightMultiplierBmr"]) {
         self.bmrBodyWeightMultiplier = [_userDefaults integerForKey:@"bodyWeightMultiplierBmr"];
@@ -323,7 +314,6 @@
     
     //the custom textfields can only have a length of 5 numbers.
     if (textField == self.maintenanceCustomTextField || textField == self.bmrCustomTextFIeld) {
-        NSLog(@"yes");
         NSUInteger newLength = [textField.text length] + [string length] - range.length;
         return (newLength > 5) ? NO : YES;
     }
@@ -361,7 +351,7 @@
 }
 
 - (NSString *)currentMaintenance {
-    NSDictionary *dict = [self.calculator returnUserMaintenanceAndBmr];
+    NSDictionary *dict = [self.calculator returnUserMaintenanceAndBmr:nil];
     int maintenance = [[dict valueForKey:@"maintenance"] intValue];
     if (maintenance == 0) {
         return @"-";
@@ -371,7 +361,7 @@
 }
 
 - (NSString *)currentBmr {
-    NSDictionary *dict = [self.calculator returnUserMaintenanceAndBmr];
+    NSDictionary *dict = [self.calculator returnUserMaintenanceAndBmr:nil];
     int bmr = [[dict valueForKey:@"bmr"] intValue];
     
     if (bmr == 0) {

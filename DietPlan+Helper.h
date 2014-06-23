@@ -12,7 +12,7 @@
 @interface DietPlan (Helper)
 
 //check if the dietplan endate is reached.
-- (BOOL)checkDietPlanEndDate;
+- (BOOL)checkDietPlanDateRange:(NSDate *)date;
 
 //returns the dietplan belonging to the dietplan for a given date.
 - (DietPlanDay *)returnDietPlanDayForDate:(NSDate *)date;

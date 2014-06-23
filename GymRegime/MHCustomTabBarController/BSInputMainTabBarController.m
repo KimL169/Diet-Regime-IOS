@@ -73,6 +73,10 @@ NSString *const MHCustomTabBarControllerViewControllerAlreadyVisibleNotification
         //set the bodystat's lbm and bmi value if the relevant data has been entered.
         [_bodyStat setBmi];
         [_bodyStat setLbm];
+        
+        //check if the bodystat is inside the start-enddate range of a dietplan, if so, set the relationship.
+        [_bodyStat setDietPlanForBodyStat];
+        
         [super saveAndDismiss];
     } else {
         
@@ -85,10 +89,7 @@ NSString *const MHCustomTabBarControllerViewControllerAlreadyVisibleNotification
     [super cancelAndDismiss];
 }
 
-- (NSManagedObjectContext *)managedObjectContext {
-    return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
-    
-}
+
 - (void)bodyStatWithDateExistsAlert {
     
     NSString *message = @"You have already filled in a bodystat with that date. Do you wish to override the existing one?";
@@ -196,6 +197,11 @@ NSString *const MHCustomTabBarControllerViewControllerAlreadyVisibleNotification
     }
     
     return YES;
+}
+
+- (NSManagedObjectContext *)managedObjectContext {
+    return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
+    
 }
 
 #pragma mark - Memory Warning

@@ -9,6 +9,7 @@
 #import "DietPlanTableViewController.h"
 #import "DietPlanDaysTableViewController.h"
 #import "GoalSettingViewController.h"
+#import "BSInputMainTabBarController.h"
 #import "AppDelegate.h"
 #import "ALAlertBanner.h"
 #import "NSDate+Utilities.h"
@@ -18,25 +19,22 @@
 @interface DietPlanTableViewController ()
 
 
-
-@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+@property (strong, nonatomic) UIAlertView *alertView;
 
 @property (strong, nonatomic) IBOutlet UIButton *removeDietPlanButton;
-@property (weak, nonatomic) IBOutlet UITextField *startDateTextField;
-@property (weak, nonatomic) IBOutlet UITextField *endDateTextField;
 @property (weak, nonatomic) IBOutlet UIButton *setGoalsButton;
 @property (weak, nonatomic) IBOutlet UIButton *addCurrentBodyStatButton;
 @property (weak, nonatomic) IBOutlet UIButton *addEditDietDaysButton;
-@property (weak, nonatomic) IBOutlet UIButton *addStartingProgressPhotoButton;
-
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *saveAndEditButton;
-
 @property (weak, nonatomic) IBOutlet UILabel *dietDaysNumberLabel;
 @property (weak, nonatomic) IBOutlet UILabel *totalDietarySurplusDeficitLabel;
 @property (weak, nonatomic) IBOutlet UILabel *estimatedTotalWeightChangeLabel;
-@property (strong, nonatomic) IBOutlet UITableViewCell *removeDietPlanCell;
 
-@property (strong, nonatomic) UIAlertView *alertView;
+@property (strong, nonatomic) IBOutlet UITableViewCell *removeDietPlanCell;
+@property (weak, nonatomic) IBOutlet UITextField *startDateTextField;
+@property (weak, nonatomic) IBOutlet UITextField *endDateTextField;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *saveAndEditButton;
+
 
 
 #define TABLEVIEW_ROW_HEIGHT 55
@@ -89,17 +87,17 @@
 {
     [super viewDidLoad];
     
-    //load the existing diet plan, else
-    //if the diet plan doesn't exist, initialize it.
     
-    //check if a dietplan already exists, else make it.
+    //check if a dietplan already exists, else create it it.
     if (!_dietPlan) {
         self.dietPlan = [NSEntityDescription insertNewObjectForEntityForName:@"DietPlan" inManagedObjectContext:[self managedObjectContext]];
+        
+        //set the startdate to today.
+        _dietPlan.startDate = [NSDate setDateToMidnight:[NSDate date]];
         
     } else {
         //set the UI to edit mode.
         [self disableUI];
-        [self setDateLabels];
         [self setInformationLabels];
         [self.saveAndEditButton setTitle:@"edit"];
     }
@@ -124,15 +122,39 @@
     
     [self.tableView addGestureRecognizer:recognizer];
 
+    //set the date labels.
+    [self setDateLabels];
+    
+    //Set self to listen for the event that he dietplandaytableviewcontroller is dismissed.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didDismissDietPlanDayTableViewController)
+                                                 name:@"DietDayTableViewControllerDismissed"
+                                               object:nil];
 }
 
+- (void)didDismissDietPlanDayTableViewController {
+    //reset information labels.
+    [self setInformationLabels];
+}
+
+
+#pragma mark - Set Labels
 - (void)setDateLabels {
     
-    self.startDateTextField.text = [NSString stringWithFormat:@"%@", [_dietPlan.startDate stringFromDateMediumFormatStyle]];
-    [_startDateTextField setTextColor:[UIColor blackColor]];
-    self.endDateTextField.text = [NSString stringWithFormat:@"%@", [_dietPlan.endDate stringFromDateMediumFormatStyle]];
+    if (_dietPlan.startDate) {
+        self.startDateTextField.text = [NSString stringWithFormat:@"%@", [_dietPlan.startDate returnFormattedDateString]];
+
+    }
+    if (_dietPlan.endDate) {
+        self.endDateTextField.text = [NSString stringWithFormat:@"%@", [_dietPlan.endDate returnFormattedDateString]];
+
+    }
+    //set the font.
     [_endDateTextField setTextColor:[UIColor blackColor]];
-    
+    [_endDateTextField setFont:[UIFont boldSystemFontOfSize:14]];
+    [_startDateTextField setTextColor:[UIColor blackColor]];
+    [_startDateTextField setFont:[UIFont boldSystemFontOfSize:14]];
+
 }
 
 - (void)setInformationLabels {
@@ -145,7 +167,9 @@
     
     //set total deficit/surplus label.
     NSInteger totalDietarySurplusDeficit = [_dietPlan returnTotalDeficitSurplus];
-    _totalDietarySurplusDeficitLabel.text = [NSString stringWithFormat:@"Total dietary surplus/deficit: %ld", totalDietarySurplusDeficit];
+    if (totalDietarySurplusDeficit) {
+        _totalDietarySurplusDeficitLabel.text = [NSString stringWithFormat:@"Total dietary surplus/deficit: %ld", totalDietarySurplusDeficit];
+    }
     
     //convert to kilograms. One kilogram of fat == 7000 kcal
     _estimatedTotalWeightChangeLabel.text = [NSString stringWithFormat:@"Est. total weight change: %.1f kg", ((float)totalDietarySurplusDeficit / 7000)];
@@ -153,7 +177,6 @@
 }
 
 #pragma mark - information button
-
 - (IBAction)infoButton:(UIButton *)sender {
     
     NSString *message = @"Here you can setup a diet plan. In this plan you can exactly specify a diet you wish to follow for a certain period of time. This app allows you to track your progress on that diet. You can choose to follow a cyclical or non-cyclical dieting approach. The cyclical approach allows you to setup specific diet days that will be cycled throughout your diet. For example you can set up a 'workout' diet day and a 'rest' diet day. You can also set specific goals you would like to achieve on this diet and the app will try to estimate if those goals are achievable in the given timeframe. Dietplans that are finished can be reviewed in the 'archive' section under 'Settings'.";
@@ -172,6 +195,7 @@
     [banner show];
 }
 
+#pragma mark - touch regocnizer.
 //The event handling method
 - (void)touch:(UITapGestureRecognizer *)recognizer {
     [self.tableView endEditing:YES];
@@ -225,9 +249,7 @@
 
 }
 
-- (void)removeDietPlanFromDatabase {
-    
-}
+#pragma mark - Save and Cancel
 - (void)saveAndDismiss {
     
     //save the data
@@ -250,39 +272,6 @@
 }
 
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    
-    if (alertView.tag == CANCEL_ALERT_VIEW) {
-        if (buttonIndex == [alertView cancelButtonIndex]) {
-            //do nothing
-        } else {
-            //dismiss and rollback any transactions made.
-            [self.managedObjectContext rollback];
-            [self dismissViewControllerAnimated:YES completion:nil];
-        }
-    }
-    if (alertView.tag == MISSING_INFO_ALERT_VIEW) {
-        if (buttonIndex == [alertView cancelButtonIndex]) {
-            //do nothing
-        } else {
-
-            [self saveAndDismiss];
-        }
-    }
-    if (alertView.tag == REMOVE_ALERT_VIEW) {
-        if (buttonIndex == [alertView cancelButtonIndex]) {
-            //do nothing
-        } else {
-            //delete the dietplan and save.
-            [self.managedObjectContext deleteObject:_dietPlan];
-            [self saveAndDismiss];
-        }
-    }
-}
-
-
-
-
 #pragma mark - Date Fields
 - (IBAction)startDate:(UITextField *)sender {
     UIDatePicker *datePicker = [[UIDatePicker alloc] init];
@@ -301,7 +290,7 @@
     //set the dietplan date and the textfield to this date. to this date
     _dietPlan.startDate = date;
     
-    _startDateTextField.text = [NSString stringWithFormat:@"%@", [date stringFromDateMediumFormatStyle]];
+    _startDateTextField.text = [NSString stringWithFormat:@"%@", [date returnFormattedDateString]];
     [_startDateTextField setFont:[UIFont boldSystemFontOfSize:14]];
 
 }
@@ -323,7 +312,7 @@
     //set the dietplan date and the textfield to this date. to this date
     _dietPlan.endDate = date;
     
-    _endDateTextField.text = [NSString stringWithFormat:@"%@", [date stringFromDateMediumFormatStyle]];
+    _endDateTextField.text = [NSString stringWithFormat:@"%@", [date returnFormattedDateString]];
     [_endDateTextField setFont:[UIFont boldSystemFontOfSize:14]];
 }
 
@@ -334,14 +323,14 @@
         //set the dietplan date and the textfield to this date. to this date
         _dietPlan.startDate = date;
         [_startDateTextField setFont:[UIFont boldSystemFontOfSize:14]];
-        _startDateTextField.text = [NSString stringWithFormat:@"%@", [date stringFromDateMediumFormatStyle]];
+        _startDateTextField.text = [NSString stringWithFormat:@"%@", [date returnFormattedDateString]];
     }
     if (sender.tag == END_DATE_PICKER) {
         NSDate *date = [NSDate setDateToMidnight:sender.date];
         //set the dietplan date and the textfield to this date. to this date
         _dietPlan.endDate = date;
         [_endDateTextField setFont:[UIFont boldSystemFontOfSize:14]];
-        _endDateTextField.text = [NSString stringWithFormat:@"%@", [date stringFromDateMediumFormatStyle]];
+        _endDateTextField.text = [NSString stringWithFormat:@"%@", [date returnFormattedDateString]];
     }
 }
 
@@ -371,7 +360,7 @@
 
 
 
-#pragma mark - Form Validations
+#pragma mark - Validations
 - (BOOL)dateValidation {
     
     //check if a date has been filled in, if so, check if it was correct.
@@ -393,39 +382,70 @@
     if ([_startDateTextField.text length] < 1 || [_startDateTextField.text length] < 1) {
         NSString *message = @"You have not entered a start and end date for this diet plan";
         
-        ALAlertBanner *banner = [ALAlertBanner alertBannerForView:self.view
-                                                            style:ALAlertBannerStyleFailure
-                                                         position:ALAlertBannerPositionTop
-                                                            title:@"Missing Date"
-                                                         subtitle:message];
-        
-        banner.secondsToShow = 2;
-        [banner show];
-        return YES;
+        return [self showMissingInfoBanner:message];
     }
     return NO;
 }
 
 - (BOOL)dateCorrectnessValidation {
     
-    NSInteger difference = [NSDate daysBetweenDate:_dietPlan.startDate andDate:_dietPlan.endDate];
-    
+    //check if the enddate is in the past.
+    if ([NSDate daysBetweenDate:[NSDate date] andDate:_dietPlan.endDate] < 0) {
+        NSString *message = @"Stop living in the past! :) Your enddate cannot be in the past.";
+        
+        return [self showMissingInfoBanner:message];
+    }
     //the end date must be at least 7 days later than the start date.
-    if (difference < 7) {
+    if ([NSDate daysBetweenDate:_dietPlan.startDate andDate:_dietPlan.endDate] < 7) {
         NSString *message = @"Your end date must be at least one week from your start date.";
-        
-        ALAlertBanner *banner = [ALAlertBanner alertBannerForView:self.view
-                                                            style:ALAlertBannerStyleFailure
-                                                         position:ALAlertBannerPositionTop
-                                                            title:@"Missing Date"
-                                                         subtitle:message];
-        
-        banner.secondsToShow = 2;
-        [banner show];
-        return YES;
-        
+    
+        return [self showMissingInfoBanner:message];
     }
     return NO;
+}
+
+
+#pragma mark - Alert Messages
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+    if (alertView.tag == CANCEL_ALERT_VIEW) {
+        if (buttonIndex == [alertView cancelButtonIndex]) {
+            //do nothing
+        } else {
+            //dismiss and rollback any transactions made.
+            [self.managedObjectContext rollback];
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
+    }
+    if (alertView.tag == MISSING_INFO_ALERT_VIEW) {
+        if (buttonIndex == [alertView cancelButtonIndex]) {
+            //do nothing
+        } else {
+            
+            [self saveAndDismiss];
+        }
+    }
+    if (alertView.tag == REMOVE_ALERT_VIEW) {
+        if (buttonIndex == [alertView cancelButtonIndex]) {
+            //do nothing
+        } else {
+            //delete the dietplan and save.
+            [self.managedObjectContext deleteObject:_dietPlan];
+            [self saveAndDismiss];
+        }
+    }
+}
+
+-(BOOL)showMissingInfoBanner:(NSString *)message {
+    ALAlertBanner *banner = [ALAlertBanner alertBannerForView:self.view
+                                                        style:ALAlertBannerStyleFailure
+                                                     position:ALAlertBannerPositionTop
+                                                        title:@"Missing Date"
+                                                     subtitle:message];
+    
+    banner.secondsToShow = 2;
+    [banner show];
+    return YES;
 }
 
 - (BOOL)goalsAndDietDaysValidation {
@@ -470,16 +490,6 @@
 }
 
 
-//make sure the length of the textfields is okay.
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    //set the numberOfWeeks text field to a 2 char length maximum.
-    if (textField.tag == NUMBER_OF_WEEKS_TEXT_FIELD) {
-        NSUInteger newLength = [textField.text length] + [string length] - range.length;
-        return (newLength > 2) ? NO : YES;
-    }
-    return YES;
-}
-
 #pragma mark - TableView Datasource
 
 //remove the remove dietplan cell in the 'create dietplan' mode.
@@ -492,9 +502,7 @@
     }
 }
 
-- (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    
+- (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     //set a height for the row that displays the 'remove' button. This will only be displayed
     //when in editing mode.
     CGFloat height = 0.0;
@@ -511,12 +519,13 @@
 
 #pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     //pass the diet plan to the dietplandays tableviewcontroller
     if ([[segue identifier] isEqualToString:@"dietPlanDays"]) {
-        DietPlanDaysTableViewController *dietPlanDayTableViewController = segue.destinationViewController;
+        UINavigationController *navController = segue.destinationViewController;
+        DietPlanDaysTableViewController *dietPlanDayTableViewController = (DietPlanDaysTableViewController *)navController.topViewController;
+        
         //pass the current dietplan to the dietplandays viewcontroller.
         dietPlanDayTableViewController.dietPlan = _dietPlan;
     }
@@ -526,6 +535,18 @@
         GoalSettingViewController *goalSettingViewController = (GoalSettingViewController *)navController.topViewController;
         //pass the current dietplan to the goal viewcontroller
         goalSettingViewController.dietPlan = _dietPlan;
+    }
+    
+    if ([[segue identifier] isEqualToString:@"addStartBodyStat"]) {
+        UINavigationController *navController = segue.destinationViewController;
+        BSInputMainTabBarController *bodyStatEntryViewController = (BSInputMainTabBarController *)navController.topViewController;
+        //pass the current dietplan to the goal viewcontroller
+        bodyStatEntryViewController.dietPlan = _dietPlan;
+        
+        BodyStat *addBodyStat = [NSEntityDescription insertNewObjectForEntityForName:@"BodyStat" inManagedObjectContext:[self managedObjectContext]];
+        addBodyStat.dietPlan = _dietPlan;
+        addBodyStat.date = _dietPlan.startDate;
+        bodyStatEntryViewController.bodyStat = addBodyStat;
     }
 }
 

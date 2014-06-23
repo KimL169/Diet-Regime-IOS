@@ -30,7 +30,9 @@
 {
     [super viewDidLoad];
     
+    //set touchcount to register the user gestures.
     _touchCount = 0;
+    
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(didTapOTableView:)];
     [self.tableView addGestureRecognizer:tap];
     
@@ -148,12 +150,12 @@
 - (void)setCellDeficitSurplusLabel:(DietPlanDayTableViewCell *)cell diePlanDay: (DietPlanDay *)day {
     
     //get the user's current maintenance.
-    NSNumber *maintenance = [[self.calculator returnUserMaintenanceAndBmr] objectForKey:@"maintenance"];
+    NSNumber *maintenance = [[self.calculator returnUserMaintenanceAndBmr:nil] objectForKey:@"maintenance"];
     
     //get the user's maintenance if it exists.
     if ([maintenance integerValue] != 0) {
-        int deficitSurplus = [day.calories integerValue] - [maintenance integerValue];
-        cell.deficitSurplusLabel.text = [NSString stringWithFormat:@"%d",deficitSurplus];
+        NSInteger deficitSurplus = [day.calories integerValue] - [maintenance integerValue];
+        cell.deficitSurplusLabel.text = [NSString stringWithFormat:@"%ld", deficitSurplus];
     } else {
         cell.deficitSurplusLabel.text = @"";
     }
@@ -272,6 +274,17 @@
     }
 }
 
+- (IBAction)done:(UIBarButtonItem *)sender {
+    //dismiss viewcontroller with completion handler.
+    [self dismissViewControllerAnimated: YES completion: ^{
+        
+        //post notification to let the statistics viewcontroller know.
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"DietDayTableViewControllerDismissed"
+                                                            object:nil
+                                                          userInfo:nil];
+    }];
+    
+}
 
 #pragma mark - NSFetchedResultsControllerDelegate
 

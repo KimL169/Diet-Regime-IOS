@@ -7,7 +7,6 @@
 //
 
 #import "HealthKitData.h"
-#import "BodyStat.h"
 @import HealthKit;
 
 @implementation HealthKitData

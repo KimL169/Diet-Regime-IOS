@@ -55,11 +55,6 @@
     self.dataHelper = [[CoreDataHelper alloc]init];
 }
 
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
 
 #pragma mark - Table view data source
 
@@ -72,7 +67,6 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    
     if (section == 0) {
         return [self.bodyCompositionArray count];
     } else {
@@ -85,8 +79,6 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
-    
-
 
     // Configure the cell...
     if (indexPath.section == 0) {
@@ -110,6 +102,7 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    //first section is bodycomposition section, the second body measurements.
     if (section == 0) {
         return @"Body composition";
     } else {

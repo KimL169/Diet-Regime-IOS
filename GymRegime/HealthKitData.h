@@ -7,7 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "BodyStat.h"
 
 @interface HealthKitData : NSObject
 
+- (NSArray *)getStartAndEndDate: (NSDate *)date;
+
+- (void)healthKitInputBodyWeight: (BodyStat *)stat;
+
+    
 @end

@@ -70,12 +70,14 @@
 
 }
 
-
 - (IBAction)editOrSaveAndDismiss:(UIBarButtonItem *)sender {
     
     if ([self.editSaveButton.title isEqualToString:@"Save"]) {
         //make sure the user has filled in all the fields else, display message and don't save.
-        if (![self.ageInYearsTextField.text isEqualToString:@""] && ![self.heightInCmTextField.text isEqualToString:@""]) {
+        if (![self.ageInYearsTextField.text isEqualToString:@""] &&
+            ![self.heightInCmTextField.text isEqualToString:@""] &&
+            ![self.heightInCmTextField.text isEqual:@"0"] &&
+            ![self.ageInYearsTextField.text isEqual:@"0"]) {
             // create user defaults to store settings
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
             
@@ -113,8 +115,6 @@
 
 
 - (void)setupInteractionDisabledUI {
-    
-    //set the title to edit.
     _editSaveButton.title = @"Edit";
 
     _ageInYearsTextField.userInteractionEnabled = NO;

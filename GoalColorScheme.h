@@ -10,7 +10,9 @@
 
 @interface GoalColorScheme : NSObject
 
-
-+ (UIColor *)colorforGoal:(float)goalStat startStat: (float)startStat currentStat:(float)currentStat;
+//return the color belonging to a certain progress point on a dietgoal.
++ (UIColor *)colorforGoal:(float)goalStat
+                startStat: (float)startStat
+              currentStat:(float)currentStat;
 
 @end

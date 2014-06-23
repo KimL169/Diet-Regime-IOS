@@ -12,10 +12,6 @@
 #import "DietGoal+Helper.h"
 
 
-/*****************
- * Make this object into a category on BodyStat!!!
- *******************/
-
 @interface CoreDataHelper : NSObject
 
 @property (nonatomic, strong)NSManagedObjectContext *managedObjectContext;
@@ -26,11 +22,14 @@
                          sortDescriptor:(NSSortDescriptor *)sortDescriptor;
 
 - (BodyStat *)fetchLatestBodystat;
-- (BodyStat *)fetchLatestBodystatWithBodyfatEntry: (NSInteger)daysAgoAllowed;
-- (BodyStat *)fetchLatestBodystatWithWeightEntry: (NSInteger)daysAgoAllowed;
 - (DietPlan *)fetchCurrentDietPlan;
 - (NSArray *)fetchDietPlanDaysForDietPlan: (DietPlan *)dietPlan;
-- (BodyStat *)fetchLatestBodystatWithStat:(NSString *)stat maxDaysAgo:(NSInteger)daysAgoAllowed;
+- (BodyStat *)fetchLatestBodystatWithStat:(NSString *)stat
+                               maxDaysAgo:(NSInteger)daysAgoAllowed;
 
+- (NSInteger)countEntityInstancesWithEntityName:(NSString *)entityName
+                                      predicate:(NSPredicate *)predicate;
 
+- (NSInteger)countEntityInstancesWithEntityName:(NSString *)entityName
+                                       dietPlan:(DietPlan *)dietPlan;
 @end

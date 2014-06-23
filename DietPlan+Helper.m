@@ -13,12 +13,11 @@
 
 @implementation DietPlan (Helper)
 
-- (BOOL)checkDietPlanEndDate {
-    //get the current date
-    NSDate *date = [NSDate setDateToMidnight:[NSDate date]];
+
+- (BOOL)checkDietPlanDateRange:(NSDate *)date {
     
     //check if the current diet plan is finished before or at the current date.
-    if ([NSDate daysBetweenDate:date andDate:self.endDate] <= 0) {
+    if ([NSDate isDate:date inRangeFirstDate:self.startDate lastDate:self.endDate] == YES) {
         return YES;
     } else {
         return NO;
@@ -27,6 +26,10 @@
 
 - (DietPlanDay *)returnDietPlanDayForDate:(NSDate *)date {
     
+    //check if the date is within the dietplan date range.
+    if ([self checkDietPlanDateRange:date] == NO) {
+        return nil;
+    }
     //check the number of days between the date and the dietplan startdate.
     NSInteger days = [NSDate daysBetweenDate:self.startDate andDate:date];
     CoreDataHelper *dataHelper = [[CoreDataHelper alloc]init];
@@ -62,6 +65,9 @@
     //get the total number of days
     NSInteger dietDaysCount = [fetchedDietDays count];
     NSInteger totalDietPlanDays = [NSDate daysBetweenDate:self.startDate andDate:self.endDate];
+    if (totalDietPlanDays < 1) {
+        return 0;
+    }
     
     int totalCalories = 0;
     int counter = 0;
@@ -83,7 +89,7 @@
     //get the user maintenance
     CalorieCalculator *calculator = [[CalorieCalculator alloc]init];
     
-    NSNumber *maintenance = [[calculator returnUserMaintenanceAndBmr] valueForKey:@"maintenance"];
+    NSNumber *maintenance = [[calculator returnUserMaintenanceAndBmr:nil] valueForKey:@"maintenance"];
 
     if ([maintenance integerValue] > 0 && totalIntake > 0) {
         NSInteger totalMaintenance = [maintenance intValue] * totalDietPlanDays;

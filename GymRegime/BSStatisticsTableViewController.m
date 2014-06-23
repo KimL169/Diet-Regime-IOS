@@ -24,20 +24,20 @@
 @property (weak, nonatomic) IBOutlet UILabel *maintenanceLabel;
 @property (weak, nonatomic) IBOutlet UILabel *bmrValueLabel;
 @property (weak, nonatomic) IBOutlet UILabel *maintenanceValueLabel;
-@property (weak, nonatomic) IBOutlet UILabel *weeklyWeightChangeLabel;
 @property (weak, nonatomic) IBOutlet UILabel *lbmValueLabel;
-
 @property (weak, nonatomic) IBOutlet UILabel *bmiValueLabel;
 @property (weak, nonatomic) IBOutlet UILabel *bmiCategoryValueLabel;
 @property (weak, nonatomic) IBOutlet UILabel *advisedCalorieAdjustmentLabel;
-@property (strong, nonatomic) NSArray *fetchedBodyStats;
+@property (weak, nonatomic) IBOutlet UILabel *fatMassValueLabel;
 
-@property (strong, nonatomic) UIAlertView *alertView;
+@property (strong, nonatomic) NSArray *fetchedBodyStats;
 @property (strong, nonatomic) NSNumber *bmr;
 @property (strong, nonatomic) NSNumber *maintenance;
 
-
+@property (strong, nonatomic) UIAlertView *alertView;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+
+
 @end
 
 @implementation BSStatisticsTableViewController
@@ -46,7 +46,6 @@
 - (NSManagedObjectContext *)managedObjectContext {
     return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
 }
-
 
 - (void)viewDidLoad
 {
@@ -63,7 +62,7 @@
     //init the calorie calculator class to acces bmr and maintenance calculation methods.
     self.calculator = [[CalorieCalculator alloc]init];
     self.dataHelper = [[CoreDataHelper alloc]init];
-    //Set self to listen for the message "SecondViewControllerDismissed and run a method when this message is detected
+    //Set self to listen for the message and run a method when this message is detected
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didDismissProfileViewController)
                                                  name:@"BSProfileViewControllerDismissed"
@@ -74,6 +73,12 @@
     [super viewWillAppear:YES];
     NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:NO];
     self.fetchedBodyStats = [_dataHelper performFetchWithEntityName:@"BodyStat" predicate:nil sortDescriptor: sortDescr];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:YES];
+    //set all the user statistics labels.
+    [self setUserStatisticsLabels];
 }
 
 - (void)didDismissProfileViewController {
@@ -115,55 +120,60 @@
     [banner show];
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:YES];
-    //set all the user statistics labels.
-    [self setUserStatisticsLabels];
-}
 
 - (void)setUserStatisticsLabels {
     
-    //get the user's maintenance and BMR
-    self.maintenance = [[self.calculator returnUserMaintenanceAndBmr] valueForKey:@"maintenance"];
-    self.bmr = [[self.calculator returnUserMaintenanceAndBmr] valueForKey:@"bmr"];
-
+    //get the user's maintenance and BMR (based on the lastest bodystats with the relevant statistics.
+    NSDictionary *bmrMaintenance = [self.calculator returnUserMaintenanceAndBmr:nil];
+    self.bmr = [bmrMaintenance valueForKey:@"bmr"];
+    self.maintenance = [bmrMaintenance valueForKey:@"maintenance"];
+    
     //user bmr and maintenance labels.
-    if (self.bmr != 0 && self.maintenance != 0) {
+    if ([self.bmr floatValue] > 0 && [self.maintenance floatValue] > 0) {
         self.bmrValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[self.bmr integerValue]];
         self.maintenanceValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[self.maintenance integerValue]];
+    } else {
+        self.maintenanceValueLabel.text = @"-";
+        self.bmrValueLabel.text = @"-";
     }
    
     //advised caloric adjustment label
     self.advisedCalorieAdjustmentLabel.text = [NSString stringWithFormat:@"Advised caloric adjustment: %@", [self.calculator goalAndActualWeightChangeDiscrepancyAdvice]];
     
-    //Weekly weightchange label
-    NSNumber *weightChange = [BodyStat checkWeeklyWeightProgress:self.fetchedBodyStats];
-    if (weightChange) {
-        self.weeklyWeightChangeLabel.text = [NSString stringWithFormat:@" %.2f kg", [weightChange floatValue]];
-    }
-    
     ///BMI labels.
     NSNumber *bmi = [[self.calculator returnUserBmi: 0]valueForKey:@"bmi"];
     NSString *bmiCategory = [[self.calculator returnUserBmi: 0]valueForKey:@"category"];
-    
-    self.bmiCategoryValueLabel.text = [NSString stringWithFormat:@"%@", bmiCategory];
-    self.bmiValueLabel.text = [NSString stringWithFormat:@"%.1f", [bmi floatValue]];
-    
+    if ([bmi floatValue] > 0) {
+        self.bmiCategoryValueLabel.text = [NSString stringWithFormat:@"%@", bmiCategory];
+        self.bmiValueLabel.text = [NSString stringWithFormat:@"%.1f", [bmi floatValue]];
+    } else {
+        self.bmiCategoryValueLabel.text = @"-";
+        self.bmiValueLabel.text = @"-";
+    }
 
-//    self.lbmValueLabel.text = [NSString stringWithFormat:@"%.1f kg",[[[_fetchedBodyStats objectAtIndex:0] lbm] floatValue]];
-
+    
+    //set the lbm and fatmass labels.
+    if (_fetchedBodyStats.count > 0) {
+        BodyStat *latestStat = [_fetchedBodyStats objectAtIndex:0];
+        if ([latestStat.lbm floatValue] > 0) {
+            self.lbmValueLabel.text = [NSString stringWithFormat:@"%.1f kg",[latestStat.lbm floatValue]];
+            
+            if ([latestStat.weight floatValue] > 0) {
+                self.fatMassValueLabel.text = [NSString stringWithFormat:@"%.1f kg", ([latestStat.weight floatValue] - [latestStat.lbm floatValue])];
+            }
+        }
+    }
+ 
 }
 
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     // Return the number of sections.
     return 5;
 }
 
-- (NSInteger) tableView:(UITableView *) tableView numberOfRowsInSection:(NSInteger) section
-{
+- (NSInteger) tableView:(UITableView *) tableView numberOfRowsInSection:(NSInteger) section {
     return 1;
 }
 

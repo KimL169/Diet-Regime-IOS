@@ -56,7 +56,7 @@
         [self addSubview:_nameLabel];
         
         self.titleLabel = [[UILabel alloc]initWithFrame:CGRectMake(52, 20, 164, 20)];
-        _titleLabel.text = @"Diet plan for today!";
+        _titleLabel.text = @"Diet plan for today";
         _titleLabel.textAlignment = NSTextAlignmentLeft;
         _titleLabel.textColor = [UIColor whiteColor];
         _titleLabel.font = [UIFont systemFontOfSize:16];
@@ -166,7 +166,7 @@
         
         CalorieCalculator *calculator = [[CalorieCalculator alloc]init];
         
-        NSNumber *maintenance = [[calculator returnUserMaintenanceAndBmr] valueForKey:@"maintenance"];
+        NSNumber *maintenance = [[calculator returnUserMaintenanceAndBmr:nil] valueForKey:@"maintenance"];
         if ([maintenance integerValue] != 0) {
             int deficitSurplus = ([day.calories intValue] - [maintenance intValue]);
             

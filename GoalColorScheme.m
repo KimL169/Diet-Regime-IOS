@@ -12,7 +12,8 @@
 
 + (UIColor *)colorforGoal:(float)goalStat startStat: (float)startStat currentStat:(float)currentStat {
     
-    if (currentStat < startStat || currentStat > goalStat) {
+    if (currentStat <= startStat || currentStat > goalStat) {
+        
         return [UIColor darkGrayColor];
     }
     
@@ -28,6 +29,7 @@
     float total = goalStat - startStat;
     float achieved = currentStat - startStat;
     float percentageAchieved = achieved / total;
+
     
     float currentRed = redStartVariable - (redChangeVariable * percentageAchieved);
     float currentBlue = blueStartVariable + (blueChangeVariable * percentageAchieved);
@@ -37,7 +39,6 @@
 //    UIColor *achievedColor = [UIColor colorWithRed:(77/255.0) green:(175/255.0) blue:(67/255.0) alpha:1.f];
 //    [UIColor startWithRed:(173/255.0) green:(48/255.0) blue:(48/255.0) alpha:1.f];
 
-    
     return currentColor;
 }
 @end

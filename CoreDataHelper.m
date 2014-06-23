@@ -46,44 +46,9 @@
     return [fetchedObjects firstObject];
 }
 
-- (BodyStat *)fetchLatestBodystatWithWeightEntry: (NSInteger)daysAgoAllowed {
-    
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"weight != nil"];
-    NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:NO];
-    NSArray * fetchedObjects = [self performFetchWithEntityName:@"BodyStat" predicate:predicate sortDescriptor:sortDescr];
-    
-    //get the days between the bodystat input date and the current date.
-    NSInteger days = [NSDate daysBetweenDate:[[fetchedObjects firstObject] date]andDate:[NSDate date]];
-    NSLog(@"daysago: %ld", days);
-    
-    if (days > daysAgoAllowed) {
-        return nil;
-    } else {
-        return [fetchedObjects firstObject];
-    }
-}
-
-
-- (BodyStat *)fetchLatestBodystatWithBodyfatEntry: (NSInteger)daysAgoAllowed {
-    NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:NO];
-    //get the bodystats of which the names are not nil
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"bodyfat != nil"];
-    NSArray * fetchedObjects = [self performFetchWithEntityName:@"BodyStat" predicate:predicate sortDescriptor:sortDescr];
-    
-    //get the days between the bodystat input date and the current date.
-    NSInteger days = [NSDate daysBetweenDate:[[fetchedObjects firstObject] date]andDate:[NSDate date]];
-    NSLog(@"daysago: %ld", days);
-    
-    if (days > daysAgoAllowed) {
-        return nil;
-    } else {
-        return [fetchedObjects firstObject];
-    }
-}
-
 - (DietPlan *)fetchCurrentDietPlan {
     NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"endDate" ascending:NO];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"endDate > %@", [NSDate date]];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"endDate >= %@", [NSDate setDateToMidnight:[NSDate date]]];
     NSArray *fetchedObjects = [self performFetchWithEntityName:@"DietPlan" predicate:predicate sortDescriptor:sortDescr];
     
     
@@ -107,8 +72,6 @@
     return fetchedObjects;
 }
 
-
-///REPLACE THE OTHER METHODS (latest with bodyfat and weight) WITH THIS METHOD!!
 - (BodyStat *)fetchLatestBodystatWithStat:(NSString *)stat maxDaysAgo:(NSInteger)daysAgoAllowed {
     NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:NO];
     //get the bodystats of which the names are not nil
@@ -132,4 +95,33 @@
     }
     
 }
+
+- (NSInteger)countEntityInstancesWithEntityName:(NSString *)entityName
+                                      predicate:(NSPredicate *)predicate {
+    
+    // assuming NSManagedObjectContext *moc
+    
+    NSFetchRequest *request = [[NSFetchRequest alloc] init];
+    [request setEntity:[NSEntityDescription entityForName:entityName inManagedObjectContext:[self managedObjectContext]]];
+    
+    [request setIncludesSubentities:NO]; //Omit subentities. Default is YES (i.e. include subentities)
+
+    NSError *err;
+    NSUInteger count = [[self managedObjectContext]countForFetchRequest:request error:&err];
+    if(count == NSNotFound) {
+        //Handle error
+        NSLog(@"%@", err);
+    }
+    
+    return count;
+}
+
+- (NSInteger)countEntityInstancesWithEntityName:(NSString *)entityName
+                                       dietPlan:(DietPlan *)dietPlan {
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dietPlan == %@", dietPlan];
+    return [self countEntityInstancesWithEntityName:entityName predicate:predicate];
+}
+
+
 @end

@@ -8,6 +8,8 @@
 
 #import "BSInputMainViewController.h"
 #import "NSDate+Utilities.h"
+#import "DietPlan+Helper.h"
+#import "BodyStat+Helper.h"
 
 @interface BSInputMainViewController ()
 @property (strong, nonatomic) IBOutlet UITextField *dateField;
@@ -21,14 +23,7 @@
 
 @implementation BSInputMainViewController
 
-- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
+
 
 - (void)viewDidLoad
 {
@@ -78,18 +73,9 @@
     if (!_bodyStat.date) {
         _bodyStat.date = [NSDate setDateToMidnight:[NSDate date]];
     }
-    
-    //set the textfield to say "Today" if it's the date today.
-    NSDateComponents *calendarDate = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:_bodyStat.date];
-    NSDateComponents *today = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:[NSDate date]];
-    if ([calendarDate day] == [today day]) {
-        
-        _dateField.text = @"Today";
-        
-    } else {
-        //set to date string.
-        _dateField.text = [NSString stringWithFormat:@"%@", [_bodyStat.date stringFromDateMediumFormatStyle]];
-    }
+    //set the datefield with a formatted date string.
+    _dateField.text = [NSString stringWithFormat:@"%@", [_bodyStat.date returnFormattedDateString]];
+
     _dateField.borderStyle = UITextBorderStyleNone;
     [_dateField setFont:[UIFont boldSystemFontOfSize:14]];
 
@@ -100,11 +86,10 @@
     textField.borderStyle = UITextBorderStyleRoundedRect;
 }
 
+
 -(void)textFieldDidEndEditing:(UITextField *)textField {
     
-    if (textField == _dateField) {
-        
-    } else if (textField == _calorieField){
+    if (textField == _calorieField){
         _bodyStat.calories = [NSNumber numberWithFloat:[textField.text floatValue]];
     } else if (textField == _weightField) {
         _bodyStat.weight = [NSNumber numberWithFloat:[textField.text floatValue]];
@@ -127,22 +112,20 @@
         _datePicker.date = _bodyStat.date;
     }
     
+    //check if the date exceeds the dietplan, if so remove the dietplan relationship.
+    if ([_dietPlan checkDietPlanDateRange:_bodyStat.date]) {
+        _bodyStat.dietPlan = nil;
+    } else {
+        _bodyStat.dietPlan = _dietPlan;
+    }
+    
     //set the date to midnight for comparisons.
     NSDate *date = [NSDate setDateToMidnight:_datePicker.date];
     //set the dietplan date and the textfield to this date. to this date
     _bodyStat.date = date;
-    
-    //set the textfield to say "Today" if it's the date today.
-    NSDateComponents *calendarDate = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:date];
-    NSDateComponents *today = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:[NSDate date]];
-    if ([calendarDate day] == [today day]) {
-    
-        _dateField.text = @"Today";
 
-    } else {
-        //set to date string.
-        _dateField.text = [NSString stringWithFormat:@"%@", [date stringFromDateMediumFormatStyle]];
-    }
+    _dateField.text = [NSString stringWithFormat:@"%@", [date returnFormattedDateString]];
+
     [_dateField setFont:[UIFont boldSystemFontOfSize:14]];
 
 }
@@ -154,6 +137,7 @@
     _bodyStat.date = date;
     [_dateField setFont:[UIFont boldSystemFontOfSize:14]];
         _dateField.text = [NSString stringWithFormat:@"%@", [date stringFromDateMediumFormatStyle]];
+    
 }
 
 #pragma mark - Form Validation

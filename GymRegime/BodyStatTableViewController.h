@@ -12,7 +12,7 @@
 #import "BodyStatTableViewCell.h"
 
 
-@interface BodyStatTableViewController : UITableViewController <NSFetchedResultsControllerDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate> {
+@interface BodyStatTableViewController : CoreTableViewController <NSFetchedResultsControllerDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate> {
     
     int selectedIndex;
     

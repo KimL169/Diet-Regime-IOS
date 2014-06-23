@@ -10,6 +10,7 @@
 #import "DietGoal+Helper.h"
 #import "DietGoal.h"
 #import "GoalProgressTableViewCell.h"
+#import "GoalSettingViewController.h"
 #import "CoreDataHelper.h"
 #import "AppDelegate.h"
 
@@ -55,6 +56,29 @@
         NSLog(@"Error fetching: %@", error);
         abort();
     }
+    
+    //set notification center to listen if the goaledit view has returned.
+    //If so, save the managedObjectContext and reload the tableview.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didDismissGoalSettingViewController)
+                                                 name:@"DietGoalSettingViewControllerDismissed"
+                                               object:nil];
+}
+
+- (void)didDismissGoalSettingViewController {
+    NSLog(@"it came through");
+//    //save the managed object context.
+//    NSError *error = nil;
+//    if ([self.managedObjectContext hasChanges]){
+//        if (![self.managedObjectContext save: &error]) {//save failed
+//            NSLog(@"Save failed: %@", [error localizedDescription]);
+//        } else {
+//            NSLog(@"Save succesfull");
+//        }
+//    }
+//    
+//    //reload the tableview.
+//    [self.tableView reloadData];
 }
 
 #pragma mark - Table view data source
@@ -200,15 +224,21 @@
     }
 }
 
-/*
+
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+
+    if ([[segue identifier] isEqualToString:@"editGoals"]) {
+        //pass the dietplan to the goalsettings controller.
+        UINavigationController *navController = segue.destinationViewController;
+        GoalSettingViewController *goalvc = (GoalSettingViewController *)navController.topViewController;
+        goalvc.dietPlan = _currentDietPlan;
+        
+    }
 }
-*/
+
 
 @end

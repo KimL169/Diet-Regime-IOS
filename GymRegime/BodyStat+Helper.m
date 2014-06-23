@@ -51,15 +51,32 @@
     
 }
 
-+ (NSNumber *)checkWeeklyWeightProgress: (NSArray *)bodystats {
++ (NSNumber *)checkWeeklyWeightProgressOnStat: (BodyStat *)firstStat secondStat: (BodyStat *)secondStat {
+    //check if there is a bodystat filled in on the same date last week and the last bodystat.
     
-    for (BodyStat *s in bodystats) {
-        
-        if ([NSDate daysBetweenDate:[NSDate date] andDate:s.date] == -7) {
-            
-            float result = [[[bodystats firstObject] weight] floatValue] - [s.weight floatValue];
-            return [NSNumber numberWithFloat:result];
-        }
+    if ([firstStat.weight floatValue] > 0 && [secondStat.weight floatValue] > 0) {
+        float progress = [secondStat.weight floatValue] - [firstStat.weight floatValue];
+        return [NSNumber numberWithFloat:progress];
+    }
+    else {
+        return 0;
+    }
+}
+
+
+- (DietPlan *)setDietPlanForBodyStat {
+    CoreDataHelper *dataHelper = [[CoreDataHelper alloc]init];
+    
+    //check if if that is within a dietplan date range, if so set the relationship.
+    NSPredicate *predicateOne = [NSPredicate predicateWithFormat:@"startDate <= %@", self.date];
+    NSPredicate *predicateTwo = [NSPredicate predicateWithFormat:@"endDate >= %@", self.date];
+    NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[predicateOne, predicateTwo]];
+    
+    NSArray *fetchedObjects = [dataHelper performFetchWithEntityName:@"DietPlan" predicate:compoundPredicate sortDescriptor:nil];
+    
+    if ([fetchedObjects count] == 1) {
+        self.dietPlan = (DietPlan *)[fetchedObjects objectAtIndex:0];
+        return [fetchedObjects objectAtIndex:0];
     }
     return nil;
 }

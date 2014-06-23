@@ -24,7 +24,6 @@
 @property (nonatomic) NSInteger maintenanceMultiplierType;
 @property (nonatomic) NSInteger calibration;
 
-#define CHECK_NIL 100
 #define GENDER_MALE 0
 #define GENDER_FEMALE 1
 
@@ -33,22 +32,11 @@
 @implementation CalorieCalculator
 
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        //set the bmr calculator and multiplier to 100 to check if user defined them.
-        self.bmrCalculator = CHECK_NIL;
-        self.maintenanceMultiplierType = CHECK_NIL;
-        
-        //load the user profile and settings data.
-    }
-    return self;
-}
-
 - (void)loadUserDefaults {
     
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     
+    //load the relevant user defaults.
     if ([defaults integerForKey:@"userHeightInCm"]) {
         self.userHeightInCm = [defaults integerForKey:@"userHeightInCm"];
     }
@@ -83,19 +71,21 @@
 
 - (NSString *)goalAndActualWeightChangeDiscrepancyAdvice {
     
-    NSInteger positive = 100;
-    NSString *returnString = [NSString stringWithFormat:@"+%ld kcal", (long)positive];
+    int temp = 200;
+    NSString *returnString = [NSString stringWithFormat:@"+%d kcal", temp];
     return returnString;
 }
 
 
 #pragma mark - calorie Formula
-- (NSNumber *)harrisBenedictEquation {
+- (NSNumber *)harrisBenedictEquation:(BodyStat *)stat {
 
     //get the latest bodystat.
-    BodyStat *latestStat = [super fetchLatestBodystat];
+    if (stat == nil) {
+        stat = [super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:6];
+    }
 
-    if (!latestStat.weight || !_userHeightInCm) {
+    if (!stat.weight || !_userHeightInCm) {
         return [NSNumber numberWithInt:0];
     }
     
@@ -103,42 +93,47 @@
     
     //calculate the BMR
     if (self.userGender == GENDER_MALE) {
-         bmr = [NSNumber numberWithInteger:(88.362 + (13.397 * [[latestStat weight] floatValue]) + (4.799 * self.userHeightInCm) - (5.677 * self.userAgeInYears))];
+         bmr = [NSNumber numberWithInteger:(88.362 + (13.397 * [[stat weight] floatValue]) + (4.799 * self.userHeightInCm) - (5.677 * self.userAgeInYears))];
     } else if (self.userGender == GENDER_FEMALE){
-        bmr = [NSNumber numberWithInteger:(447.593 + (9.247 * [[latestStat weight] floatValue]) + (3.098 * self.userHeightInCm) - (4.330 * self.userAgeInYears))];
+        bmr = [NSNumber numberWithInteger:(447.593 + (9.247 * [[stat weight] floatValue]) + (3.098 * self.userHeightInCm) - (4.330 * self.userAgeInYears))];
     }
     
     return bmr;
 }
 
-- (NSNumber *)katchMcCardleEquation {
+- (NSNumber *)katchMcCardleEquation:(BodyStat *)stat {
 
     //fetch the latest stat where the user has filled in a BodyFat level. This is necessary for this formula.
     //the amount of days since last bodyfat check may be no more than 12.
-    BodyStat *latestStatWithBf = [super fetchLatestBodystatWithBodyfatEntry:12];
-    
-    //check if the bodyfat stat is recent enough (less than 12 days old), else, return a mifflinStJeor bmr and maintenance.
-    if (!latestStatWithBf) {
-        return [self mifflinStJeorEquation];
+    if (!stat) {
+        stat = [super fetchLatestBodystatWithStat:@"bodyfat" maxDaysAgo:12];
     }
     
-    float bodyfat = [[latestStatWithBf bodyfat] floatValue] / 100;
-    float leanBodyMass = [[latestStatWithBf weight]floatValue] * (1- bodyfat);
+    //check if the bodyfat stat is recent enough (less than 12 days old), else, return a mifflinStJeor bmr and maintenance.
+    if (!stat) {
+        return [self mifflinStJeorEquation:nil];
+    }
+    
+    float bodyfat = [[stat bodyfat] floatValue] / 100;
+    float leanBodyMass = [[stat weight]floatValue] * (1- bodyfat);
     
     NSNumber *bmr = [NSNumber numberWithInteger:(370 + (21.6 * leanBodyMass))];
     
     return bmr;
 }
 
-- (NSNumber *)mifflinStJeorEquation{
+- (NSNumber *)mifflinStJeorEquation: (BodyStat *)stat {
 
     //get the latest bodystat.
-    BodyStat *latestStat = [super fetchLatestBodystat];
-    if (!latestStat.weight || !_userHeightInCm) {
+    if (!stat) {
+        stat = [super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:6];
+    }
+    
+    if (!stat.weight || !_userHeightInCm) {
         return [NSNumber numberWithInt:0];
     }
     
-    float weight = [[latestStat weight] floatValue];
+    float weight = [[stat weight] floatValue];
     
     NSNumber *bmr;
     
@@ -157,14 +152,16 @@
     return bmr;
 }
 
-- (NSNumber *)bodyWeightTDEE {
+- (NSNumber *)bodyWeightTDEE:(BodyStat *)stat {
     
-    BodyStat *latestStat = [super fetchLatestBodystat];
-    if (!latestStat.weight || !_userHeightInCm) {
+    if (stat == nil) {
+        stat = [super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7];
+    }
+    if (!stat.weight || !_userHeightInCm) {
         return [NSNumber numberWithInt:0];
     }
     
-    float maintenance = [[latestStat weight]floatValue] * _bodyWeightMultiplierMaintenance;
+    float maintenance = [[stat weight]floatValue] * _bodyWeightMultiplierMaintenance;
     
     return [NSNumber numberWithFloat:maintenance];
 }
@@ -180,22 +177,19 @@
     return maintenance;
 }
 
-- (NSNumber *)bodyWeightBmrEquation {
+- (NSNumber *)bodyWeightBmrEquation:(BodyStat*)stat {
     
-    BodyStat *latestStat = [super fetchLatestBodystat];
-    float weight = [[latestStat weight] floatValue];
-    NSNumber *bmr = [NSNumber numberWithFloat:(weight * _bodyWeightMultiplierBmr)];
+    if (!stat) {
+        stat = [super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7];
+    }
     
-    return bmr;
-}
-
-
-
-- (NSString *)weeklyRateOfWeightChange {
+    float weight = [[stat weight] floatValue];
     
-    
-    NSString *returnString = [NSString stringWithFormat:@"not enough consistent log entries."];
-    return returnString;
+    if (weight > 0) {
+        return [NSNumber numberWithFloat:(weight * _bodyWeightMultiplierBmr)];
+    } else {
+        return 0;
+    }
 }
 
 
@@ -204,7 +198,7 @@
     
     //check if a bodystat was entered, else grab the latest out of the database. It may be 5 days old.
     if (weight == 0) {
-        weight = [[[super fetchLatestBodystatWithWeightEntry:5] weight] floatValue];
+        weight = [[[super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7] weight] floatValue];
     }
     
     if (weight == 0 || !_userHeightInCm) {
@@ -238,30 +232,30 @@
 }
 
 
-- (NSDictionary *)returnUserMaintenanceAndBmr {
+- (NSDictionary *)returnUserMaintenanceAndBmr:(BodyStat *)stat  {
     [self loadUserDefaults];
 
     NSNumber *bmr;
     NSNumber *maintenance;
     
-//    check if the user has set a calibration formula, else use the standard formula.
-    if (self.bmrCalculator != CHECK_NIL) {
+    // check if the user has set a calibration formula, else use the standard formula.
+    if (self.bmrCalculator != 0) {
         
         switch (self.bmrCalculator) {
             case HarrisBenedict:
-                bmr = [self harrisBenedictEquation];
+                bmr = [self harrisBenedictEquation:stat];
                 break;
             case MifflinStJeor:
-                bmr = [self mifflinStJeorEquation];
+                bmr = [self mifflinStJeorEquation:stat];
                 break;
             case Custom:
                 bmr = [self customBmrEquation];
                 break;
             case BodyWeightMultiplier:
-                bmr = [self bodyWeightBmrEquation];
+                bmr = [self bodyWeightBmrEquation:stat];
                 break;
             case KatchMcArdle:
-                bmr = [self katchMcCardleEquation];
+                bmr = [self katchMcCardleEquation:stat];
                 break;
                 
             default:
@@ -269,17 +263,17 @@
         }
         // else set to default calculation method: MifflinStJeor
     } else {
-        bmr = [self mifflinStJeorEquation];
+        bmr = [self mifflinStJeorEquation:stat];
     }
     //check the maintenance multiplier
-    if (self.maintenanceMultiplierType != CHECK_NIL) {
+    if (self.maintenanceMultiplierType != 0) {
         
         switch (self.maintenanceMultiplierType) {
             case CustomTDEE:
                 maintenance = [NSNumber numberWithInteger: self.customMaintenance];
                 break;
             case BodyWeightMultiplierTDEE:
-                maintenance = [self bodyWeightTDEE];
+                maintenance = [self bodyWeightTDEE:stat];
                 break;
             case ActivityMultiplierTDEE:
                 maintenance = [self actitvityMultiplierTDEE:bmr];
@@ -292,7 +286,14 @@
     
     //check if the user has provided a calibration.
     NSNumber *calibratedMaintenance = [NSNumber numberWithInteger:self.calibration + [maintenance integerValue]];
-
+    
+    if (calibratedMaintenance == nil) {
+        calibratedMaintenance = [NSNumber numberWithInt:0];
+    }
+    if (bmr == nil) {
+        bmr = [NSNumber numberWithInt:0];
+    }
+    
     return @{@"bmr" : bmr, @"maintenance" : calibratedMaintenance};
 }
 

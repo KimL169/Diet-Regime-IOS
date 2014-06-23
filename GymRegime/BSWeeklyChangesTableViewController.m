@@ -9,6 +9,7 @@
 #import "BSWeeklyChangesTableViewController.h"
 #import "BodyStat.h"
 #import "AppDelegate.h"
+#import "NSDate+Utilities.h"
 
 @interface BSWeeklyChangesTableViewController ()
 
@@ -88,9 +89,6 @@
     return cell;
 }
 
-- (NSManagedObjectContext *)managedObjectContext {
-    return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
-}
 
 - (void)getTheDatesSpanningOneWeek {
     
@@ -102,24 +100,14 @@
     
     for (BodyStat *s in self.currentBodyStats) {
         
-        if ([self daysBetweenDate:currentStat.date andDate:s.date] == -6) {
+        if ([NSDate daysBetweenDate:currentStat.date andDate:s.date] == -6) {
             
             [self.weeklyStats addObject:s];
             currentStat = s;
         }
     }
-    
-    
 }
--(NSInteger) daysBetweenDate:(NSDate *)firstDate andDate:(NSDate *)secondDate {
-    
-    NSCalendar *currentCalendar = [NSCalendar currentCalendar];
-    NSDateComponents *components = [currentCalendar components: NSDayCalendarUnit fromDate: firstDate toDate: secondDate options: 0];
-    
-    NSInteger days = [components day];
-    
-    return days;
-}
+
 
 /*
 // Override to support conditional editing of the table view.

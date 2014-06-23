@@ -45,6 +45,7 @@
 @property (strong, nonatomic) IBOutlet UILabel *fatGramPerWeightLabel;
 @property (strong, nonatomic) IBOutlet UILabel *bodyWeightLabel;
 @property (strong, nonatomic) IBOutlet UILabel *lbmLabel;
+@property (weak, nonatomic) IBOutlet UILabel *caloricDeficitSurplusLabel;
 
 @property (strong, nonatomic) CalorieCalculator *calculator;
 @property (nonatomic) float leanBodyMass;
@@ -142,10 +143,17 @@ static const NSInteger kcalGramFat = 9;
 }
 
 - (void)updateMaintenanceAndDeficitLabels {
-    NSNumber *maintenance = [[_calculator returnUserMaintenanceAndBmr] objectForKey:@"maintenance"];
+    NSNumber *maintenance = [[_calculator returnUserMaintenanceAndBmr:nil] objectForKey:@"maintenance"];
     self.currentMaintenanceValueLabel.text = [NSString stringWithFormat:@"%d", [maintenance intValue]];
     if (_calories && [maintenance intValue] > 0) {
-        self.caloricDeficitSurplusValueLabel.text = [NSString stringWithFormat:@"%d", ([_calories intValue]- [maintenance intValue])];
+        
+        int deficitSurplus = [_calories intValue]- [maintenance intValue];
+        if (deficitSurplus > 0) {
+            self.caloricDeficitSurplusLabel.text = @"Caloric surplus:";
+        } else {
+            self.caloricDeficitSurplusLabel.text = @"Caloric deficit:";
+        }
+        self.caloricDeficitSurplusValueLabel.text = [NSString stringWithFormat:@"%d", deficitSurplus];
     }
 }
 
@@ -284,7 +292,7 @@ static const NSInteger kcalGramFat = 9;
     //call piechart method
     self.dataTool = [[CoreDataHelper alloc]init];
     //get the last inputted weight entry, allow a 7 gap between the log entries.
-    self.currentStat = [_dataTool fetchLatestBodystatWithWeightEntry: 7];
+    self.currentStat = [_dataTool fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7];
     
     //update the statistics labels
     [self updateGramPerWeightLabels];
@@ -302,7 +310,7 @@ static const NSInteger kcalGramFat = 9;
 - (void)updateUserLBM {
     
     //check if the user has a bodyfat level in the past 14 days.
-    BodyStat *bodyFatStat = [_dataTool fetchLatestBodystatWithBodyfatEntry:14];
+    BodyStat *bodyFatStat = [_dataTool fetchLatestBodystatWithStat:@"bodyfat" maxDaysAgo:14];
     
     //if so, calculate the user's leanBodyMass.
     if ([bodyFatStat.bodyfat floatValue] > 0) {
@@ -365,7 +373,6 @@ static const NSInteger kcalGramFat = 9;
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-    NSLog(@"touchesBegan:withEvent:");
     [self.view endEditing:YES];
     [super touchesBegan:touches withEvent:event];
 }
