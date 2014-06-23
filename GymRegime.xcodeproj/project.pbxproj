@@ -107,7 +107,6 @@
 		3BF548E31949B34400D3A5AA /* KMSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BF548DA1949B34400D3A5AA /* KMSection.m */; };
 		3BF548E41949B34400D3A5AA /* KMAccordionTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BF548DD1949B34400D3A5AA /* KMAccordionTableViewController.m */; };
 		3BF548E51949B34400D3A5AA /* MyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BF548DF1949B34400D3A5AA /* MyViewController.m */; };
-		3BF548E81949B42700D3A5AA /* HealthKitData.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BF548E71949B42700D3A5AA /* HealthKitData.m */; };
 		3BFB1C181944528E0066AAEB /* WYPopoverController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BFB1C151944528E0066AAEB /* WYPopoverController.m */; };
 		3BFB1C191944528E0066AAEB /* WYStoryboardPopoverSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BFB1C171944528E0066AAEB /* WYStoryboardPopoverSegue.m */; };
 		3BFB1C2319449C2E0066AAEB /* CalorieSettingsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BFB1C2219449C2E0066AAEB /* CalorieSettingsTableViewController.m */; };
@@ -288,8 +287,6 @@
 		3BF548DD1949B34400D3A5AA /* KMAccordionTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KMAccordionTableViewController.m; sourceTree = "<group>"; };
 		3BF548DE1949B34400D3A5AA /* MyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyViewController.h; sourceTree = "<group>"; };
 		3BF548DF1949B34400D3A5AA /* MyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyViewController.m; sourceTree = "<group>"; };
-		3BF548E61949B42700D3A5AA /* HealthKitData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HealthKitData.h; sourceTree = "<group>"; };
-		3BF548E71949B42700D3A5AA /* HealthKitData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HealthKitData.m; sourceTree = "<group>"; };
 		3BFB1C141944528E0066AAEB /* WYPopoverController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WYPopoverController.h; sourceTree = "<group>"; };
 		3BFB1C151944528E0066AAEB /* WYPopoverController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WYPopoverController.m; sourceTree = "<group>"; };
 		3BFB1C161944528E0066AAEB /* WYStoryboardPopoverSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WYStoryboardPopoverSegue.h; sourceTree = "<group>"; };
@@ -702,8 +699,6 @@
 				3B953F02194C8DD000803D32 /* GoalColorScheme.m */,
 				3B5AFB52194218D1007F6A3C /* NSDate+Utilities.h */,
 				3B5AFB53194218D1007F6A3C /* NSDate+Utilities.m */,
-				3BF548E61949B42700D3A5AA /* HealthKitData.h */,
-				3BF548E71949B42700D3A5AA /* HealthKitData.m */,
 				3BC4F9E41943A80200BCEBF8 /* CoreDataHelper.h */,
 				3BC4F9E51943A80200BCEBF8 /* CoreDataHelper.m */,
 				3BABCB7B19327CEE00465719 /* CalorieCalculator.h */,
@@ -987,7 +982,6 @@
 				3BBB30BD1951A06900B880CC /* BodyStat+Helper.m in Sources */,
 				3B7C0724193C7AF50008DE46 /* DietPlanDaysTableViewController.m in Sources */,
 				3B953F1F194D07F900803D32 /* PNBar.m in Sources */,
-				3BF548E81949B42700D3A5AA /* HealthKitData.m in Sources */,
 				3B7F037D1956DF3B0065003A /* BSInputMacroViewController.m in Sources */,
 				3B5AFB54194218D1007F6A3C /* NSDate+Utilities.m in Sources */,
 				3BF548E31949B34400D3A5AA /* KMSection.m in Sources */,
