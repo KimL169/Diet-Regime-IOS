@@ -15,11 +15,12 @@
 #import "AppDelegate.h"
 
 @interface GoalProgressViewController ()
-
+@property (weak, nonatomic) IBOutlet UILabel *primaryGoalLabel;
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
-@property (strong, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) CoreDataHelper *dataHelper;
+
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
 
 #define ROW_HEIGHT 90
 
@@ -30,16 +31,14 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-
     
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:YES];
-    
-    self.tableView.delegate = self;
-    self.tableView.dataSource = self;
     
     self.dataHelper = [[CoreDataHelper alloc] init];
     
@@ -57,29 +56,25 @@
         abort();
     }
     
-    //set notification center to listen if the goaledit view has returned.
-    //If so, save the managedObjectContext and reload the tableview.
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didDismissGoalSettingViewController)
-                                                 name:@"DietGoalSettingViewControllerDismissed"
-                                               object:nil];
+    //set the right main goal
+    [self setMainGoalLabel];
 }
 
-- (void)didDismissGoalSettingViewController {
-    NSLog(@"it came through");
-//    //save the managed object context.
-//    NSError *error = nil;
-//    if ([self.managedObjectContext hasChanges]){
-//        if (![self.managedObjectContext save: &error]) {//save failed
-//            NSLog(@"Save failed: %@", [error localizedDescription]);
-//        } else {
-//            NSLog(@"Save succesfull");
-//        }
-//    }
-//    
-//    //reload the tableview.
-//    [self.tableView reloadData];
+- (void)setMainGoalLabel {
+    
+    if ([self.fetchedResultsController.fetchedObjects count] > 0) {
+        for (DietGoal *goal in self.fetchedResultsController.fetchedObjects) {
+            
+            if ([goal.mainGoal boolValue]) {
+                _primaryGoalLabel.text = [NSString stringWithFormat:@"%@", goal.name];
+            }
+        }
+    }
 }
+
+
+
+
 
 #pragma mark - Table view data source
 
@@ -131,7 +126,10 @@
     float progress = [DietGoal checkGoalProgress:goal dietPlan:_currentDietPlan];
     cell.percentageLabel.text = [NSString stringWithFormat:@"%.1f%%", progress];
     cell.progressView.progress = (progress /100);
-
+    
+    if ([goal.mainGoal boolValue] == YES) {
+        cell.sideView.backgroundColor = [UIColor greenColor];
+    }
     
 }
 
@@ -139,6 +137,26 @@
     return ROW_HEIGHT;
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    GoalProgressTableViewCell *cell = (GoalProgressTableViewCell *) [self.tableView cellForRowAtIndexPath:indexPath];
+    
+    //get the dietGoal pertaining to the cell, set the mainGoal to 1 else, set mainGoal to 0;
+    NSArray *fetchedObjects = _fetchedResultsController.fetchedObjects;
+    for (DietGoal *goal in fetchedObjects) {
+
+        if ([goal.name isEqualToString:cell.nameLabel.text]) {
+            [goal setMainGoal:[NSNumber numberWithBool:YES]];
+            _primaryGoalLabel.text = [NSString stringWithFormat:@"%@", goal.name];
+        } else {
+            [goal setMainGoal:[NSNumber numberWithBool:NO]];
+        }
+    }
+    
+    //save the managedObjectContext.
+    [super save];
+
+}
 
 - (NSManagedObjectContext *)managedObjectContext {
     return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];

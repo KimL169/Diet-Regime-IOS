@@ -24,12 +24,11 @@
 
 @property (nonatomic, strong) UITapGestureRecognizer *tapGestureRecognizer;
 
-
-
 @end
 
 @implementation GoalSettingViewController
 
+#define ROW_HEIGHT 55
 
 - (void)viewDidLoad
 {
@@ -48,6 +47,7 @@
     [super setNavigationBarTitleWithTextColor:[UIColor whiteColor] title:@"Diet Goals"];
     [self.view setBackgroundColor:[UIColor grayColor]];
     
+    //set the taprecognizer to hide the keyboard on touch in view.
     _tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
     [self.tableView addGestureRecognizer:_tapGestureRecognizer];
     _tapGestureRecognizer.cancelsTouchesInView = NO;
@@ -66,7 +66,6 @@
         if ([self checkIfMainGoalSelected] == YES) {
             [self dismissViewControllerAnimated:YES completion:nil];
         }
-
     } else {
         [self dismissViewControllerAnimated:YES completion:nil];
     }
@@ -74,22 +73,7 @@
 }
 
 
-- (BOOL)checkIfMainGoalSelected {
-    //if there is only one diet goal, set it to the maingoal.
-    if (self.fetchedResultsController.fetchedObjects.count == 1) {
-        //let the user exit.
-        return YES;
-        
-    } else if (![self mainGoalSelected]) {
-        NSString *message = @"Please select a main goal by tapping on one of one of your goals.";
-        [self informationMessage:message style:ALAlertBannerStyleFailure title:@"Missing Information"];
-        
-        return NO;
-    }
-    //all is well, return yes.
-    return YES;
-}
-
+#pragma mark - Information button
 - (IBAction)infoButton:(UIButton *)sender {
     NSString *message = @"The primary goal will be used for your main dietplan progress indicators.";
     [self informationMessage:message style:ALAlertBannerStyleNotify title:@"Info"];
@@ -111,28 +95,14 @@
     [banner show];
 }
 
-- (BOOL)mainGoalSelected {
-    
-    for (DietGoal *goal in [self.fetchedResultsController fetchedObjects]) {
-        if ([goal.mainGoal boolValue] == YES) {
-            return YES;
-        }
-    }
-    return NO;
-}
+
+
+#pragma mark - TableView Datasource
+
 - (NSManagedObjectContext *)managedObjectContext {
     return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
     
 }
-
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-#pragma mark - TableView Datasource
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"GoalCell";
@@ -154,20 +124,26 @@
     
     DietGoal *goal = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
+    //set the cell labels to display the goal statistics.
     cell.goalLabel.text = goal.name;
     if (goal.value != 0) {
         cell.valueField.text = [goal.value stringValue];
     }
     cell.unitLabel.text = goal.unit;
+    
+    //set textfield selectors so a change in textfield will be added to the managedObject.
     [cell.valueField addTarget:self action:@selector(textFieldDidEndEditing:) forControlEvents:UIControlEventEditingDidEnd];
     [cell.valueField addTarget:self action:@selector(textFieldDidBeginEditing:) forControlEvents:UIControlEventEditingDidBegin];
     cell.valueField.delegate = self;
     
+    //set the cell's sideview color to show if it will be saved with the dietplan or not (green is okay, yellow is 'still editing', gray is no value).
     if ([cell.valueField.text floatValue] > 0) {
         cell.sideView.backgroundColor = [UIColor greenColor];
     } else {
         cell.sideView.backgroundColor = [UIColor grayColor];
     }
+    
+    //set the cells colors if it's a main goal to show the main goal selected.
     if ([goal.mainGoal boolValue] == 1) {
         cell.backgroundColor = [UIColor lightGrayColor];
         cell.goalLabel.textColor = [UIColor whiteColor];
@@ -181,11 +157,12 @@
 }
 
 -(void)textFieldDidBeginEditing:(UITextField *)textField {
-    //get the cell this textfield belongs to
+    //get the cell this textfield belongs to.
     CGPoint textFieldPosition = [textField convertPoint:CGPointZero toView:self.tableView];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:textFieldPosition];
     GoalTableViewCell *cell = (GoalTableViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
-    
+    //set the sideview color to yellow so the user is alerted that the 'transaction' is not complete
+    //while the keyboard is still in view.
     cell.sideView.backgroundColor = [UIColor yellowColor];
 }
 
@@ -218,6 +195,7 @@
     
     return [sectionInfo numberOfObjects];
 }
+
 
 #pragma mark - NSFetchedResultsControllerDelegate
 
@@ -274,8 +252,8 @@
     }
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    return 55;
+    //return the right row height for cells.
+    return ROW_HEIGHT;
 }
 
 - (NSFetchedResultsController *)fetchedResultsController {
@@ -283,9 +261,9 @@
         return _fetchedResultsController;
     }
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc]init];
-    
     NSManagedObjectContext *context = [self managedObjectContext];
     
+    //fetch entities for the current dietplan.
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"DietGoal" inManagedObjectContext:context];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dietPlan == %@", _dietPlan];
     //set the fetch request to the Patient entity
@@ -351,7 +329,34 @@
     [self.tableView endUpdates];
 }
 
-#pragma mark - Form input validation
+#pragma mark - Form Validation
+
+- (BOOL)checkIfMainGoalSelected {
+    //if there is only one diet goal, set it to the maingoal.
+    if (self.fetchedResultsController.fetchedObjects.count == 1) {
+        //let the user exit.
+        return YES;
+        
+    } else if (![self mainGoalSelected]) {
+        NSString *message = @"Please select a main goal by tapping on one of your goals.";
+        [self informationMessage:message style:ALAlertBannerStyleFailure title:@"Missing Information"];
+        
+        return NO;
+    }
+    //all is well, return yes.
+    return YES;
+}
+
+- (BOOL)mainGoalSelected {
+    
+    for (DietGoal *goal in [self.fetchedResultsController fetchedObjects]) {
+        if ([goal.mainGoal boolValue] == YES) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
     

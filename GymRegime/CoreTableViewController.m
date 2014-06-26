@@ -27,6 +27,51 @@
     
 }
 
+#pragma mark - Core Data fetching and checking
+- (NSInteger)checkObjectsWithEntityName:(NSString *)entityName
+                              predicate:(NSPredicate *)predicate
+                         sortDescriptor:(NSSortDescriptor *)sortDescriptor {
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:self.managedObjectContext];
+    [fetchRequest setEntity:entity];
+    // Specify criteria for filtering which objects to fetch
+    [fetchRequest setPredicate:predicate];
+    // Specify how the fetched objects should be sorted
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortDescriptor, nil]];
+    
+    NSError *error = nil;
+    NSUInteger count = [self.managedObjectContext countForFetchRequest:fetchRequest error:&error];
+    if (!error) {
+        return count;
+    } else {
+        NSLog(@"error: %@", error);
+        return 1;
+    }
+    
+}
+
+- (NSArray *)performFetchWithEntityName:(NSString *)entityName
+                              predicate:(NSPredicate *)predicate
+                         sortDescriptor:(NSSortDescriptor *)sortDescriptor {
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:entityName inManagedObjectContext:self.managedObjectContext];
+    [fetchRequest setEntity:entity];
+    // Specify criteria for filtering which objects to fetch
+    [fetchRequest setPredicate:predicate];
+    // Specify how the fetched objects should be sorted
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObjects:sortDescriptor, nil]];
+    
+    NSError *error = nil;
+    NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&error];
+    if (fetchedObjects == nil) {
+        NSLog(@"error fetching: %@", error);
+    }
+    
+    return fetchedObjects;
+}
+
 
 #pragma mark - NSFetchedResultsControllerDelegate
 

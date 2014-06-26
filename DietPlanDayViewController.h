@@ -33,7 +33,11 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *lbmBwSegmentControl;
 
 @property (nonatomic, strong) DietPlanDay *addDietPlanDay;
-
 @property (nonatomic, retain) IBOutlet DLPieChart *pieChartView;
+
+@property (nonatomic, strong) DietPlan *dietPlan;
+@property (nonatomic, strong) NSNumber *dayNumber;
+
+@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 
 @end

@@ -78,11 +78,27 @@
     [self.tableView addGestureRecognizer:_tapGestureRecognizer];
     //make sure the user can still select table cells.
     _tapGestureRecognizer.cancelsTouchesInView = NO;
+    
+    //set textfield delegates as self.
+    _bmrCustomTextFIeld.delegate = self;
+    _bmrBodyWeightMultiplierTextField.delegate = self;
+    _maintenanceBodyWeightMultiplierTextField.delegate = self;
+    _maintenanceCustomTextField.delegate = self;
 }
 
 - (void)hideKeyboard {
     //resign keyboard.
     [self.tableView endEditing:YES];
+}
+
+//reset the cancels touch in view to make sure the tableview selection is
+//deactivated when the keyboard is in view and reactivated when it is not.
+- (void)cancelsTouchesInView {
+    if  (_tapGestureRecognizer.cancelsTouchesInView == YES) {
+        _tapGestureRecognizer.cancelsTouchesInView = NO;
+    } else {
+        _tapGestureRecognizer.cancelsTouchesInView = YES;
+    }
 }
 
 - (void)setOutletValues {
@@ -117,14 +133,33 @@
     } else {
         calibration = [_calorieCalibrationTextField.text intValue];
     }
-    
+    //set the calibration number.
     [_userDefaults setInteger:calibration forKey:@"calorieFormulaCalibration"];
-    
+    //save the user defaults.
     [_userDefaults synchronize];
-    
+    //segue to the main settings section.
     [self.navigationController popViewControllerAnimated:YES];
 }
 
+-(void)textFieldDidBeginEditing:(UITextField *)textField {
+    _tapGestureRecognizer.cancelsTouchesInView = YES;
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    
+    //set make sure the tableviewcell is selected after the editing ends.
+    if (textField != _calorieCalibrationTextField) {
+        //get the cell belonging to the textfield.
+        CGPoint textFieldOrigin = [self.tableView convertPoint:textField.bounds.origin fromView:textField];
+        NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:textFieldOrigin];
+        UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
+        [self didSelectCaloricEquation:cell];
+    }
+    
+    //set slight delay so the touch the user makes *just* after the keyboard has gone will not be registered (so the tableviewcell
+    //pertaining to the textfield that ends editing is selected and not the cell the user taps on to make the keyboard disappear.
+        [NSTimer scheduledTimerWithTimeInterval:.03 target:self selector:@selector(cancelsTouchesInView) userInfo:nil repeats:NO];
+}
 
 - (void)setSelectedOptions {
     
@@ -199,10 +234,18 @@
     [_userDefaults setInteger:_maintenanceCustom forKey:@"customMaintenance"];
 }
 
+#pragma mark - TableView
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
     
+    [self didSelectCaloricEquation:cell];
+}
+
+-(void)didSelectCaloricEquation: (UITableViewCell *)cell {
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+
     //first uncheck all accessory checkmarks.
     [self uncheckAccesorCheckMarks: indexPath.section];
     
@@ -217,7 +260,7 @@
         self.mifflinStJeorEquationCell.accessoryType =UITableViewCellAccessoryCheckmark;
     }
     if ([[cell reuseIdentifier] isEqualToString:@"CustomBmr"]) {
-         [_userDefaults setInteger:Custom forKey:@"bmrEquation"];
+        [_userDefaults setInteger:Custom forKey:@"bmrEquation"];
         self.customBmrCell.accessoryType =
         UITableViewCellAccessoryCheckmark;
     }
@@ -238,12 +281,13 @@
     if ([[cell reuseIdentifier] isEqualToString:@"CustomTDEE"]) {
         [_userDefaults setInteger:CustomTDEE forKey:@"maintenanceMultiplierType"];
         self.customMaintenanceCell.accessoryType = UITableViewCellAccessoryCheckmark;
-
+        
     }
     if ([[cell reuseIdentifier] isEqualToString:@"CalculatedTDEE"]) {
         [_userDefaults setInteger:ActivityMultiplierTDEE forKey:@"maintenanceMultiplierType"];
         self.calculatedMaintenanceCell.accessoryType = UITableViewCellAccessoryCheckmark;
     }
+
 }
 
 - (void)loadUserData {

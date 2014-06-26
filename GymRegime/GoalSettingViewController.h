@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "CoreViewController.h"
 #import "DietPlan.h"
+
+
 @interface GoalSettingViewController : CoreViewController <NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>
 
 @property (nonatomic, strong) DietPlan *dietPlan;

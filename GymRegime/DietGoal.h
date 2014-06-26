@@ -2,7 +2,7 @@
 //  DietGoal.h
 //  GymRegime
 //
-//  Created by Kim on 19/06/14.
+//  Created by Kim on 26/06/14.
 //  Copyright (c) 2014 Kim. All rights reserved.
 //
 
@@ -13,10 +13,10 @@
 
 @interface DietGoal : NSManagedObject
 
-@property (nonatomic, retain) NSString * name;
-@property (nonatomic, retain) NSNumber * value;
-@property (nonatomic, retain) NSString * unit;
 @property (nonatomic, retain) NSNumber * mainGoal;
+@property (nonatomic, retain) NSString * name;
+@property (nonatomic, retain) NSString * unit;
+@property (nonatomic, retain) NSNumber * value;
 @property (nonatomic, retain) DietPlan *dietPlan;
 
 @end

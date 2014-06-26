@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "CoreViewController.h"
 
-@interface BSProfileViewController : CoreViewController <UIAlertViewDelegate>
+@interface BSProfileViewController : CoreViewController <UIAlertViewDelegate ,UITextFieldDelegate>
 
 @end

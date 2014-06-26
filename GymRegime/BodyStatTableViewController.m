@@ -41,11 +41,15 @@
 
 @property (nonatomic,strong) CoreDataHelper *dataHelper;
 @property (nonatomic, strong) CalorieCalculator *calculator;
+@property (nonatomic, strong) NSUserDefaults *userDefaults;
 
+@property (nonatomic, strong) NSString *weightUnit;
 @end
 
 @implementation BodyStatTableViewController
 
+#define NO_PROFILE_ALERT 342
+#define MEASUREMENT_SYSTEM_ALERT 532
 
 - (void)viewDidLoad
 {
@@ -57,7 +61,9 @@
         //redirect to the profile page.
         [defaults setInteger:1 forKey:@"firstTimeUser"];
         [defaults synchronize];
-        [self noProfileAlert];
+        
+        //show the unit settings alert.
+        [self unitSettingsAlert];
     }
     
     //set selectedIndex to -1 so no cell is expanded or should expand;
@@ -74,6 +80,7 @@
     }
 }
 
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:YES];
     
@@ -84,7 +91,7 @@
     if ((_currentDietPlan = [_dataHelper fetchCurrentDietPlan])) {
         
         //check if a progress view must be added.
-        if ([NSDate daysBetweenDate:_currentDietPlan.endDate andDate:[NSDate date]] <= 0 &&
+        if ([NSDate isDate:[NSDate setDateToMidnight:[NSDate date]] inRangeFirstDate:_currentDietPlan.startDate lastDate:_currentDietPlan.endDate] &&
             _currentDietPlan.dietGoal.count > 0) {
             //add a progress circlechart instead of a title
             [self addProgressChart];
@@ -116,6 +123,15 @@
     }
     
     [self.tableView reloadData];
+    
+    //load the user defaults for the right unit settings.
+    _userDefaults = [[NSUserDefaults alloc]init];
+    if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"metric"]) {
+        _weightUnit = @"kg";
+    } else if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"imperial"]){
+        _weightUnit = @"lbs";
+    }
+    
 }
 
 -(void)viewDidAppear:(BOOL)animated
@@ -208,30 +224,61 @@
 }
 
 
-
+#pragma mark - Alert Messages
 -(void)noProfileAlert {
     
-    NSString *message = @"Welcome to the diet regime app! In order to utilise the full functionality of this app you will need to fill in a bit of information about yourself so we can calculate your caloric need. Would you like to do this now?";
-    self.alertView = [[UIAlertView alloc]initWithTitle:@"Welcome!"
+    NSString *message = @"In order to utilise the full functionality of this app you will need to fill in a bit of information about yourself so we can calculate your caloric need. Would you like to do this now?";
+    self.alertView = [[UIAlertView alloc]initWithTitle:@"Profile"
                                                message:message
                                               delegate:self
                                      cancelButtonTitle: @"No"
                                      otherButtonTitles:@"Yes", nil];
+    self.alertView.tag = NO_PROFILE_ALERT;
+    [self.alertView show];
     
+}
+
+- (void)unitSettingsAlert {
+    
+    NSString *message = @"Welcome to the diet regime app! Which measurement system would you like to use: Imperial (inches/pounds) or Metric (centimeters/kilograms)? You can always change this setting later in the settings menu.";
+    self.alertView = [[UIAlertView alloc]initWithTitle:@"Welcome!"
+                                               message:message
+                                              delegate:self
+                                     cancelButtonTitle:@"Imperial"
+                                     otherButtonTitles:@"Metric", nil];
+    
+    self.alertView.tag = MEASUREMENT_SYSTEM_ALERT;
     [self.alertView show];
     
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     
-    
-    if (buttonIndex == [alertView cancelButtonIndex]) {
-        //do nothing
-    } else {
-        //segue to the user's profile page.
-        [self performSegueWithIdentifier:@"profilePage" sender:self];
+    //check if the alertmessage is the profile alert, and set the button actions.
+    if (alertView.tag == NO_PROFILE_ALERT) {
+        if (buttonIndex == [alertView cancelButtonIndex]) {
+            //do nothing
+        } else {
+            //segue to the user's profile page.
+            [self performSegueWithIdentifier:@"profilePage" sender:self];
+        }
     }
-    
+    if (alertView.tag == MEASUREMENT_SYSTEM_ALERT) {
+        //show the no profile alert if the button is clicked.
+        if (buttonIndex == [alertView cancelButtonIndex]) {
+            //set the unit system to Imperial
+            [_userDefaults setObject:@"imperial" forKey:@"unitType"];
+            [_userDefaults synchronize];
+            //show the no profile alert.
+            [self noProfileAlert];
+
+        } else {
+            [_userDefaults setObject:@"metric" forKey:@"unitType"];
+            [_userDefaults synchronize];
+            //show the no profile alert.
+            [self noProfileAlert];
+        }
+    }
 }
 
 
@@ -317,7 +364,7 @@
 }
 
 - (void)setMainSectionLabelsForCell: (BodyStatTableViewCell *)cell stat:(BodyStat *)stat {
-    
+
     //set the labels for the main (nonexpanded) section of the tableview.
     if (stat.progressImage) {
         [cell.progressImageButton setTitle:@"" forState:UIControlStateNormal];
@@ -328,6 +375,8 @@
     }
     if ([stat.weight floatValue]!= 0) {
         cell.weightValueLabel.text = [NSString stringWithFormat:@"%.1f", [[stat weight] floatValue]];
+        //set the right unit after the weight stat.
+        cell.weightValueLabel.text = [cell.weightValueLabel.text stringByAppendingString:_weightUnit];
     } else {
         cell.weightValueLabel.text = @"-";
     }
@@ -337,7 +386,8 @@
         cell.caloriesValueLabel.text = @"-";
     }
     if ([stat.bodyfat floatValue] != 0) {
-        cell.bodyfatValueLabel.text = [NSString stringWithFormat:@"%.1f", [[stat bodyfat] floatValue]];
+        cell.bodyfatValueLabel.text = [NSString stringWithFormat:@"%.1f%%", [[stat bodyfat] floatValue]];
+        cell.bodyfatLabel.text = @"Bodyfat:";
     } else {
         cell.bodyfatValueLabel.text = @"";
         cell.bodyfatLabel.text = @"";
@@ -349,20 +399,60 @@
     
     //set the macro labels of the cell if the values exist in the bodystat.
     if ([stat.proteinIntake intValue] > 0) {
-        cell.proteinValueLabel.text = [NSString stringWithFormat:@"%d", [stat.proteinIntake intValue]];
+        cell.proteinValueLabel.text = [NSString stringWithFormat:@"%d gr", [stat.proteinIntake intValue]];
     } else {
         cell.proteinValueLabel.text = @"-";
     }
     if ([stat.carbIntake intValue] > 0) {
-        cell.carbsValueLabel.text = [NSString stringWithFormat:@"%d", [stat.carbIntake intValue]];
+        cell.carbsValueLabel.text = [NSString stringWithFormat:@"%d gr", [stat.carbIntake intValue]];
     } else {
         cell.carbsValueLabel.text = @"-";
     }
     
     if ([stat.fatIntake intValue] > 0) {
-        cell.fatValueLabel.text = [NSString stringWithFormat:@"%d", [stat.fatIntake intValue]];
+        cell.fatValueLabel.text = [NSString stringWithFormat:@"%d gr", [stat.fatIntake intValue]];
     } else {
         cell.fatValueLabel.text = @"-";
+    }
+}
+
+- (void)setDietPlanDayPlanningLabelsForDietPlan: (DietPlan *)dietPlan
+                                           cell:(BodyStatTableViewCell *)cell
+                                       bodyStat: (BodyStat *)stat {
+    
+    //get the dietplan day for the date today.
+    DietPlanDay * planDay = [dietPlan returnDietPlanDayForDate:stat.date];
+    
+    if (planDay) {
+        cell.plannedCaloriesValueLabel.text = [NSString stringWithFormat:@"%d ", [planDay.calories intValue]];
+        cell.plannedProteinValueLabel.text = [NSString stringWithFormat:@"%d gr", [planDay.proteinGrams intValue]];
+        cell.plannedCarbValueLabel.text = [NSString stringWithFormat:@"%d gr", [planDay.carbGrams intValue]];
+        cell.plannedFatValueLabel.text = [NSString stringWithFormat:@"%d gr", [planDay.fatGrams intValue]];
+        
+        //check if the user has a maintenance set, if so set the deficit/surplus label (this maintenance calculation
+        // uses the stat beloning to the tableviewcell to calculate maintenance, not the latest stat.
+        //so if the stat for this cell does not have a weight, set deficit/surplus to 0.
+        NSNumber *maintenance = [NSNumber numberWithInt:0];
+        if (stat.weight != 0) {
+            maintenance = [[_calculator returnUserMaintenanceAndBmr:stat] objectForKey:@"maintenance"];
+        }
+        if ([maintenance integerValue] > 0 && [stat.calories integerValue] > 0) {
+            
+            // get the deficit or surplus:
+            NSInteger surplusDeficit = [stat.calories integerValue] - [maintenance integerValue];
+            if (surplusDeficit > 0) {
+                cell.deficitSurplusLabel.text = @"Surplus:";
+            } else {
+                cell.deficitSurplusLabel.text = @"Deficit:";
+            }
+            cell.deficitSurplusValueLabel.text = [NSString stringWithFormat:@"%ld", surplusDeficit];
+        }
+    } else {
+        cell.plannedCaloriesValueLabel.text = @"-";
+        cell.plannedProteinValueLabel.text = @"-";
+        cell.plannedCarbValueLabel.text = @"-";
+        cell.plannedFatValueLabel.text = @"-";
+        cell.deficitSurplusValueLabel.text = @"-";
     }
 }
 
@@ -395,45 +485,6 @@
     }
 }
 
-- (void)setDietPlanDayPlanningLabelsForDietPlan: (DietPlan *)dietPlan
-                                           cell:(BodyStatTableViewCell *)cell
-                                       bodyStat: (BodyStat *)stat {
-    
-    //get the dietplan day for the date today.
-    DietPlanDay * planDay = [dietPlan returnDietPlanDayForDate:stat.date];
-    
-    if (planDay) {
-        cell.plannedCaloriesValueLabel.text = [NSString stringWithFormat:@"%d", [planDay.calories intValue]];
-        cell.plannedProteinValueLabel.text = [NSString stringWithFormat:@"%d", [planDay.proteinGrams intValue]];
-        cell.plannedCarbValueLabel.text = [NSString stringWithFormat:@"%d", [planDay.carbGrams intValue]];
-        cell.plannedFatValueLabel.text = [NSString stringWithFormat:@"%d", [planDay.fatGrams intValue]];
-        
-        //check if the user has a maintenance set, if so set the deficit/surplus label (this maintenance calculation
-        // uses the stat beloning to the tableviewcell to calculate maintenance, not the latest stat.
-        //so if the stat for this cell does not have a weight, set deficit/surplus to 0.
-        NSNumber *maintenance = [NSNumber numberWithInt:0];
-        if (stat.weight != 0) {
-            maintenance = [[_calculator returnUserMaintenanceAndBmr:stat] objectForKey:@"maintenance"];
-        }
-        if ([maintenance integerValue] > 0 && [stat.calories integerValue] > 0) {
-            
-            // get the deficit or surplus:
-            NSInteger surplusDeficit = [stat.calories integerValue] - [maintenance integerValue];
-            if (surplusDeficit > 0) {
-                cell.deficitSurplusLabel.text = @"Surplus:";
-            } else {
-                cell.deficitSurplusLabel.text = @"Deficit:";
-            }
-            cell.deficitSurplusValueLabel.text = [NSString stringWithFormat:@"%ld", surplusDeficit];
-        }
-    } else {
-        cell.plannedCaloriesValueLabel.text = @"-";
-        cell.plannedProteinValueLabel.text = @"-";
-        cell.plannedCarbValueLabel.text = @"-";
-        cell.plannedFatValueLabel.text = @"-";
-        cell.deficitSurplusValueLabel.text = @"-";
-    }
-}
 
 
 //segue for accessory Edit button in tableviewcell.

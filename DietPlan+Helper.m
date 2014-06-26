@@ -65,7 +65,7 @@
     //get the total number of days
     NSInteger dietDaysCount = [fetchedDietDays count];
     NSInteger totalDietPlanDays = [NSDate daysBetweenDate:self.startDate andDate:self.endDate];
-    if (totalDietPlanDays < 1) {
+    if (totalDietPlanDays < 1 || dietDaysCount < 1) {
         return 0;
     }
     

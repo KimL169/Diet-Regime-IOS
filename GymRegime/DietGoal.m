@@ -2,7 +2,7 @@
 //  DietGoal.m
 //  GymRegime
 //
-//  Created by Kim on 19/06/14.
+//  Created by Kim on 26/06/14.
 //  Copyright (c) 2014 Kim. All rights reserved.
 //
 
@@ -12,10 +12,10 @@
 
 @implementation DietGoal
 
-@dynamic name;
-@dynamic value;
-@dynamic unit;
 @dynamic mainGoal;
+@dynamic name;
+@dynamic unit;
+@dynamic value;
 @dynamic dietPlan;
 
 @end

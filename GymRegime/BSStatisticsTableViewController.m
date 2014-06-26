@@ -37,6 +37,9 @@
 @property (strong, nonatomic) UIAlertView *alertView;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
+@property (strong, nonatomic) NSUserDefaults *userDefaults;
+@property (strong, nonatomic) NSString *weightUnit;
+
 
 @end
 
@@ -73,6 +76,14 @@
     [super viewWillAppear:YES];
     NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:NO];
     self.fetchedBodyStats = [_dataHelper performFetchWithEntityName:@"BodyStat" predicate:nil sortDescriptor: sortDescr];
+    
+    //get the userdefaults to set the correct unit type.
+    _userDefaults = [[NSUserDefaults alloc]init];
+    if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"metric"]) {
+        _weightUnit = @"kg";
+    } else if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"imperial"]) {
+        _weightUnit = @"lbs";
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -156,10 +167,12 @@
     if (_fetchedBodyStats.count > 0) {
         BodyStat *latestStat = [_fetchedBodyStats objectAtIndex:0];
         if ([latestStat.lbm floatValue] > 0) {
-            self.lbmValueLabel.text = [NSString stringWithFormat:@"%.1f kg",[latestStat.lbm floatValue]];
+            _lbmValueLabel.text = [NSString stringWithFormat:@"%.1f ",[latestStat.lbm floatValue]];
+            _lbmValueLabel.text = [_lbmValueLabel.text stringByAppendingString:_weightUnit];
             
             if ([latestStat.weight floatValue] > 0) {
-                self.fatMassValueLabel.text = [NSString stringWithFormat:@"%.1f kg", ([latestStat.weight floatValue] - [latestStat.lbm floatValue])];
+                _fatMassValueLabel.text = [NSString stringWithFormat:@"%.1f ", ([latestStat.weight floatValue] - [latestStat.lbm floatValue])];
+                _fatMassValueLabel.text = [_fatMassValueLabel.text stringByAppendingString:_weightUnit];
             }
         }
     }
@@ -170,7 +183,7 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     // Return the number of sections.
-    return 5;
+    return 4;
 }
 
 - (NSInteger) tableView:(UITableView *) tableView numberOfRowsInSection:(NSInteger) section {

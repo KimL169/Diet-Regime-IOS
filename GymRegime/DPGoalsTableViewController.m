@@ -16,6 +16,8 @@
 @property (nonatomic, strong) NSDictionary *unitDictionary;
 @property (nonatomic, strong) CoreDataHelper *dataHelper;
 
+@property (nonatomic, strong) NSUserDefaults *userDefaults;
+
 @end
 
 @implementation DPGoalsTableViewController
@@ -24,10 +26,22 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    //get the userdefaults
+    _userDefaults = [[NSUserDefaults alloc]init];
  
-    //this can be replaced in the future with the right unit based on the user's NSUserDefault settings.
-    NSString *lengthUnit = @"cm";
-    NSString *weightUnit = @"kg";
+    NSString *weightUnit;
+    NSString *lengthUnit;
+    
+    //check the weight and length unit settings.
+    if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"metric"]) {
+        weightUnit = @"kg";
+        lengthUnit = @"cm";
+    } else if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"imperial"]) {
+        weightUnit = @"lbs";
+        lengthUnit = @"inch";
+    }
+
     NSString *percentSign = @"%";
     NSString *bmiUnit = @"bmi";
     
@@ -90,7 +104,7 @@
     //and set userinteraction disabled.
     NSPredicate *predicateOne = [NSPredicate predicateWithFormat:@"name = %@", cell.textLabel.text];
     NSPredicate *predicateTwo = [NSPredicate predicateWithFormat:@"dietPlan = %@", _dietPlan];
-    NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[predicateOne, predicateTwo]];
+    NSCompoundPredicate *compoundPredicate = (NSCompoundPredicate *)[NSCompoundPredicate andPredicateWithSubpredicates:@[predicateOne, predicateTwo]];
     NSArray *fetchedObjects = [_dataHelper performFetchWithEntityName:@"DietGoal" predicate:compoundPredicate sortDescriptor:nil];
     if ([fetchedObjects count] > 0) {
         cell.userInteractionEnabled = NO;

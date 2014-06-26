@@ -15,19 +15,14 @@
 
 @property (nonatomic, strong) NSMutableArray *weeklyStats;
 
-@property (nonatomic,strong) NSManagedObjectContext *managedObjectContext;
+@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
+@property (nonatomic, strong) NSUserDefaults *userDefaults;
+@property (nonatomic, strong) NSString *weightUnit;
+
 @end
 
 @implementation BSWeeklyChangesTableViewController
 
-- (id)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
 - (void)viewDidLoad
 {
@@ -41,14 +36,12 @@
     if ([self.currentBodyStats count] > 0) {
         [self getTheDatesSpanningOneWeek];
     }
-    
-
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    _userDefaults = [[NSUserDefaults alloc] init];
+    if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"metric"]) {
+        _weightUnit = @"kg";
+    } else if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"imperial"]) {
+        _weightUnit = @"lbs";
+    }
 }
 
 #pragma mark - Table view data source
@@ -70,15 +63,21 @@
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     
-    // Configure the cell...
     if ([self.weeklyStats count] > 1) {
+        
+        //get the first and second stat, check the changerate and remove the first.
         BodyStat *stat1 = [self.weeklyStats objectAtIndex:0];
         [self.weeklyStats removeObjectAtIndex:0];
         BodyStat *stat2 = [self.weeklyStats objectAtIndex:0];
-    
-        float changeRate = [stat2.weight floatValue] - [stat1.weight floatValue];
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"%.1f kg", changeRate];
         
+        //get the correct changerate.
+        float changeRate = [stat2.weight floatValue] - [stat1.weight floatValue];
+        
+        //set the changerate text fields and add the correct unit.
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%.1f ", changeRate];
+        cell.detailTextLabel.text = [cell.detailTextLabel.text stringByAppendingString:_weightUnit];
+        
+        //set from and to dates.
         NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
         [dateFormat setDateFormat:@"d MMM"];
         NSString *dateString1 = [dateFormat stringFromDate:stat1.date];
@@ -92,8 +91,8 @@
 
 - (void)getTheDatesSpanningOneWeek {
     
+    //get the dates that span one week from the latest bodystat and check the weight progress.
     self.weeklyStats = [[NSMutableArray alloc]init];
-    
     BodyStat *currentStat = [self.currentBodyStats firstObject];
     
     [self.weeklyStats addObject:currentStat];

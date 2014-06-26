@@ -22,21 +22,16 @@
 @property (nonatomic) NSNumber *calories;
 
 @property (nonatomic, strong)NSString *name;
-
 @property (nonatomic, strong) NSArray *macroPresets;
 @property (nonatomic, strong) NSArray *proteinPresets;
-
 @property (nonatomic, strong) NSString *selectedMacroPreset;
 @property (nonatomic, strong) NSString *selectedProteinPreset;
-
 @property (nonatomic, retain) NSMutableArray *chartDataArray;
-
-@property (nonatomic, strong) CoreDataHelper *dataTool;
 @property (nonatomic, strong) BodyStat *currentStat;
 
-@property (strong, nonatomic) IBOutlet UILabel *proteinGramPerKgValueLabel;
-@property (strong, nonatomic) IBOutlet UILabel *carbGramPerKgValueLabel;
-@property (strong, nonatomic) IBOutlet UILabel *fatGramPerKgValueLabel;
+@property (strong, nonatomic) IBOutlet UILabel *proteinGramPerWeightValueLabel;
+@property (strong, nonatomic) IBOutlet UILabel *carbGramPerWeightValueLabel;
+@property (strong, nonatomic) IBOutlet UILabel *fatGramPerWeightValueLabel;
 @property (strong, nonatomic) IBOutlet UILabel *currentMaintenanceValueLabel;
 @property (strong, nonatomic) IBOutlet UILabel *caloricDeficitSurplusValueLabel;
 
@@ -48,6 +43,10 @@
 @property (weak, nonatomic) IBOutlet UILabel *caloricDeficitSurplusLabel;
 
 @property (strong, nonatomic) CalorieCalculator *calculator;
+@property (nonatomic, strong) CoreDataHelper *dataTool;
+@property (nonatomic, strong) NSUserDefaults *userDefaults;
+@property (nonatomic, strong) NSString *weightUnit;
+
 @property (nonatomic) float leanBodyMass;
 
 @end
@@ -68,7 +67,57 @@ static const NSInteger kcalGramFat = 9;
 
 @implementation DietPlanDayViewController
 
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    //setup scroll view
+    [self setupScrollView];
+    
+    //init the chart data array
+    self.chartDataArray = [[NSMutableArray alloc]init];
+    //set default values for macros:
+    self.percentageCarbs = 33.33333;
+    self.percentageProtein = 33.3333;
+    self.percentageFats = 33.33333;
+    
+    //set sliders and chartview.
+    [self setSliderValues];
+    [self loadPieChart];
+    //set textfield delegates so the textfield respond to events.
+    self.nameTextField.delegate = self;
+    self.nameTextField.tag = NAME_TEXTFIELD;
+    self.caloriesTextField.delegate = self;
+    self.caloriesTextField.tag = CALORIE_TEXTFIELD;
+    
+    //call piechart method
+    self.dataTool = [[CoreDataHelper alloc]init];
+    //get the last inputted weight entry, allow a 7 gap between the log entries.
+    self.currentStat = [_dataTool fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7];
+    
+    //load the caloriecalculator
+    self.calculator = [[CalorieCalculator alloc]init];
+    
+    //get the userdefaults to set the correct unit type.
+    _userDefaults = [[NSUserDefaults alloc]init];
+    if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"metric"]) {
+        _weightUnit = @"kg";
+    } else if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"imperial"]) {
+        _weightUnit = @"lbs";
+    }
+    
+    //set the user lbm label
+    [self updateUserLBM];
+    
+    //update the statistics labels
+    [self updateGramPerWeightLabels];
+    
+    //set the maintenance and deficit labels
+    [self updateMaintenanceAndDeficitLabels];
 
+}
+
+#pragma mark -Outlet Setup
 - (IBAction)nameTextField:(UITextField *)sender {
     _name = sender.text;
     self.title = _name;
@@ -76,13 +125,17 @@ static const NSInteger kcalGramFat = 9;
 
 - (IBAction)caloriesTextField:(UITextField *)sender {
     _calories = [NSNumber numberWithInteger:[sender.text integerValue]];
+    
+    //update the labels that rely on calories being filled in.
     [self calculateMacrosInGrams];
     [self updateMacroLabels];
     [self updateGramPerWeightLabels];
     [self updateMaintenanceAndDeficitLabels];
 }
 
+
 - (IBAction)lbmBodyweightSegmentControl:(UISegmentedControl *)sender {
+    //check if currentstat has any bodyfat
     //update the labels.
     _lbmBwSegmentControl.selectedSegmentIndex = sender.selectedSegmentIndex;
     [self updateGramPerWeightLabels];
@@ -142,6 +195,7 @@ static const NSInteger kcalGramFat = 9;
     
 }
 
+#pragma mark - Setting Labels.
 - (void)updateMaintenanceAndDeficitLabels {
     NSNumber *maintenance = [[_calculator returnUserMaintenanceAndBmr:nil] objectForKey:@"maintenance"];
     self.currentMaintenanceValueLabel.text = [NSString stringWithFormat:@"%d", [maintenance intValue]];
@@ -166,9 +220,15 @@ static const NSInteger kcalGramFat = 9;
         if (_leanBodyMass) {
             
             //update the description Labels
-            _proteinGramPerWeightLabel.text = [NSString stringWithFormat:@"Protein gram per kg lbm:"];
-            _fatGramPerWeightLabel.text = [NSString stringWithFormat:@"Fat gram per kg lbm:"];
-            _carbGramPerWeightLabel.text = [NSString stringWithFormat:@"Carb gram per kg lbm:"];
+            if ([_weightUnit isEqualToString:@"kg"]) {
+                _proteinGramPerWeightLabel.text = [NSString stringWithFormat:@"Protein gram per kg lbm:"];
+                _fatGramPerWeightLabel.text = [NSString stringWithFormat:@"Fat gram per kg lbm:"];
+                _carbGramPerWeightLabel.text = [NSString stringWithFormat:@"Carb gram per kg lbm:"];
+            } else if ([_weightUnit isEqualToString:@"lbs"]) {
+                _proteinGramPerWeightLabel.text = [NSString stringWithFormat:@"Protein gram per lb lbm:"];
+                _fatGramPerWeightLabel.text = [NSString stringWithFormat:@"Fat gram per lb lbm:"];
+                _carbGramPerWeightLabel.text = [NSString stringWithFormat:@"Carb gram per lb lbm:"];
+            }
             
             //check if the calories have been filled in
             if (_calories) {
@@ -177,9 +237,9 @@ static const NSInteger kcalGramFat = 9;
                 float fatPerGram = [_gramFat intValue] / _leanBodyMass;
                 float carbPerGram = [_gramCarbs intValue] / _leanBodyMass;
                 //update the Value labels
-                _proteinGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f",proteinPerGram];
-                _fatGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", fatPerGram];
-                _carbGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", carbPerGram];
+                _proteinGramPerWeightValueLabel.text = [NSString stringWithFormat:@"%.1f",proteinPerGram];
+                _fatGramPerWeightValueLabel.text = [NSString stringWithFormat:@"%.1f", fatPerGram];
+                _carbGramPerWeightValueLabel.text = [NSString stringWithFormat:@"%.1f", carbPerGram];
                 
             }
         }
@@ -188,12 +248,18 @@ static const NSInteger kcalGramFat = 9;
         
         //check if a stat with a weight entry was loaded.
         if (self.currentStat) {
-            _bodyWeightLabel.text = [NSString stringWithFormat:@"%.1fkg",[[_currentStat weight] floatValue]];
-            
+            _bodyWeightLabel.text = [NSString stringWithFormat:@"%.1f",[[_currentStat weight] floatValue]];
+            _bodyWeightLabel.text = [_bodyWeightLabel.text stringByAppendingString:_weightUnit];
             //update the description Labels
-            _proteinGramPerWeightLabel.text = [NSString stringWithFormat:@"Protein gram per kg bw:"];
-            _fatGramPerWeightLabel.text = [NSString stringWithFormat:@"Fat gram per kg bw:"];
-            _carbGramPerWeightLabel.text = [NSString stringWithFormat:@"Carb gram per kg bw:"];
+            if ([_weightUnit isEqualToString:@"kg"]) {
+                _proteinGramPerWeightLabel.text = [NSString stringWithFormat:@"Protein gram per kg bw:"];
+                _fatGramPerWeightLabel.text = [NSString stringWithFormat:@"Fat gram per kg bw:"];
+                _carbGramPerWeightLabel.text = [NSString stringWithFormat:@"Carb gram per kg bw:"];
+            } else if ([_weightUnit isEqualToString:@"lbs"]){
+                _proteinGramPerWeightLabel.text = [NSString stringWithFormat:@"Protein gram per lb bw:"];
+                _fatGramPerWeightLabel.text = [NSString stringWithFormat:@"Fat gram per lb bw:"];
+                _carbGramPerWeightLabel.text = [NSString stringWithFormat:@"Carb gram per lb bw:"];
+            }
             
             //check if the calories have been filled in
             if (_calories) {
@@ -203,9 +269,9 @@ static const NSInteger kcalGramFat = 9;
                 float carbPerGram = [_gramCarbs intValue] / [[_currentStat weight] floatValue];
                 
                 //update the labels
-                _proteinGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f",proteinPerGram];
-                _fatGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", fatPerGram];
-                _carbGramPerKgValueLabel.text = [NSString stringWithFormat:@"%.1f", carbPerGram];
+                _proteinGramPerWeightValueLabel.text = [NSString stringWithFormat:@"%.1f",proteinPerGram];
+                _fatGramPerWeightValueLabel.text = [NSString stringWithFormat:@"%.1f", fatPerGram];
+                _carbGramPerWeightValueLabel.text = [NSString stringWithFormat:@"%.1f", carbPerGram];
                 
             }
         }
@@ -266,46 +332,7 @@ static const NSInteger kcalGramFat = 9;
 }
 
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    
-    //setup scroll view
-    [self setupScrollView];
-    
-    //init the chart data array
-    self.chartDataArray = [[NSMutableArray alloc]init];
-    //set default values for macros:
-    self.percentageCarbs = 33.33333;
-    self.percentageProtein = 33.3333;
-    self.percentageFats = 33.33333;
 
-    //set sliders and chartview.
-    [self setSliderValues];
-    [self loadPieChart];
-    //set textfield delegates so the textfield respond to events.
-    self.nameTextField.delegate = self;
-    self.nameTextField.tag = NAME_TEXTFIELD;
-    self.caloriesTextField.delegate = self;
-    self.caloriesTextField.tag = CALORIE_TEXTFIELD;
-    
-    //call piechart method
-    self.dataTool = [[CoreDataHelper alloc]init];
-    //get the last inputted weight entry, allow a 7 gap between the log entries.
-    self.currentStat = [_dataTool fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7];
-    
-    //update the statistics labels
-    [self updateGramPerWeightLabels];
-    
-    //load the caloriecalculator
-    self.calculator = [[CalorieCalculator alloc]init];
-    
-    //set the maintenance and deficit labels
-    [self updateMaintenanceAndDeficitLabels];
-    
-    //set the user lbm label
-    [self updateUserLBM];
-}
 
 - (void)updateUserLBM {
     
@@ -317,9 +344,15 @@ static const NSInteger kcalGramFat = 9;
         _leanBodyMass = [_currentStat.weight floatValue] - ([_currentStat.weight floatValue] * ([bodyFatStat.bodyfat floatValue] / 100));
         
         //set the label.
-        self.lbmLabel.text = [NSString stringWithFormat:@"%.1fkg", _leanBodyMass];
+        self.lbmLabel.text = [NSString stringWithFormat:@"%.1f", _leanBodyMass];
+        _lbmLabel.text = [_lbmLabel.text stringByAppendingString:_weightUnit];
     }
     
+    //if user doesn't have an lbm, disable the segment control.
+    if (!_leanBodyMass) {
+        _lbmBwSegmentControl.selectedSegmentIndex = 0;
+        _lbmBwSegmentControl.userInteractionEnabled = NO;
+    }
 
 }
 - (void)loadPieChart {
@@ -360,16 +393,21 @@ static const NSInteger kcalGramFat = 9;
 }
 
 - (IBAction)add:(UIBarButtonItem *)sender {
-    self.addDietPlanDay.fatGrams = _gramFat;
-    self.addDietPlanDay.carbGrams = _gramCarbs;
-    self.addDietPlanDay.proteinGrams = _gramProtein;
-    self.addDietPlanDay.name = _name;
-    self.addDietPlanDay.calories = _calories;
+    _addDietPlanDay = [NSEntityDescription insertNewObjectForEntityForName:@"DietPlanDay" inManagedObjectContext:_managedObjectContext];
+
+    _addDietPlanDay.fatGrams = _gramFat;
+    _addDietPlanDay.carbGrams = _gramCarbs;
+    _addDietPlanDay.proteinGrams = _gramProtein;
+    _addDietPlanDay.name = _name;
+    _addDietPlanDay.calories = _calories;
+    
+    [_addDietPlanDay setDietPlan:_dietPlan];
+    _addDietPlanDay.dayNumber = _dayNumber;
     
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 - (IBAction)cancel:(UIBarButtonItem *)sender {
-    [super cancelAndDismiss];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{

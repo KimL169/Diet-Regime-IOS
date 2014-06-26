@@ -35,6 +35,8 @@
 @property (weak, nonatomic) IBOutlet UITextField *endDateTextField;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *saveAndEditButton;
 
+@property (nonatomic, strong) NSUserDefaults *userDefaults;
+@property (nonatomic, strong) NSString *weightUnit;
 
 
 #define TABLEVIEW_ROW_HEIGHT 55
@@ -87,6 +89,13 @@
 {
     [super viewDidLoad];
     
+    //get the userdefaults to set the correct unit type.
+    _userDefaults = [[NSUserDefaults alloc]init];
+    if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"metric"]) {
+        _weightUnit = @"kg";
+    } else if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"imperial"]) {
+        _weightUnit = @"lbs";
+    }
     
     //check if a dietplan already exists, else create it it.
     if (!_dietPlan) {
@@ -99,7 +108,7 @@
         //set the UI to edit mode.
         [self disableUI];
         [self setInformationLabels];
-        [self.saveAndEditButton setTitle:@"edit"];
+        [self.saveAndEditButton setTitle:@"Edit"];
     }
     
     
@@ -122,14 +131,17 @@
     
     [self.tableView addGestureRecognizer:recognizer];
 
-    //set the date labels.
-    [self setDateLabels];
-    
     //Set self to listen for the event that he dietplandaytableviewcontroller is dismissed.
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didDismissDietPlanDayTableViewController)
                                                  name:@"DietDayTableViewControllerDismissed"
                                                object:nil];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:YES];
+    //set the date labels.
+    [self setDateLabels];
 }
 
 - (void)didDismissDietPlanDayTableViewController {
@@ -161,18 +173,28 @@
     CoreDataHelper *dataHelper = [[CoreDataHelper alloc] init];
     
     //set diet day number label
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dietPlan == %@", _dietPlan];
-    int dietDaysCount = (int)[[dataHelper performFetchWithEntityName:@"DietPlanDay" predicate:predicate sortDescriptor:nil] count];
+    int dietDaysCount = (int)[dataHelper countEntityInstancesWithEntityName:@"DietPlanDay" dietPlan:_dietPlan];
     _dietDaysNumberLabel.text = [NSString stringWithFormat:@"Diet days: %d", dietDaysCount];
     
     //set total deficit/surplus label.
     NSInteger totalDietarySurplusDeficit = [_dietPlan returnTotalDeficitSurplus];
     if (totalDietarySurplusDeficit) {
-        _totalDietarySurplusDeficitLabel.text = [NSString stringWithFormat:@"Total dietary surplus/deficit: %ld", totalDietarySurplusDeficit];
+        if (totalDietarySurplusDeficit > 0) {
+            _totalDietarySurplusDeficitLabel.text = [NSString stringWithFormat:@"Total dietary surplus: %ld kcal", totalDietarySurplusDeficit];
+        } else if (totalDietarySurplusDeficit < 0) {
+            _totalDietarySurplusDeficitLabel.text = [NSString stringWithFormat:@"Total dietary deficit: %ld kcal", totalDietarySurplusDeficit];
+        }
     }
     
-    //convert to kilograms. One kilogram of fat == 7000 kcal
-    _estimatedTotalWeightChangeLabel.text = [NSString stringWithFormat:@"Est. total weight change: %.1f kg", ((float)totalDietarySurplusDeficit / 7000)];
+    //convert to kilograms or pounds. One kilogram of fat == 7000 kcal
+    
+    if ([_weightUnit isEqualToString:@"kg"]) {
+        _estimatedTotalWeightChangeLabel.text = [NSString stringWithFormat:@"Est. total weight change: %.1f kg", ((float)totalDietarySurplusDeficit / 7000)];
+    } else if ([_weightUnit isEqualToString:@"lbs"]) {
+        _estimatedTotalWeightChangeLabel.text = [NSString stringWithFormat:@"Est. total weight change: %.1f lb", ((float)totalDietarySurplusDeficit / 3555)];
+    }
+
+    
     
 }
 
@@ -212,7 +234,7 @@
 - (IBAction)cancel:(id)sender {
     
     //if the title is equal to 'edit' the user has not changed anything, dismiss without message.
-    if ([_saveAndEditButton.title isEqualToString:@"edit"]) {
+    if ([_saveAndEditButton.title isEqualToString:@"Edit"]) {
         [self dismissViewControllerAnimated:YES completion:nil];
     } else {
         //else show message to confirm because the changes in NSManageObjectContext will be rolled back.
@@ -231,19 +253,19 @@
 
 - (IBAction)saveAndEditButton:(UIBarButtonItem *)sender {
 
-    if ([sender.title isEqualToString:@"save"]) {
+    if ([sender.title isEqualToString:@"Save"]) {
         //check if a start and end date have been provided and if the dates are correct
         if ([self dateValidation] == NO && [self goalsAndDietDaysValidation] == NO) {
             
             //save the diet plan and dismiss viewcontroller.
             [self saveAndDismiss];
         }
-    } else if ([sender.title isEqualToString:@"edit"]) {
+    } else if ([sender.title isEqualToString:@"Edit"]) {
         //enable the UI
         [self enableUI];
         
         //set the edit button title to 'save'
-        [sender setTitle:@"save"];
+        [sender setTitle:@"Save"];
     }
 
 
@@ -495,7 +517,7 @@
 //remove the remove dietplan cell in the 'create dietplan' mode.
 - (void) tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([self.saveAndEditButton.title isEqualToString:@"save"]) {
+    if ([self.saveAndEditButton.title isEqualToString:@"Save"]) {
         if ([cell.reuseIdentifier.description isEqualToString:@"cellRemoveDietPlan"]) {
             [cell setHidden:YES];
         }
@@ -507,7 +529,7 @@
     //when in editing mode.
     CGFloat height = 0.0;
     
-    if ([self.saveAndEditButton.title isEqualToString:@"save"]) {
+    if ([self.saveAndEditButton.title isEqualToString:@"Save"]) {
         if (indexPath.row == 0 && indexPath.section == 0)
         {
             return height;
@@ -528,6 +550,7 @@
         
         //pass the current dietplan to the dietplandays viewcontroller.
         dietPlanDayTableViewController.dietPlan = _dietPlan;
+        dietPlanDayTableViewController.managedObjectContext = [self managedObjectContext];
     }
     
     if ([[segue identifier] isEqualToString:@"dietGoals"]) {

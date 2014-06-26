@@ -13,6 +13,9 @@
 @interface CalorieCalculator ()
 
 @property (nonatomic) NSInteger userHeightInCm;
+@property (nonatomic) NSInteger userHeightInFeet;
+@property (nonatomic) NSInteger userHeightInInches;
+
 @property (nonatomic) NSInteger userGender;
 @property (nonatomic) NSInteger userAgeInYears;
 @property (nonatomic) NSNumber *userActivityMultiplier;
@@ -23,6 +26,8 @@
 @property (nonatomic) NSInteger bmrCalculator;
 @property (nonatomic) NSInteger maintenanceMultiplierType;
 @property (nonatomic) NSInteger calibration;
+
+@property (nonatomic, strong) NSString *unitType;
 
 #define GENDER_MALE 0
 #define GENDER_FEMALE 1
@@ -39,6 +44,12 @@
     //load the relevant user defaults.
     if ([defaults integerForKey:@"userHeightInCm"]) {
         self.userHeightInCm = [defaults integerForKey:@"userHeightInCm"];
+    }
+    if ([defaults integerForKey:@"userHeightInFeet"]) {
+        self.userHeightInFeet = [defaults integerForKey:@"userHeightInFeet"];
+    }
+    if ([defaults integerForKey:@"userHeightInInches"]) {
+        self.userHeightInInches = [defaults integerForKey:@"userHeightInInch"];
     }
     if ([defaults integerForKey:@"userGender"]) {
         self.userGender = [defaults integerForKey:@"userGender"];
@@ -64,6 +75,12 @@
     if ([defaults integerForKey:@"customBmr"]) {
         self.customBmr = [defaults integerForKey:@"customBmr"];
     }
+    if ([defaults objectForKey:@"unitType"]) {
+        _unitType = [defaults objectForKey:@"unitType"];
+    } else {
+        //set the unit type to the default.
+        [defaults setObject:@"metric" forKey:@"unitType"];
+    }
     self.customMaintenance = [defaults integerForKey:@"customMaintenance"];
     self.calibration = [defaults integerForKey:@"calorieFormulaCalibration"];
 
@@ -76,6 +93,23 @@
     return returnString;
 }
 
+- (float)convertImperialMeasurements:(BodyStat *)stat {
+    
+    float weightInKg;
+    
+    //check if the user type is imperial, if so convert it to kg and cm.
+    if ([_unitType isEqualToString:@"imperial"]) {
+        weightInKg = ([stat.weight floatValue] * 0.45359237);
+
+        //set the _heightInCm
+        _userHeightInCm = (_userHeightInFeet * 30.48) + (_userHeightInInches * 2.54);
+    } else {
+        weightInKg = [stat.weight floatValue];
+    }
+    
+    
+    return weightInKg;
+}
 
 #pragma mark - calorie Formula
 - (NSNumber *)harrisBenedictEquation:(BodyStat *)stat {
@@ -85,7 +119,10 @@
         stat = [super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:6];
     }
 
-    if (!stat.weight || !_userHeightInCm) {
+    //convert measurements if imperial
+    float weight = [self convertImperialMeasurements:stat];
+    
+    if (!weight || !_userHeightInCm) {
         return [NSNumber numberWithInt:0];
     }
     
@@ -93,9 +130,9 @@
     
     //calculate the BMR
     if (self.userGender == GENDER_MALE) {
-         bmr = [NSNumber numberWithInteger:(88.362 + (13.397 * [[stat weight] floatValue]) + (4.799 * self.userHeightInCm) - (5.677 * self.userAgeInYears))];
+         bmr = [NSNumber numberWithInteger:(88.362 + (13.397 * weight) + (4.799 * _userHeightInCm) - (5.677 * _userAgeInYears))];
     } else if (self.userGender == GENDER_FEMALE){
-        bmr = [NSNumber numberWithInteger:(447.593 + (9.247 * [[stat weight] floatValue]) + (3.098 * self.userHeightInCm) - (4.330 * self.userAgeInYears))];
+        bmr = [NSNumber numberWithInteger:(447.593 + (9.247 * weight) + (3.098 * _userHeightInCm) - (4.330 * _userAgeInYears))];
     }
     
     return bmr;
@@ -114,8 +151,10 @@
         return [self mifflinStJeorEquation:nil];
     }
     
+    float weight = [self convertImperialMeasurements:stat];
+    
     float bodyfat = [[stat bodyfat] floatValue] / 100;
-    float leanBodyMass = [[stat weight]floatValue] * (1- bodyfat);
+    float leanBodyMass = weight * (1- bodyfat);
     
     NSNumber *bmr = [NSNumber numberWithInteger:(370 + (21.6 * leanBodyMass))];
     
@@ -124,16 +163,16 @@
 
 - (NSNumber *)mifflinStJeorEquation: (BodyStat *)stat {
 
-    //get the latest bodystat.
+    //if stat is not filled in, fetch it, allow 7 days flex.
     if (!stat) {
-        stat = [super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:6];
+        stat = [super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7];
     }
+    //get the weight stat, if imperial, convert to kg.
+    float weight = [self convertImperialMeasurements:stat];
     
-    if (!stat.weight || !_userHeightInCm) {
+    if (!weight || !_userHeightInCm) {
         return [NSNumber numberWithInt:0];
     }
-    
-    float weight = [[stat weight] floatValue];
     
     NSNumber *bmr;
     
@@ -153,15 +192,19 @@
 }
 
 - (NSNumber *)bodyWeightTDEE:(BodyStat *)stat {
-    
-    if (stat == nil) {
+    //if stat is not filled in, fetch it, allow 7 days flex.
+    if (!stat) {
         stat = [super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7];
     }
-    if (!stat.weight || !_userHeightInCm) {
+    
+    //convert stats if imperial.
+    float weight = [self convertImperialMeasurements:stat];
+    
+    if (!weight || !_userHeightInCm) {
         return [NSNumber numberWithInt:0];
     }
-    
-    float maintenance = [[stat weight]floatValue] * _bodyWeightMultiplierMaintenance;
+
+    float maintenance = weight * _bodyWeightMultiplierMaintenance;
     
     return [NSNumber numberWithFloat:maintenance];
 }
@@ -178,12 +221,12 @@
 }
 
 - (NSNumber *)bodyWeightBmrEquation:(BodyStat*)stat {
-    
+    //if stat is not filled in, fetch it, allow 7 days flex.
     if (!stat) {
         stat = [super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7];
     }
-    
-    float weight = [[stat weight] floatValue];
+    //convert units if imperial.
+    float weight = [self convertImperialMeasurements:stat];
     
     if (weight > 0) {
         return [NSNumber numberWithFloat:(weight * _bodyWeightMultiplierBmr)];
@@ -196,13 +239,21 @@
 - (NSDictionary *)returnUserBmi:(float)weight {
     [self loadUserDefaults];
     
+
     //check if a bodystat was entered, else grab the latest out of the database. It may be 5 days old.
     if (weight == 0) {
         weight = [[[super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7] weight] floatValue];
     }
-    
     if (weight == 0 || !_userHeightInCm) {
         return @{@"bmi" : [NSNumber numberWithInt:0], @"category" : @"-"};
+    }
+    
+    //convert measurements if necessary.
+    if ([_unitType isEqualToString:@"imperial"]) {
+        weight = (weight * 0.45359237);
+        
+        //set the _heightInCm
+        _userHeightInCm = (_userHeightInFeet * 30.48) + (_userHeightInInches * 2.54);
     }
     
     float bmi = weight / (((float)_userHeightInCm / 100) * ((float)_userHeightInCm /100));

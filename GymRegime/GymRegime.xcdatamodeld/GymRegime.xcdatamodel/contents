@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6172.12" systemVersion="13D65" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13D65" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="BodyStat" representedClassName="BodyStat" syncable="YES">
         <attribute name="armMeasurement" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="bmi" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
@@ -45,12 +45,12 @@
         <attribute name="fatGrams" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="proteinGrams" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
-        <relationship name="dietPlan" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="DietPlan" inverseName="dietPlanDays" inverseEntity="DietPlan" syncable="YES"/>
+        <relationship name="dietPlan" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DietPlan" inverseName="dietPlanDays" inverseEntity="DietPlan" syncable="YES"/>
     </entity>
     <elements>
         <element name="BodyStat" positionX="-11" positionY="8" width="128" height="360"/>
         <element name="DietGoal" positionX="-279" positionY="80" width="128" height="118"/>
         <element name="DietPlan" positionX="-270" positionY="-198" width="128" height="133"/>
-        <element name="DietPlanDay" positionX="-2" positionY="-225" width="128" height="148"/>
+        <element name="DietPlanDay" positionX="-2" positionY="-225" width="128" height="150"/>
     </elements>
 </model>

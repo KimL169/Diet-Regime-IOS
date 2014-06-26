@@ -18,14 +18,6 @@
 
 @implementation CoreViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
 
 - (void)setNavigationBarTitleWithTextColor:(UIColor *)color title:(NSString *)title {
     NSDictionary *textAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -39,6 +31,7 @@
     
 }
 
+#pragma mark - ManagedObjectContext Saving Cancelling.
 - (void)cancelAndDismiss {
     //roll back any transaction that has been made.
     [self.managedObjectContext rollback];
@@ -54,6 +47,11 @@
 
 - (void)saveAndDismiss {
     
+    [self save];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(void)save{
     //save the data
     NSError *error = nil;
     if ([self.managedObjectContext hasChanges]){
@@ -64,12 +62,11 @@
         }
     }
     
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)managedObjectContextRollBack { [self.managedObjectContext rollback]; }
 
-
+#pragma mark - TextField delegate.
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     [self.view endEditing:YES];
     [super touchesBegan:touches withEvent:event];
@@ -94,6 +91,7 @@
     
 }
 
+#pragma mark - Core Data fetching and checking
 - (NSInteger)checkObjectsWithEntityName:(NSString *)entityName
                               predicate:(NSPredicate *)predicate
                          sortDescriptor:(NSSortDescriptor *)sortDescriptor {

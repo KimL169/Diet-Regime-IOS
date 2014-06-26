@@ -15,7 +15,6 @@
 
 @interface DietPlanDaysTableViewController ()
 
-@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, strong) NSFetchedResultsController *fetchedResultsController;
 
 @property (nonatomic) NSInteger *numberOfDays;
@@ -143,7 +142,11 @@
     cell.fatValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[day proteinGrams] integerValue]];
     cell.caloriesValueLabel.text = [NSString stringWithFormat:@"%ld", (long)[[day calories] integerValue]];
     
-    cell.nameLabel.text = [NSString stringWithFormat:@"%@", day.name];
+    if (day.name) {
+        cell.nameLabel.text = [NSString stringWithFormat:@"%@", day.name];
+    } else {
+        cell.nameLabel.text = @"";
+    }
     cell.dayNumberLabel.text = [NSString stringWithFormat:@"Day %ld", (long)[[day dayNumber] integerValue]];
 }
 
@@ -262,15 +265,9 @@
         UINavigationController *navigationController = segue.destinationViewController;
         DietPlanDayViewController *dietPlanDayViewController = (DietPlanDayViewController *)navigationController.topViewController;
         
-        DietPlanDay *addDietPlanDay = [NSEntityDescription insertNewObjectForEntityForName:@"DietPlanDay" inManagedObjectContext:[self managedObjectContext]];
-        //set the dietplan relationship to the current diet plan.
-        [addDietPlanDay setDietPlan:self.dietPlan];
-        //get the amount of objects in the array, use it to set the dayNumber property of the new day.
-        NSNumber *number = [NSNumber numberWithInteger:[[self.fetchedResultsController fetchedObjects] count]+1];
-        [addDietPlanDay setDayNumber:number];
-        
-        dietPlanDayViewController.addDietPlanDay = addDietPlanDay;
-        NSLog(@"dietplanday: %@", addDietPlanDay);
+        dietPlanDayViewController.dietPlan = _dietPlan;
+        dietPlanDayViewController.dayNumber = [NSNumber numberWithInteger:[[self.fetchedResultsController fetchedObjects] count]+1];
+        dietPlanDayViewController.managedObjectContext = _managedObjectContext;
     }
 }
 

@@ -1,23 +1,18 @@
 //
-//  CoreDataTableViewController.h
+//  CoreViewController.h
+//  GymRegime
 //
-//  Created for Stanford CS193p Fall 2013.
-//  Copyright 2013 Stanford University. All rights reserved.
-//
-// This class mostly just copies the code from NSFetchedResultsController's documentation page
-//   into a subclass of UITableViewController.
-//
-// Just subclass this and set the fetchedResultsController.
-// The only UITableViewDataSource method you'll HAVE to implement is tableView:cellForRowAtIndexPath:.
-// And you can use the NSFetchedResultsController method objectAtIndexPath: to do it.
-//
-// Remember that once you create an NSFetchedResultsController, you CANNOT modify its @propertys.
-// If you want new fetch parameters (predicate, sorting, etc.),
-//  create a NEW NSFetchedResultsController and set this class's fetchedResultsController @property again.
+//  Created by Kim on 24/05/14.
+//  Copyright (c) 2014 Kim. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
+
+//=================================================================
+// Parent class for tableviewcontrollers that deal with Core Data
+//
+//=================================================================
 
 @interface CoreTableViewController : UITableViewController <NSFetchedResultsControllerDelegate>
 
@@ -29,4 +24,12 @@
 // Set to YES to get some debugging output in the console.
 @property BOOL debug;
 
+
+- (NSInteger)checkObjectsWithEntityName:(NSString *)entityName
+                              predicate:(NSPredicate *)predicate
+                         sortDescriptor:(NSSortDescriptor *)sortDescriptor;
+
+- (NSArray *)performFetchWithEntityName:(NSString *)entityName
+                              predicate:(NSPredicate *)predicate
+                         sortDescriptor:(NSSortDescriptor *)sortDescriptor;
 @end

@@ -36,28 +36,7 @@
 
 
 + (BOOL)isDate:(NSDate *)date inRangeFirstDate:(NSDate *)firstDate lastDate:(NSDate *)lastDate {
-    NSDateComponents *startCalendarDate = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:firstDate];
-    
-    NSDateComponents *endCalendarDate = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:lastDate];
-    
-    NSDateComponents *comparisonDate = [[NSCalendar currentCalendar] components:NSEraCalendarUnit|NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit fromDate:date];
-    
-    BOOL afterStartDate = NO;
-    BOOL beforeEndDate = NO;
-    
-    //check if the date is between the start and endate of the range.
-    if ([comparisonDate day] >= [startCalendarDate day] && [comparisonDate month] >= [startCalendarDate month] && [comparisonDate year] >= [startCalendarDate year]) {
-        afterStartDate = YES;
-    }
-    if ([comparisonDate day] <= [endCalendarDate day] && [comparisonDate month] <= [endCalendarDate month] && [comparisonDate year] <= [endCalendarDate year]) {
-        beforeEndDate = YES;
-    }
-        
-    if (beforeEndDate == YES && afterStartDate == YES) {
-        return YES;
-    } else {
-        return NO;
-    }
+    return !([date compare:firstDate] == NSOrderedAscending) && !([date compare:lastDate] == NSOrderedDescending);
 }
 
 - (NSString *)stringFromDateMediumFormatStyle {

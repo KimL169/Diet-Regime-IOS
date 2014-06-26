@@ -12,5 +12,6 @@
 @interface DietPlanDaysTableViewController : UITableViewController <NSFetchedResultsControllerDelegate, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) DietPlan *dietPlan;
+@property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 
 @end

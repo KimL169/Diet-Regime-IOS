@@ -51,11 +51,19 @@
     //add a gesture recognizer to end editing when tableview is touched.
     UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc]
                                           initWithTarget:self action:@selector(touch:)];
-    
     [self.tableView addGestureRecognizer:recognizer];
     
-    //temporary. in the future the unit will be loaded from NSUserDefaults.
     NSString *unit = @"cm";
+    
+    //get the unit Type from user defaults.
+    NSUserDefaults *defaults = [[NSUserDefaults alloc] init];
+    NSString *unitType =  [defaults objectForKey:@"unitType"];
+    if ([unitType isEqualToString:@"metric"]) {
+        unit = @"cm";
+    } else if ([unitType isEqualToString:@"imperial"]) {
+        unit = @"inch";
+    }
+    
     //set the units of the tableviewcells.
     for (UILabel *label in _unitLabels) {
         label.text = unit;
