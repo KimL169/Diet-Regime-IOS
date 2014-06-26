@@ -32,6 +32,8 @@
  
     NSString *weightUnit;
     NSString *lengthUnit;
+    NSString *percentSign = @"%";
+    NSString *bmiUnit = @"bmi";
     
     //check the weight and length unit settings.
     if ([[_userDefaults objectForKey:@"unitType"] isEqualToString:@"metric"]) {
@@ -41,9 +43,6 @@
         weightUnit = @"lbs";
         lengthUnit = @"inch";
     }
-
-    NSString *percentSign = @"%";
-    NSString *bmiUnit = @"bmi";
     
     self.bodyCompositionArray = @[@"Weight", @"Bodyfat Percentage", @"Lean Body Mass", @"Body Mass Index"];
     self.bodyMeasurementArray = @[@"Waist", @"Chest", @"Arm", @"Forearm", @"Shoulders", @"Hip", @"Thigh", @"Calf"];

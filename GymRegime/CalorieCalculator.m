@@ -101,7 +101,7 @@
     if ([_unitType isEqualToString:@"imperial"]) {
         weightInKg = ([stat.weight floatValue] * 0.45359237);
 
-        //set the _heightInCm
+        //set the _heightInCm to the correct height
         _userHeightInCm = (_userHeightInFeet * 30.48) + (_userHeightInInches * 2.54);
     } else {
         weightInKg = [stat.weight floatValue];

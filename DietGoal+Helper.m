@@ -20,7 +20,7 @@
     NSPredicate *predicateOne = [NSPredicate predicateWithFormat:@"mainGoal == %d", 1];
     NSPredicate *predicateTwo = [NSPredicate predicateWithFormat:@"dietPlan == %@", dietPlan];
     
-    NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[predicateOne, predicateTwo]];
+    NSPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[predicateOne, predicateTwo]];
     
     NSArray *fetchedObjects =[dataHelper performFetchWithEntityName:@"DietGoal" predicate:compoundPredicate sortDescriptor:nil];
     if ([fetchedObjects count] > 0) {
@@ -44,6 +44,8 @@
 
 + (float)checkGoalProgress:(DietGoal *)goal dietPlan:(DietPlan *)dietPlan {
     
+    //get the starting value, the current value and the goal value for the dietplan goal from
+    //the bodystats.
     NSArray *valueArray = [self getStartingValueAndCurrentValueForGoal:goal dietPlan:dietPlan];
     NSNumber *startingValue;
     NSNumber *currentValue;
@@ -185,7 +187,7 @@
     //create compound predicate for fetching, sort on date. if boolean == YES.
     //this function will return the startStat as the first value in the array.
     //if boolean = NO, this function will return the current value.
-    NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[firstPredicate, secondPredicate, thirdPredicate]];
+    NSPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[firstPredicate, secondPredicate, thirdPredicate]];
     NSSortDescriptor *sortDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:boolean];
     NSArray *fetchedObjects =[dataHelper performFetchWithEntityName:@"BodyStat" predicate:compoundPredicate sortDescriptor:sortDescriptor];
     if ([fetchedObjects count] > 0) {

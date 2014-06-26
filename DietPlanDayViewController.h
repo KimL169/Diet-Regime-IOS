@@ -28,16 +28,12 @@
 @property (weak, nonatomic) IBOutlet UILabel *proteinPercentageLabel;
 @property (weak, nonatomic) IBOutlet UITextField *nameTextField;
 @property (weak, nonatomic) IBOutlet UITextField *caloriesTextField;
-
-
 @property (weak, nonatomic) IBOutlet UISegmentedControl *lbmBwSegmentControl;
-
-@property (nonatomic, strong) DietPlanDay *addDietPlanDay;
 @property (nonatomic, retain) IBOutlet DLPieChart *pieChartView;
 
+@property (nonatomic, strong) DietPlanDay *addDietPlanDay;
 @property (nonatomic, strong) DietPlan *dietPlan;
 @property (nonatomic, strong) NSNumber *dayNumber;
-
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 
 @end

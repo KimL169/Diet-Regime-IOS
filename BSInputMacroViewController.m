@@ -39,6 +39,7 @@
 }
 
 - (void)setValueLabels {
+    //set the valuelabls to the bodystat's attributes if they exist.
     if ([_bodyStat.proteinIntake intValue] >0) {
         _proteinField.text = [NSString stringWithFormat:@"%d", [_bodyStat.proteinIntake intValue]];
     }
@@ -79,6 +80,7 @@
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
     
+    //set the bodystat's attributes when the textfield ends editing.
     if (textField == _proteinField) {
         _bodyStat.proteinIntake = [NSNumber numberWithFloat:[textField.text floatValue]];
     } else if (textField == _carbField) {
@@ -86,7 +88,7 @@
     } else if (textField == _fatField) {
         _bodyStat.fatIntake = [NSNumber numberWithFloat:[textField.text floatValue]];
     }
-    
+    //don't show a border if the value is more than 0.
     if ([textField.text length] >0) {
         textField.borderStyle = UITextBorderStyleNone;
         [textField setFont:[UIFont boldSystemFontOfSize:14]];

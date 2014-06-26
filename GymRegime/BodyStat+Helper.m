@@ -33,7 +33,7 @@
 }
 
 - (BOOL)hasMeasurements {
-    
+    //check if the bodystat has a measurement filled in. if so, return yes.
     if ([self.calfMeasurement floatValue] > 0 ||
         [self.chestMeasurement floatValue] > 0 ||
         [self.armMeasurement floatValue] > 0 ||
@@ -68,11 +68,9 @@
     CoreDataHelper *dataHelper = [[CoreDataHelper alloc]init];
     
     //check if if that is within a dietplan date range, if so set the relationship.
-    NSPredicate *predicateOne = [NSPredicate predicateWithFormat:@"startDate <= %@", self.date];
-    NSPredicate *predicateTwo = [NSPredicate predicateWithFormat:@"endDate >= %@", self.date];
-    NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[predicateOne, predicateTwo]];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"startDate <= %@ AND endDate >= %@", self.date, self.date];
     
-    NSArray *fetchedObjects = [dataHelper performFetchWithEntityName:@"DietPlan" predicate:compoundPredicate sortDescriptor:nil];
+    NSArray *fetchedObjects = [dataHelper performFetchWithEntityName:@"DietPlan" predicate:predicate sortDescriptor:nil];
     
     if ([fetchedObjects count] == 1) {
         self.dietPlan = (DietPlan *)[fetchedObjects objectAtIndex:0];

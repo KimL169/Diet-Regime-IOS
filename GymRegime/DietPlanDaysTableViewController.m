@@ -158,7 +158,7 @@
     //get the user's maintenance if it exists.
     if ([maintenance integerValue] != 0) {
         NSInteger deficitSurplus = [day.calories integerValue] - [maintenance integerValue];
-        cell.deficitSurplusLabel.text = [NSString stringWithFormat:@"%ld", deficitSurplus];
+        cell.deficitSurplusLabel.text = [NSString stringWithFormat:@"%ld", (long)deficitSurplus];
     } else {
         cell.deficitSurplusLabel.text = @"";
     }

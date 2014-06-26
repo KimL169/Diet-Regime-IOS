@@ -121,7 +121,7 @@
         self.scheduleButton.enabled = NO;
         [self.scheduleButton setTitle:@""];
     }
-    
+    //reload the tableview.
     [self.tableView reloadData];
     
     //load the user defaults for the right unit settings.
@@ -445,7 +445,7 @@
             } else {
                 cell.deficitSurplusLabel.text = @"Deficit:";
             }
-            cell.deficitSurplusValueLabel.text = [NSString stringWithFormat:@"%ld", surplusDeficit];
+            cell.deficitSurplusValueLabel.text = [NSString stringWithFormat:@"%ld", (long)surplusDeficit];
         }
     } else {
         cell.plannedCaloriesValueLabel.text = @"-";

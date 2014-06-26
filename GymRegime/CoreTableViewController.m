@@ -16,6 +16,7 @@
 }
 
 - (void)setNavigationBarTitleWithTextColor:(UIColor *)color title:(NSString *)title {
+    //set's navigation bar title and background color.
     NSDictionary *textAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
                                     color,NSForegroundColorAttributeName,
                                     color,NSBackgroundColorAttributeName,nil];

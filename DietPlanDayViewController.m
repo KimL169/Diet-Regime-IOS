@@ -142,6 +142,10 @@ static const NSInteger kcalGramFat = 9;
 }
 
 -(void)didChangeValueForSlider:(UISlider *)slider {
+    
+    // the sliders together produce 100%
+    // the protein slider is the master slider,
+    // the other sliders will inherit what's left.
     slider.value = lround(slider.value);
     
     //delta, old - new.
@@ -197,6 +201,7 @@ static const NSInteger kcalGramFat = 9;
 
 #pragma mark - Setting Labels.
 - (void)updateMaintenanceAndDeficitLabels {
+    //get the maintenance caloric need from the calorie calculator and set the labels.
     NSNumber *maintenance = [[_calculator returnUserMaintenanceAndBmr:nil] objectForKey:@"maintenance"];
     self.currentMaintenanceValueLabel.text = [NSString stringWithFormat:@"%d", [maintenance intValue]];
     if (_calories && [maintenance intValue] > 0) {
@@ -280,6 +285,7 @@ static const NSInteger kcalGramFat = 9;
 }
 
 - (void)calculateMacrosInGrams {
+    //calculate the grams based on the calorie percentages for each macro nutrient.
     _gramCarbs = [NSNumber numberWithFloat:([_calories integerValue] * (self.percentageCarbs / 100)) / kcalGramCarbohydrate ];
     _gramFat = [NSNumber numberWithFloat:([_calories integerValue] * (self.percentageFats / 100)) / kcalGramFat];
     _gramProtein = [NSNumber numberWithFloat:([_calories integerValue] * (self.percentageProtein / 100)) / kcalGramProtein];
@@ -287,6 +293,7 @@ static const NSInteger kcalGramFat = 9;
 }
 
 - (void)updateMacroLabels {
+    //update the macro percentage and value labels.
     self.carbsPercentageLabel.text = [NSString stringWithFormat:@"Carbs: %.1f%%", self.percentageCarbs];
     self.fatPercentageLabel.text = [NSString stringWithFormat:@"Fat: %.1f%%", self.percentageFats];
     self.proteinPercentageLabel.text = [NSString stringWithFormat:@"Protein: %.1f%%", self.percentageProtein];
@@ -302,7 +309,6 @@ static const NSInteger kcalGramFat = 9;
     //set maximum and minimum values
     self.proteinSlider.minimumValue = 0;
     self.proteinSlider.maximumValue = 100;
-    
     self.carbohydrateSlider.minimumValue = 0;
     self.carbohydrateSlider.maximumValue = 100 - self.percentageProtein;
     self.fatSlider.minimumValue = 0;
@@ -368,17 +374,16 @@ static const NSInteger kcalGramFat = 9;
     [_chartDataArray addObject:protein];
     [_chartDataArray addObject:carbs];
     [_chartDataArray addObject:fat];
-
+    //render the chart.
     [self.pieChartView renderInLayer:self.pieChartView dataArray:self.chartDataArray];
 }
 
 
 - (void)setupScrollView {
+    //setup the scroll view.
     self.automaticallyAdjustsScrollViewInsets = NO;
-    
     [scrollView setScrollEnabled:YES];
     [scrollView setContentSize:CGSizeMake(320, 900)];
-    
     
     //add a gesture recognizer to the scrollview.
     UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(touch:)];
@@ -393,14 +398,15 @@ static const NSInteger kcalGramFat = 9;
 }
 
 - (IBAction)add:(UIBarButtonItem *)sender {
+    //add the dietplanday to the managedobjectcontext and fill in the attributes.
     _addDietPlanDay = [NSEntityDescription insertNewObjectForEntityForName:@"DietPlanDay" inManagedObjectContext:_managedObjectContext];
-
     _addDietPlanDay.fatGrams = _gramFat;
     _addDietPlanDay.carbGrams = _gramCarbs;
     _addDietPlanDay.proteinGrams = _gramProtein;
     _addDietPlanDay.name = _name;
     _addDietPlanDay.calories = _calories;
     
+    //set the dietplan and daynumber.
     [_addDietPlanDay setDietPlan:_dietPlan];
     _addDietPlanDay.dayNumber = _dayNumber;
     
@@ -422,12 +428,12 @@ static const NSInteger kcalGramFat = 9;
 
 //make sure the length of the
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
-    
+    //caloriefield can only be 5 numbers long
     if (textField.tag == CALORIE_TEXTFIELD) {
         NSUInteger newLength = [textField.text length] + [string length] - range.length;
         return (newLength > 5) ? NO : YES;
     }
-    
+    //namefield can be 15 characters long.
     if (textField.tag == NAME_TEXTFIELD) {
         NSUInteger newLength = [textField.text length] + [string length] - range.length;
         return (newLength > 15) ? NO : YES;

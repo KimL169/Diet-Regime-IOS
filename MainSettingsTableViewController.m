@@ -94,7 +94,7 @@
 }
 
 -(void)uncheckAccessoryViewsInSection:(NSInteger)section {
-    
+    //unchec all accessoryviews in section so a new one can be selected.
     if (section == UNIT_SECTION) {
         _unitMetricsCell.accessoryType = UITableViewCellAccessoryNone;
         _unitImperialCell.accessoryType = UITableViewCellAccessoryNone;;
@@ -116,7 +116,7 @@
     //get the cell.
     UITableViewCell *cell =[self.tableView cellForRowAtIndexPath:indexPath];
 
-    
+    //set the right accessorytype (first uncheck the previous one).
     [self setCellAccessoryType:cell];
 }
 

@@ -87,6 +87,7 @@
 }
 
 
+
 -(void)textFieldDidEndEditing:(UITextField *)textField {
     
     if (textField == _calorieField){
@@ -97,13 +98,20 @@
         _bodyStat.bodyfat = [NSNumber numberWithFloat:[textField.text floatValue]];
     }
     
-    textField.borderStyle = UITextBorderStyleNone;
+    if ([textField.text floatValue] > 0) {
+        textField.borderStyle = UITextBorderStyleNone;
+    }
+    if (textField == _dateField) {
+        textField.borderStyle = UITextBorderStyleNone;
+    }
     [textField setFont:[UIFont boldSystemFontOfSize:14]];
 }
 
 
 #pragma mark - Date Field
 - (IBAction)date:(UITextField *)sender {
+    
+    _dateField.borderStyle = UITextBorderStyleRoundedRect;
     _datePicker.datePickerMode = UIDatePickerModeDate;
     [_datePicker addTarget:self action:@selector(datePickerValueChanged:) forControlEvents:UIControlEventValueChanged];
     
@@ -136,7 +144,7 @@
     //set the dietplan date and the textfield to this date. to this date
     _bodyStat.date = date;
     [_dateField setFont:[UIFont boldSystemFontOfSize:14]];
-        _dateField.text = [NSString stringWithFormat:@"%@", [date stringFromDateMediumFormatStyle]];
+    _dateField.text = [NSString stringWithFormat:@"%@", [date stringFromDateMediumFormatStyle]];
     
 }
 

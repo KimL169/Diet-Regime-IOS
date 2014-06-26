@@ -152,7 +152,7 @@
 
 #pragma mark - Set Labels
 - (void)setDateLabels {
-    
+    //set the labels, return formatted string returns 'today' if the day's today, else it returns a medium style date string.
     if (_dietPlan.startDate) {
         self.startDateTextField.text = [NSString stringWithFormat:@"%@", [_dietPlan.startDate returnFormattedDateString]];
 
@@ -180,13 +180,13 @@
     NSInteger totalDietarySurplusDeficit = [_dietPlan returnTotalDeficitSurplus];
     if (totalDietarySurplusDeficit) {
         if (totalDietarySurplusDeficit > 0) {
-            _totalDietarySurplusDeficitLabel.text = [NSString stringWithFormat:@"Total dietary surplus: %ld kcal", totalDietarySurplusDeficit];
+            _totalDietarySurplusDeficitLabel.text = [NSString stringWithFormat:@"Total dietary surplus: %ld kcal", (long)totalDietarySurplusDeficit];
         } else if (totalDietarySurplusDeficit < 0) {
-            _totalDietarySurplusDeficitLabel.text = [NSString stringWithFormat:@"Total dietary deficit: %ld kcal", totalDietarySurplusDeficit];
+            _totalDietarySurplusDeficitLabel.text = [NSString stringWithFormat:@"Total dietary deficit: %ld kcal", (long)totalDietarySurplusDeficit];
         }
     }
     
-    //convert to kilograms or pounds. One kilogram of fat == 7000 kcal
+    //convert to kilograms or pounds. One kilogram of fat == 7000 kcal, one pound of fat is 3555 kcal
     
     if ([_weightUnit isEqualToString:@"kg"]) {
         _estimatedTotalWeightChangeLabel.text = [NSString stringWithFormat:@"Est. total weight change: %.1f kg", ((float)totalDietarySurplusDeficit / 7000)];
@@ -296,6 +296,8 @@
 
 #pragma mark - Date Fields
 - (IBAction)startDate:(UITextField *)sender {
+    
+    //initialize a datepicker to act as the keyboard view for the date field.
     UIDatePicker *datePicker = [[UIDatePicker alloc] init];
     datePicker.datePickerMode = UIDatePickerModeDate;
     [datePicker addTarget:self action:@selector(datePickerValueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -318,6 +320,8 @@
 }
 
 - (IBAction)endDate:(UITextField *)sender {
+    
+    //initialize a datepicker to act as the keyboard view for the date field.
     UIDatePicker *datePicker = [[UIDatePicker alloc] init];
     datePicker.datePickerMode = UIDatePickerModeDate;
     [datePicker addTarget:self action:@selector(datePickerValueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -359,6 +363,7 @@
 #pragma mark - User Interface
 
 - (void)disableUI {
+    //disable user interaction
     self.startDateTextField.enabled = NO;
     self.endDateTextField.enabled = NO;
     self.startDateTextField.borderStyle = UITextBorderStyleNone;
@@ -370,6 +375,7 @@
 }
 
 - (void)enableUI {
+    //enable userinteraction.
     self.startDateTextField.enabled = YES;
     self.endDateTextField.enabled = YES;
     self.startDateTextField.borderStyle = UITextBorderStyleRoundedRect;
@@ -472,6 +478,7 @@
 
 - (BOOL)goalsAndDietDaysValidation {
     
+    //check for missing info and send the right message to the user.
     NSString *message;
     BOOL missingInfo = NO;
     
@@ -563,7 +570,7 @@
     if ([[segue identifier] isEqualToString:@"addStartBodyStat"]) {
         UINavigationController *navController = segue.destinationViewController;
         BSInputMainTabBarController *bodyStatEntryViewController = (BSInputMainTabBarController *)navController.topViewController;
-        //pass the current dietplan to the goal viewcontroller
+        //pass the current dietplan to the bodystat entry viewcontroller. set the date to the dietplan date.
         bodyStatEntryViewController.dietPlan = _dietPlan;
         
         BodyStat *addBodyStat = [NSEntityDescription insertNewObjectForEntityForName:@"BodyStat" inManagedObjectContext:[self managedObjectContext]];

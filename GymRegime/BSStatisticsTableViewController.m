@@ -98,6 +98,7 @@
     
 }
 
+#pragma mark - Alert Messages
 - (IBAction)calorieCalculatorHelp:(UIButton *)sender {
         NSString *message = @"This page shows you your Basal Metabolic Rate (BMR) and maintenance caloric need. The equations that are used to calculate this information can be changed in the 'settings' menu. To use this feature please fill in your profile in the profile menu. You need to have at least one bodystat recorded to calculate a maintenance and bmr. ";
     
@@ -131,7 +132,7 @@
     [banner show];
 }
 
-
+#pragma mark - Set Labels.
 - (void)setUserStatisticsLabels {
     
     //get the user's maintenance and BMR (based on the lastest bodystats with the relevant statistics.

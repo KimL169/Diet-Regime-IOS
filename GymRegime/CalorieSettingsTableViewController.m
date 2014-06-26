@@ -158,6 +158,7 @@
 
 - (void)setSelectedOptions {
     
+    //set the accessortype for the selected bmr and maintenance eqaution.
     switch (self.bmrCalculator) {
         case HarrisBenedict:
            //set the selected cell
@@ -209,7 +210,6 @@
 
 #pragma mark - textfields
 - (IBAction)calorieCalibrationTextField:(UITextField *)sender {
-    
     int calibration = [_calorieCalibrationTextField.text intValue];
     self.calibrationTDEE = calibration;
 }
@@ -301,7 +301,7 @@
     if ([_userDefaults integerForKey:@"bodyWeightMultiplierBmr"]) {
         self.bmrBodyWeightMultiplier = [_userDefaults integerForKey:@"bodyWeightMultiplierBmr"];
     }
-    if ([_userDefaults integerForKey:@"bodyweightMultiplierMaintenance"]) {
+    if ([_userDefaults integerForKey:@"bodyWeightMultiplierMaintenance"]) {
         self.maintenanceBodyWeightMultiplier = [_userDefaults integerForKey:@"bodyWeightMultiplierMaintenance"];
     }
     if ([_userDefaults integerForKey:@"customBmr"]) {
@@ -314,6 +314,7 @@
 
 - (void)uncheckAccesorCheckMarks: (NSInteger)section {
     
+    // uncheck all the checkmarks in the section so a new one can be selected.
     if (section == BMR_SECTION) {
         self.harrisBenedictEquationCell.accessoryType  = UITableViewCellAccessoryNone;
         self.mifflinStJeorEquationCell.accessoryType = UITableViewCellAccessoryNone;
@@ -393,6 +394,7 @@
 }
 
 - (NSString *)currentMaintenance {
+    //get the current user maintenance from the calorie calculator
     NSDictionary *dict = [self.calculator returnUserMaintenanceAndBmr:nil];
     int maintenance = [[dict valueForKey:@"maintenance"] intValue];
     if (maintenance == 0) {
@@ -403,6 +405,7 @@
 }
 
 - (NSString *)currentBmr {
+    //get the current user bmr from the calorie calculator
     NSDictionary *dict = [self.calculator returnUserMaintenanceAndBmr:nil];
     int bmr = [[dict valueForKey:@"bmr"] intValue];
     

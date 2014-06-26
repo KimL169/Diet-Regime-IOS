@@ -61,7 +61,7 @@
 }
 
 - (void)setMainGoalLabel {
-    
+    //set teh main goal label to the correct main goal.
     if ([self.fetchedResultsController.fetchedObjects count] > 0) {
         for (DietGoal *goal in self.fetchedResultsController.fetchedObjects) {
             
@@ -71,9 +71,6 @@
         }
     }
 }
-
-
-
 
 
 #pragma mark - Table view data source
@@ -92,7 +89,7 @@
 }
 
 
-
+#pragma mark - TableView Delegate.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"GoalCell";
     
@@ -111,6 +108,8 @@
     
     DietGoal *goal = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
+    
+    //get the starting, current value and goalvalue for a goal and set the labels.
     NSArray *valueArray = [DietGoal getStartingValueAndCurrentValueForGoal:goal dietPlan:_currentDietPlan];
     if (valueArray) {
         cell.startingValueLabel.text = [NSString stringWithFormat:@"%.1f", [[valueArray objectAtIndex:0] floatValue]];
@@ -158,6 +157,8 @@
 
 }
 
+
+#pragma mark - FetchedResultsController.
 - (NSManagedObjectContext *)managedObjectContext {
     return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
     

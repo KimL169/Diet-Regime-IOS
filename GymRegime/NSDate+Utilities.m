@@ -12,6 +12,8 @@
 
 + (NSDate *)setDateToMidnight: (NSDate*)date {
     
+    //set the date to midnight, can be used so that the times of dates are all alike.
+    //makes day comparisons easier.
     NSCalendar *calendar = [NSCalendar autoupdatingCurrentCalendar];
     NSUInteger preservedComponents = (NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit);
     NSDate *returnDate = [calendar dateFromComponents:[calendar components:preservedComponents fromDate:date]];
@@ -21,10 +23,11 @@
 
 + (NSInteger)daysBetweenDate:(NSDate*)fromDateTime andDate:(NSDate*)toDateTime {
     
+    //check if two valid dates have been entered.
     if (fromDateTime == nil || toDateTime == nil) {
         return 0;
     }
-    
+    //get the calendar components with a day unit for the from and to date.
     NSCalendar *gregorianCalendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
     NSDateComponents *components = [gregorianCalendar components:NSDayCalendarUnit
                                                         fromDate:fromDateTime
@@ -36,10 +39,12 @@
 
 
 + (BOOL)isDate:(NSDate *)date inRangeFirstDate:(NSDate *)firstDate lastDate:(NSDate *)lastDate {
+    //return if a date is withing the range of the first and last date entered.
     return !([date compare:firstDate] == NSOrderedAscending) && !([date compare:lastDate] == NSOrderedDescending);
 }
 
 - (NSString *)stringFromDateMediumFormatStyle {
+    //get a medium style formatted date string.
     NSString *dateStr;
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc]init];
     [dateFormatter setDateStyle:NSDateFormatterMediumStyle];

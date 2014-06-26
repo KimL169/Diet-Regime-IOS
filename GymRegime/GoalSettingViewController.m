@@ -37,6 +37,7 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
+    //fetch the diet goals.
     NSError *error = nil;
     if (![[self fetchedResultsController] performFetch:&error]) {
         NSLog(@"Error fetching: %@", error);
@@ -52,6 +53,18 @@
     [self.tableView addGestureRecognizer:_tapGestureRecognizer];
     _tapGestureRecognizer.cancelsTouchesInView = NO;
 }
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:YES];
+    //fetch the diet goals.
+    NSError *error = nil;
+    if (![[self fetchedResultsController] performFetch:&error]) {
+        NSLog(@"Error fetching: %@", error);
+        abort();
+    }
+
+}
+
 
 - (void)hideKeyboard {
     //resign keyboard.
@@ -98,8 +111,8 @@
 
 
 #pragma mark - TableView Datasource
-
 - (NSManagedObjectContext *)managedObjectContext {
+    //get the managedobjectcontext from the appdelegate.
     return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
     
 }
@@ -121,7 +134,7 @@
 
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(GoalTableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+    //get goal for tableview indexpath.
     DietGoal *goal = [self.fetchedResultsController objectAtIndexPath:indexPath];
     
     //set the cell labels to display the goal statistics.
@@ -156,6 +169,7 @@
     }
 }
 
+#pragma mark - textfiel delegates.
 -(void)textFieldDidBeginEditing:(UITextField *)textField {
     //get the cell this textfield belongs to.
     CGPoint textFieldPosition = [textField convertPoint:CGPointZero toView:self.tableView];
@@ -179,6 +193,48 @@
         }
     }
 }
+
+#pragma mark - tableview delegate.
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        
+        NSManagedObjectContext *context = [self managedObjectContext];
+        DietGoal *goalToDelete = [self.fetchedResultsController objectAtIndexPath:indexPath];
+        
+        //check if the goal was the primaryGoal, if so change the label
+        if ([goalToDelete.mainGoal boolValue] ==1) {
+            _primaryGoalLabel.text = @"-";
+        }
+        [context deleteObject:goalToDelete];
+        
+        NSError *error = nil;
+        if (![context save:&error]) {
+            NSLog(@"Error saving delete %@", error);
+        }
+    }
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    GoalTableViewCell *cell = (GoalTableViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
+    
+    //get the dietGoal pertaining to the cell, set the mainGoal to 1 else, set mainGoal to 0;
+    NSArray *fetchedObjects = self.fetchedResultsController.fetchedObjects;
+    for (DietGoal *goal in fetchedObjects) {
+        
+        if ([goal.name isEqualToString:cell.goalLabel.text]) {
+            [goal setMainGoal:[NSNumber numberWithBool:YES]];
+            NSLog(@"mainGoal");
+        } else {
+            [goal setMainGoal:[NSNumber numberWithBool:NO]];
+            NSLog(@"notMainGoal");
+        }
+    }
+    _primaryGoalLabel.text = cell.goalLabel.text;
+}
+
 
 
 
@@ -284,46 +340,6 @@
     
     return _fetchedResultsController;
 }
-
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        
-        NSManagedObjectContext *context = [self managedObjectContext];
-        DietGoal *goalToDelete = [self.fetchedResultsController objectAtIndexPath:indexPath];
-        
-        //check if the goal was the primaryGoal, if so change the label
-        if ([goalToDelete.mainGoal boolValue] ==1) {
-            _primaryGoalLabel.text = @"-";
-        }
-        [context deleteObject:goalToDelete];
-        
-        NSError *error = nil;
-        if (![context save:&error]) {
-            NSLog(@"Error saving delete %@", error);
-        }
-    }
-}
-
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    GoalTableViewCell *cell = (GoalTableViewCell *)[self.tableView cellForRowAtIndexPath:indexPath];
-    
-    //get the dietGoal pertaining to the cell, set the mainGoal to 1 else, set mainGoal to 0;
-    NSArray *fetchedObjects = self.fetchedResultsController.fetchedObjects;
-    for (DietGoal *goal in fetchedObjects) {
-        
-        if ([goal.name isEqualToString:cell.goalLabel.text]) {
-            [goal setMainGoal:[NSNumber numberWithBool:YES]];
-            NSLog(@"mainGoal");
-        } else {
-            [goal setMainGoal:[NSNumber numberWithBool:NO]];
-            NSLog(@"notMainGoal");
-        }
-    }
-    _primaryGoalLabel.text = cell.goalLabel.text;
-}
-
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
 {
     [self.tableView endUpdates];
@@ -348,7 +364,7 @@
 }
 
 - (BOOL)mainGoalSelected {
-    
+    //check if the main goal was selected, else return no.
     for (DietGoal *goal in [self.fetchedResultsController fetchedObjects]) {
         if ([goal.mainGoal boolValue] == YES) {
             return YES;

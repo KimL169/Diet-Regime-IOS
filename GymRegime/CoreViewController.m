@@ -20,12 +20,12 @@
 
 
 - (void)setNavigationBarTitleWithTextColor:(UIColor *)color title:(NSString *)title {
+    //set's the navigation bar title and the color.
     NSDictionary *textAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
                                     color,NSForegroundColorAttributeName,
                                     color,NSBackgroundColorAttributeName,nil];
     self.navigationController.navigationBar.titleTextAttributes = textAttributes;
     if (title) {
-        NSLog(@"title:%@", title);
         [self setTitle:title];
     }
     
@@ -41,12 +41,12 @@
 
 
 - (NSManagedObjectContext *)managedObjectContext {
+    //retrieve the managedObjectContext from the app delegate.
     return  [(AppDelegate *)[[UIApplication sharedApplication]delegate]managedObjectContext];
-    
 }
 
 - (void)saveAndDismiss {
-    
+    //save the managedObjectContext and dismiss the modal viewcontroller.
     [self save];
     [self dismissViewControllerAnimated:YES completion:nil];
 }

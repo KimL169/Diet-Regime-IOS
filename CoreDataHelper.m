@@ -50,8 +50,7 @@
     NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"endDate" ascending:NO];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"endDate >= %@", [NSDate setDateToMidnight:[NSDate date]]];
     NSArray *fetchedObjects = [self performFetchWithEntityName:@"DietPlan" predicate:predicate sortDescriptor:sortDescr];
-    
-    
+
     return [fetchedObjects firstObject];
 }
 
@@ -87,7 +86,7 @@
     } else {
         return nil;
     }
-    
+    //if the latast stat is too old, return nil.
     if (days > daysAgoAllowed) {
         return nil;
     } else {

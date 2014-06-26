@@ -805,6 +805,6 @@ static CGPathRef CGPathCreateArc(CGPoint center, CGFloat radius, CGFloat startAn
 #pragma mark - DLPieChart Delegate
 - (void)pieChart:(DLPieChart *)pieChart didSelectSliceAtIndex:(NSUInteger)index
 {
-    NSLog(@"did select slice at index %d",index);
+    NSLog(@"did select slice at index %lu",(unsigned long)index);
 }
 @end

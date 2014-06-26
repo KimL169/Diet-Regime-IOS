@@ -55,7 +55,8 @@
 }
 
 - (NSInteger)returnTotalDietaryIntake {
-        
+    
+    //get the dietdays for the dietplan to check the calorie count.
     CoreDataHelper *dataHelper = [[CoreDataHelper alloc]init];
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"dietPlan == %@", self];
     NSSortDescriptor *sortDescr = [NSSortDescriptor sortDescriptorWithKey:@"dayNumber" ascending:YES];
@@ -69,6 +70,7 @@
         return 0;
     }
     
+    //add all the calories from the dietdays in a dietplan.
     int totalCalories = 0;
     int counter = 0;
     for (int i = 0; i <totalDietPlanDays; i++) {
@@ -84,6 +86,8 @@
 
 - (NSInteger)returnTotalDeficitSurplus{
     
+    //calculate the deficit based on the total dietary intake over the course of hte dietplan and the
+    //users maintenance equation.
     NSInteger totalIntake = [self returnTotalDietaryIntake];
     NSInteger totalDietPlanDays = [NSDate daysBetweenDate:self.startDate andDate:self.endDate];
     //get the user maintenance
