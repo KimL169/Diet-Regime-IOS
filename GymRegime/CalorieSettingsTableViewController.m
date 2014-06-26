@@ -22,7 +22,7 @@
 
 
 @property (strong, nonatomic) IBOutlet UITextField *bmrBodyWeightMultiplierTextField;
-@property (strong, nonatomic) IBOutlet UITextField *bmrCustomTextFIeld;
+@property (strong, nonatomic) IBOutlet UITextField *bmrCustomTextField;
 @property (strong, nonatomic) IBOutlet UITextField *maintenanceBodyWeightMultiplierTextField;
 @property (strong, nonatomic) IBOutlet UITextField *maintenanceCustomTextField;
 @property (strong, nonatomic) IBOutlet UITextField *calorieCalibrationTextField;
@@ -64,7 +64,7 @@
     self.maintenanceBodyWeightMultiplierTextField.delegate = self;
     self.bmrBodyWeightMultiplierTextField.delegate = self;
     self.maintenanceCustomTextField.delegate = self;
-    self.bmrCustomTextFIeld.delegate = self;
+    self.bmrCustomTextField.delegate = self;
     //set the textfield values if they exist.
     [self setOutletValues];
 
@@ -79,11 +79,6 @@
     //make sure the user can still select table cells.
     _tapGestureRecognizer.cancelsTouchesInView = NO;
     
-    //set textfield delegates as self.
-    _bmrCustomTextFIeld.delegate = self;
-    _bmrBodyWeightMultiplierTextField.delegate = self;
-    _maintenanceBodyWeightMultiplierTextField.delegate = self;
-    _maintenanceCustomTextField.delegate = self;
 }
 
 - (void)hideKeyboard {
@@ -107,7 +102,7 @@
         self.calorieCalibrationTextField.text = [NSString stringWithFormat:@"%d", abs(_calibrationTDEE)];
     }
     if (_bmrCustom) {
-        self.bmrCustomTextFIeld.text = [NSString stringWithFormat:@"%ld", (long)_bmrCustom];
+        self.bmrCustomTextField.text = [NSString stringWithFormat:@"%ld", (long)_bmrCustom];
     }
     if (_bmrBodyWeightMultiplier) {
         self.bmrBodyWeightMultiplierTextField.text = [NSString stringWithFormat:@"%ld", (long)_bmrBodyWeightMultiplier];
@@ -187,6 +182,8 @@
             break;
             
         default:
+            self.mifflinStJeorEquationCell.accessoryType =
+            UITableViewCellAccessoryCheckmark;
             break;
     }
         
@@ -203,6 +200,8 @@
             self.calculatedMaintenanceCell.accessoryType =
             UITableViewCellAccessoryCheckmark;
         default:
+            self.calculatedMaintenanceCell.accessoryType =
+            UITableViewCellAccessoryCheckmark;
             break;
     }
 
@@ -216,7 +215,6 @@
 }
 - (IBAction)bmrBodyWeightMultiplierTextField:(UITextField *)sender {
     self.bmrBodyWeightMultiplier = [sender.text floatValue];
-    
     [_userDefaults setInteger:_bmrBodyWeightMultiplier forKey:@"bodyWeightMultiplierBmr"];
 }
 - (IBAction)bmrCustomTextField:(UITextField *)sender {
@@ -357,7 +355,7 @@
     }
     
     //the custom textfields can only have a length of 5 numbers.
-    if (textField == self.maintenanceCustomTextField || textField == self.bmrCustomTextFIeld) {
+    if (textField == self.maintenanceCustomTextField || textField == self.bmrCustomTextField) {
         NSUInteger newLength = [textField.text length] + [string length] - range.length;
         return (newLength > 5) ? NO : YES;
     }

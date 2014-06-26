@@ -12,9 +12,16 @@
 
 + (UIColor *)colorforGoal:(float)goalStat startStat: (float)startStat currentStat:(float)currentStat {
     
-    if (currentStat <= startStat || currentStat > goalStat) {
-        
-        return [UIColor darkGrayColor];
+    //check if the currentstat is within range (between start and goal.
+    //the goal can be lower than the start (ex. weight loss). it can also be higher.
+    if (goalStat > startStat) {
+        if (currentStat < startStat || currentStat > goalStat) {
+            return [UIColor darkGrayColor];
+        }
+    } else if (goalStat < startStat) {
+        if (currentStat < goalStat || currentStat > startStat) {
+            return [UIColor darkGrayColor];
+        }
     }
     
     int redStartVariable = 173;

@@ -70,7 +70,7 @@
         self.bodyWeightMultiplierBmr = [defaults integerForKey:@"bodyWeightMultiplierBmr"];
     }
     if ([defaults integerForKey:@"bodyWeightMultiplierMaintenance"]) {
-        self.bodyWeightMultiplierMaintenance = [defaults integerForKey:@"bodyWeightMultiplierBmr"];
+        self.bodyWeightMultiplierMaintenance = [defaults integerForKey:@"bodyWeightMultiplierMaintenance"];
     }
     if ([defaults integerForKey:@"customBmr"]) {
         self.customBmr = [defaults integerForKey:@"customBmr"];

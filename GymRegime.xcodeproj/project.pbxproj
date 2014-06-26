@@ -41,7 +41,6 @@
 		3B6942161930C99F00FC4431 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B6942151930C99F00FC4431 /* main.m */; };
 		3B69421A1930C99F00FC4431 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B6942191930C99F00FC4431 /* AppDelegate.m */; };
 		3B69421D1930C99F00FC4431 /* GymRegime.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3B69421B1930C99F00FC4431 /* GymRegime.xcdatamodeld */; };
-		3B69421F1930C99F00FC4431 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3B69421E1930C99F00FC4431 /* Images.xcassets */; };
 		3B6942261930C99F00FC4431 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B6942251930C99F00FC4431 /* XCTest.framework */; };
 		3B6942271930C99F00FC4431 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B6942071930C99F00FC4431 /* Foundation.framework */; };
 		3B6942281930C99F00FC4431 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B69420B1930C99F00FC4431 /* UIKit.framework */; };
@@ -57,6 +56,7 @@
 		3B785094195C69ED00005AD9 /* DietPlanDay.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B785093195C69ED00005AD9 /* DietPlanDay.m */; };
 		3B785096195C6FEC00005AD9 /* measuringTape.png in Resources */ = {isa = PBXBuildFile; fileRef = 3B785095195C6FEC00005AD9 /* measuringTape.png */; };
 		3B785099195C85B000005AD9 /* DLPieChart.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B785098195C85B000005AD9 /* DLPieChart.m */; };
+		3B78509B195CA08B00005AD9 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3B78509A195CA08B00005AD9 /* Images.xcassets */; };
 		3B7C0710193B0BBE0008DE46 /* DietPlanDayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C070F193B0BBE0008DE46 /* DietPlanDayViewController.m */; };
 		3B7C0720193B34D50008DE46 /* DietPlanDayTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C071F193B34D50008DE46 /* DietPlanDayTableViewCell.m */; };
 		3B7C0724193C7AF50008DE46 /* DietPlanDaysTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7C0723193C7AF50008DE46 /* DietPlanDaysTableViewController.m */; };
@@ -157,7 +157,6 @@
 		3B6942181930C99F00FC4431 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		3B6942191930C99F00FC4431 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		3B69421C1930C99F00FC4431 /* GymRegime.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = GymRegime.xcdatamodel; sourceTree = "<group>"; };
-		3B69421E1930C99F00FC4431 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		3B6942241930C99F00FC4431 /* GymRegimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GymRegimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B6942251930C99F00FC4431 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		3B69422E1930C99F00FC4431 /* GymRegimeTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GymRegimeTests-Info.plist"; sourceTree = "<group>"; };
@@ -179,6 +178,7 @@
 		3B785095195C6FEC00005AD9 /* measuringTape.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = measuringTape.png; sourceTree = "<group>"; };
 		3B785097195C85B000005AD9 /* DLPieChart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLPieChart.h; sourceTree = "<group>"; };
 		3B785098195C85B000005AD9 /* DLPieChart.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DLPieChart.m; sourceTree = "<group>"; };
+		3B78509A195CA08B00005AD9 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		3B7C070E193B0BBE0008DE46 /* DietPlanDayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DietPlanDayViewController.h; path = ../DietPlanDayViewController.h; sourceTree = "<group>"; };
 		3B7C070F193B0BBE0008DE46 /* DietPlanDayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DietPlanDayViewController.m; path = ../DietPlanDayViewController.m; sourceTree = "<group>"; };
 		3B7C071E193B34D50008DE46 /* DietPlanDayTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DietPlanDayTableViewCell.h; path = ../DietPlanDayTableViewCell.h; sourceTree = "<group>"; };
@@ -414,6 +414,7 @@
 		3B6942101930C99F00FC4431 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3B78509A195CA08B00005AD9 /* Images.xcassets */,
 				3B785097195C85B000005AD9 /* DLPieChart.h */,
 				3B785098195C85B000005AD9 /* DLPieChart.m */,
 				3B785095195C6FEC00005AD9 /* measuringTape.png */,
@@ -421,7 +422,6 @@
 				3B36FF9E1952425000CFA225 /* close-button.png */,
 				3B953F04194D07F900803D32 /* PNChart */,
 				3B4FAAC8193F7D3F0059D9C8 /* ALAlertBanner */,
-				3B69421E1930C99F00FC4431 /* Images.xcassets */,
 				3BA58B861938E17E0012DE95 /* stock images */,
 				3B6942181930C99F00FC4431 /* AppDelegate.h */,
 				3B6942191930C99F00FC4431 /* AppDelegate.m */,
@@ -751,9 +751,9 @@
 				3B4FAADF193F7D3F0059D9C8 /* bannerSuccess.png in Resources */,
 				3B4FAAD9193F7D3F0059D9C8 /* bannerAlert.png in Resources */,
 				3B5AFB4F1940C682007F6A3C /* BodyStatTableViewCell2.0.xib in Resources */,
-				3B69421F1930C99F00FC4431 /* Images.xcassets in Resources */,
 				3B36FF9F1952425000CFA225 /* close-button.png in Resources */,
 				3B4FAADD193F7D3F0059D9C8 /* bannerNotify.png in Resources */,
+				3B78509B195CA08B00005AD9 /* Images.xcassets in Resources */,
 				3B376B711954DA38005D213F /* GoalProgressTableViewCell.xib in Resources */,
 				3BA58B7219377E3B0012DE95 /* BodyStatTableViewCell.xib in Resources */,
 				3B4FAADA193F7D3F0059D9C8 /* bannerAlert@2x.png in Resources */,
@@ -979,7 +979,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GymRegime/GymRegime-Prefix.pch";
@@ -1002,7 +1002,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
 				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "GymRegime/GymRegime-Prefix.pch";
