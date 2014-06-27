@@ -87,7 +87,7 @@
 }
 
 - (NSString *)goalAndActualWeightChangeDiscrepancyAdvice {
-    
+    //TODO
     int temp = 200;
     NSString *returnString = [NSString stringWithFormat:@"+%d kcal", temp];
     return returnString;
@@ -253,12 +253,16 @@
         weight = (weight * 0.45359237);
         
         //set the _heightInCm
-        _userHeightInCm = (_userHeightInFeet * 30.48) + (_userHeightInInches * 2.54);
+        if (_userHeightInCm == 0) {
+            _userHeightInCm = (_userHeightInFeet * 30.48) + (_userHeightInInches * 2.54);
+
+        }
     }
     
     float bmi = weight / (((float)_userHeightInCm / 100) * ((float)_userHeightInCm /100));
 
     NSString *category;
+    //return a categorie describing the bmi level.
     if (bmi < 15) {
         category = @"Very severely underweight";
     } else if (bmi < 16) {

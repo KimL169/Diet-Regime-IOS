@@ -108,7 +108,7 @@
 - (void)checkExistingStatsForUnitType: (UITableViewCell *)cell {
     //check if the user has existing stats and dietplan goal. If so, ask the user if he/she wants to convert
     //them to a different system.
-    if (cell == _unitImperialCell) {
+    if (cell == _unitImperialCell && [[_userDefaults objectForKey:@"unitType"] isEqualToString:@"metric"]) {
         //check if there are bodystats that have a unittype of imperial.
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"unitType == %d", Metric];
         NSInteger count =[_dataHelper countEntityInstancesWithEntityName:@"BodyStat" predicate:predicate];
@@ -118,7 +118,7 @@
             [self unitConversionAlertMessage:message type:CONVERT_TO_IMPERIAL];
         }
         
-    } else if (cell == _unitMetricsCell) {
+    } else if (cell == _unitMetricsCell && [[_userDefaults objectForKey:@"unitType"] isEqualToString:@"imperial"]) {
         //check if there are bodystats that have a unittype of metric.
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"unitType == %d", Imperial];
         NSInteger count =[_dataHelper countEntityInstancesWithEntityName:@"BodyStat" predicate:predicate];
