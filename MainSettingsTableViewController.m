@@ -52,6 +52,14 @@
     
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewDidDisappear:YES];
+    if (_alertBanner) {
+        [_alertBanner removeFromSuperview];
+        _alertBanner = nil;
+    }
+}
+
 -(void)loadUserDefaults {
     _unitSettings = [_userDefaults stringForKey:@"unitType"];
     
