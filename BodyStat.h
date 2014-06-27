@@ -2,7 +2,7 @@
 //  BodyStat.h
 //  GymRegime
 //
-//  Created by Kim on 26/06/14.
+//  Created by Kim on 27/06/14.
 //  Copyright (c) 2014 Kim. All rights reserved.
 //
 
@@ -33,6 +33,7 @@
 @property (nonatomic, retain) NSNumber * underArmMeasurement;
 @property (nonatomic, retain) NSNumber * waistMeasurement;
 @property (nonatomic, retain) NSNumber * weight;
+@property (nonatomic, retain) NSNumber * unitType;
 @property (nonatomic, retain) DietPlan *dietPlan;
 
 @end

@@ -122,5 +122,18 @@
     return [self countEntityInstancesWithEntityName:entityName predicate:predicate];
 }
 
-
+- (BOOL)saveManagedObjectContext {
+    //save teh managed object context.
+    NSError *error = nil;
+    if ([self.managedObjectContext hasChanges]){
+        if (![self.managedObjectContext save: &error]) {//save failed
+            NSLog(@"Save failed: %@", [error localizedDescription]);
+            return NO;
+        } else {
+            NSLog(@"Save succesfull");
+            return YES;
+        }
+    }
+    return NO;
+}
 @end

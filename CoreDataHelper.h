@@ -44,4 +44,7 @@
 //count entity instances with a certain dietplan.
 - (NSInteger)countEntityInstancesWithEntityName:(NSString *)entityName
                                        dietPlan:(DietPlan *)dietPlan;
+
+//saves managedobjectcontext, returns succes bool.
+- (BOOL)saveManagedObjectContext;
 @end

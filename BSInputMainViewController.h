@@ -15,4 +15,5 @@
 
 @property (nonatomic, strong)BodyStat *bodyStat;
 @property (nonatomic, strong)DietPlan *dietPlan;
+@property (nonatomic, strong)NSString *unitType;
 @end

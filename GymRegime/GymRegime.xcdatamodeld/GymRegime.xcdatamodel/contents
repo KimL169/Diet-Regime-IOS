@@ -19,6 +19,7 @@
         <attribute name="shoulderMeasurement" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="thighMeasurement" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="underArmMeasurement" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="unitType" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="waistMeasurement" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <attribute name="weight" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
         <relationship name="dietPlan" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DietPlan" inverseName="bodyStats" inverseEntity="DietPlan" syncable="YES"/>
@@ -48,7 +49,7 @@
         <relationship name="dietPlan" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DietPlan" inverseName="dietPlanDays" inverseEntity="DietPlan" syncable="YES"/>
     </entity>
     <elements>
-        <element name="BodyStat" positionX="-11" positionY="8" width="128" height="360"/>
+        <element name="BodyStat" positionX="-11" positionY="8" width="128" height="375"/>
         <element name="DietGoal" positionX="-279" positionY="80" width="128" height="118"/>
         <element name="DietPlan" positionX="-270" positionY="-198" width="128" height="133"/>
         <element name="DietPlanDay" positionX="-2" positionY="-225" width="128" height="150"/>

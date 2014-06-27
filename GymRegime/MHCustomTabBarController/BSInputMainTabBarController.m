@@ -37,6 +37,8 @@ NSString *const MHCustomTabBarControllerViewControllerAlreadyVisibleNotification
 @property (nonatomic, strong)NSManagedObjectContext *managedObjectContext;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *saveAndEditButton;
 @property (strong, nonatomic) UIAlertView *alertView;
+@property (strong, nonatomic) NSUserDefaults *userDefaults;
+@property (strong, nonatomic) NSString *unitType;
 @end
 
 @implementation BSInputMainTabBarController {
@@ -52,6 +54,9 @@ NSString *const MHCustomTabBarControllerViewControllerAlreadyVisibleNotification
     if (!_bodyStat) {
         self.bodyStat = [NSEntityDescription insertNewObjectForEntityForName:@"BodyStat" inManagedObjectContext:[self managedObjectContext]];
     }
+    _userDefaults = [[NSUserDefaults alloc]init];
+    //get the unittype from the userdefualts.
+    _unitType = [_userDefaults objectForKey:@"unitType"];
 }
 
 -(void) viewDidAppear:(BOOL)animated {
@@ -76,6 +81,12 @@ NSString *const MHCustomTabBarControllerViewControllerAlreadyVisibleNotification
         
         //check if the bodystat is inside the start-enddate range of a dietplan, if so, set the relationship.
         [_bodyStat setDietPlanForBodyStat];
+        //set the right unittype
+        if ([_unitType isEqualToString:@"metric"]) {
+            _bodyStat.unitType = [NSNumber numberWithInteger:Metric];
+        } else if ([_unitType isEqualToString:@"imperial"]){
+            _bodyStat.unitType = [NSNumber numberWithInteger:Imperial];
+        }
         
         [super saveAndDismiss];
     } else {
@@ -103,7 +114,7 @@ NSString *const MHCustomTabBarControllerViewControllerAlreadyVisibleNotification
     [self.alertView show];
 }
 
-// if retry button is pressed, set up a new game else Show High Score
+
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     
     if (buttonIndex == [alertView cancelButtonIndex]) {
@@ -122,6 +133,14 @@ NSString *const MHCustomTabBarControllerViewControllerAlreadyVisibleNotification
         //set the bodystat's lbm and bmi value if the relevant data has been entered.
         [_bodyStat setBmi];
         [_bodyStat setLbm];
+        
+        //set the right unittype
+        if ([_unitType isEqualToString:@"metric"]) {
+            _bodyStat.unitType = [NSNumber numberWithInteger:Metric];
+        } else if ([_unitType isEqualToString:@"imperial"]){
+            _bodyStat.unitType = [NSNumber numberWithInteger:Imperial];
+        }
+        
         //save the managedObjectContext
         [super saveAndDismiss];
     }
@@ -160,12 +179,9 @@ NSString *const MHCustomTabBarControllerViewControllerAlreadyVisibleNotification
     if ([segue.destinationViewController isKindOfClass:[BSInputMainViewController class]]){
         BSInputMainViewController *vc = segue.destinationViewController;
         //pass the bodystat as well as the dietplan if it exists.
-        if (_bodyStat) {
-            vc.bodyStat = _bodyStat;
-        }
-        if (_dietPlan) {
-            vc.dietPlan = _dietPlan;
-        }
+        if (_bodyStat) vc.bodyStat = _bodyStat;
+        if (_dietPlan) vc.dietPlan = _dietPlan;
+        if (_unitType) vc.unitType = _unitType;
     } else if ([segue.destinationViewController isKindOfClass:[BSInputMeasurementContainerViewController class]]){
         BSInputMeasurementContainerViewController *vc = segue.destinationViewController;
         //pass the bodystat.

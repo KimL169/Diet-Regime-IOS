@@ -25,4 +25,10 @@
 //set the right dietplan for a bodystat.
 - (DietPlan *)setDietPlanForBodyStat;
 
+//identifier for the unit type.
+typedef enum {
+    Default, Metric, Imperial
+}unitType;
+
+
 @end

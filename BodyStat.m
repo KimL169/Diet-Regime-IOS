@@ -2,7 +2,7 @@
 //  BodyStat.m
 //  GymRegime
 //
-//  Created by Kim on 26/06/14.
+//  Created by Kim on 27/06/14.
 //  Copyright (c) 2014 Kim. All rights reserved.
 //
 
@@ -32,6 +32,7 @@
 @dynamic underArmMeasurement;
 @dynamic waistMeasurement;
 @dynamic weight;
+@dynamic unitType;
 @dynamic dietPlan;
 
 @end

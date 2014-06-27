@@ -89,7 +89,9 @@
 
 
 -(void)textFieldDidEndEditing:(UITextField *)textField {
-    
+    //set the bodystat values when the textfield ends editing.
+    //the values will be saved to the managedobjectcontext in the maintabbarcontroller
+    //when the save button is pressed.
     if (textField == _calorieField){
         _bodyStat.calories = [NSNumber numberWithFloat:[textField.text floatValue]];
     } else if (textField == _weightField) {
