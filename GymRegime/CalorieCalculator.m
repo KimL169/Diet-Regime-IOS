@@ -239,7 +239,6 @@
 - (NSDictionary *)returnUserBmi:(float)weight {
     [self loadUserDefaults];
     
-
     //check if a bodystat was entered, else grab the latest out of the database. It may be 5 days old.
     if (weight == 0) {
         weight = [[[super fetchLatestBodystatWithStat:@"weight" maxDaysAgo:7] weight] floatValue];

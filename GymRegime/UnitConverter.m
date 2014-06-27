@@ -28,8 +28,19 @@
             stat.unitType = [NSNumber numberWithInt: Imperial];
         }
     }
+    
+    //fetch the dietgoals and convert those that pertain to weight.
+    predicate = [NSPredicate predicateWithFormat:@"unit == %@", @"kg" ];
+    NSArray *dietGoals = [dataHelper performFetchWithEntityName:@"DietGoal" predicate:predicate sortDescriptor:nil];
+    
+    for (DietGoal *goal in dietGoals) {
+        if ([goal.value floatValue] > 0) {
+            float newWeight = [goal.value floatValue] * 2.20462;;
+            goal.value = [NSNumber numberWithFloat:newWeight];
+            goal.unit = @"lbs";
+        }
+    }
    return [dataHelper saveManagedObjectContext];
-    //TODO fetch the dietgoals and convert those that pertain to weight.
 
 }
 
@@ -50,6 +61,19 @@
         }
     }
     
+    //fetch the dietgoals and convert those that pertain to weight.
+    predicate = [NSPredicate predicateWithFormat:@"unit == %@", @"lbs" ];
+    NSArray *dietGoals = [dataHelper performFetchWithEntityName:@"DietGoal" predicate:predicate sortDescriptor:nil];
+    
+    for (DietGoal *goal in dietGoals) {
+        if ([goal.value floatValue] > 0) {
+            float newWeight = [goal.value floatValue] * 0.453592;
+            goal.value = [NSNumber numberWithFloat:newWeight];
+            goal.unit = @"kg";
+        }
+    }
     return [dataHelper saveManagedObjectContext];
 }
+
+
 @end
