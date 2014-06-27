@@ -29,6 +29,11 @@
         }
     }
     
+    //TODO convert measurements!!
+    //Perhaps I need to create a seperate entity for the bodymeasurements with a relationship to the bodystats.
+    // it would become: bodystat -- > dietstats
+    //                           -- > measurements.
+    
     //fetch the dietgoals and convert those that pertain to weight.
     predicate = [NSPredicate predicateWithFormat:@"unit == %@", @"kg" ];
     NSArray *dietGoals = [dataHelper performFetchWithEntityName:@"DietGoal" predicate:predicate sortDescriptor:nil];
@@ -60,6 +65,12 @@
             stat.unitType = [NSNumber numberWithInt:Metric];
         }
     }
+    
+    //TODO convert measurements!!
+    //Perhaps I need to create a seperate entity for the bodymeasurements with a relationship to the bodystats.
+    // it would become: bodystat -- > dietstats
+    //                           -- > measurements.
+    
     
     //fetch the dietgoals and convert those that pertain to weight.
     predicate = [NSPredicate predicateWithFormat:@"unit == %@", @"lbs" ];
