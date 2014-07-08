@@ -205,6 +205,7 @@
         
         //check if the goal was the primaryGoal, if so change the label
         if ([goalToDelete.mainGoal boolValue] ==1) {
+            goalToDelete.mainGoal = [NSNumber numberWithBool:NO];
             _primaryGoalLabel.text = @"-";
         }
         [context deleteObject:goalToDelete];
@@ -348,9 +349,12 @@
 #pragma mark - Form Validation
 
 - (BOOL)checkIfMainGoalSelected {
+    
     //if there is only one diet goal, set it to the maingoal.
     if (self.fetchedResultsController.fetchedObjects.count == 1) {
-        //let the user exit.
+        //set the goal to the main goal and let the user exit.
+        DietGoal *goal = [self.fetchedResultsController.fetchedObjects objectAtIndex:0];
+        [goal setMainGoal:[NSNumber numberWithBool:YES]];
         return YES;
         
     } else if (![self mainGoalSelected]) {

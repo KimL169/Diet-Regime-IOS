@@ -40,7 +40,7 @@
     
     for (DietGoal *goal in dietGoals) {
         if ([goal.value floatValue] > 0) {
-            float newWeight = [goal.value floatValue] * 2.20462;;
+            float newWeight = [self convertKgToPounds:[goal.value floatValue]];
             goal.value = [NSNumber numberWithFloat:newWeight];
             goal.unit = @"lbs";
         }
@@ -48,6 +48,13 @@
    return [dataHelper saveManagedObjectContext];
 
 }
+
+//converters
+-(float)convertCmtoInch:(float)cm { return cm * 0.3937; }
+-(float)convertInchToCm:(float)inch {return inch * 2.54; }
+-(float)convertKgToPounds:(float)kg {return kg * 2.20462;}
+-(float)convertPoundsToKg:(float)pound {return pound * 0.453592;}
+
 
 - (BOOL)convertAllImperialValuesToMetric {
     
@@ -59,9 +66,7 @@
     //convert the weight units if they are present.
     for (BodyStat *stat in bodystats) {
         if ([stat.weight floatValue] > 0) {
-            
-            float newWeight = [stat.weight floatValue] * 0.453592;
-            stat.weight = [NSNumber numberWithFloat:newWeight];
+            stat.weight = [NSNumber numberWithFloat:[self convertPoundsToKg:[stat.weight floatValue]]];
             stat.unitType = [NSNumber numberWithInt:Metric];
         }
     }

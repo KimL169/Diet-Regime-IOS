@@ -85,6 +85,9 @@
 		3BA58B6D19377C010012DE95 /* BodyStatTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BA58B6C19377C010012DE95 /* BodyStatTableViewCell.m */; };
 		3BA58B7219377E3B0012DE95 /* BodyStatTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3BA58B7119377E3B0012DE95 /* BodyStatTableViewCell.xib */; };
 		3BA58B77193797390012DE95 /* ProgressPhotoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BA58B76193797390012DE95 /* ProgressPhotoViewController.m */; };
+		3BAB7C8F196C427000A09A97 /* EstimatedProgressTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3BAB7C8E196C427000A09A97 /* EstimatedProgressTableViewCell.xib */; };
+		3BAB7C92196C45A300A09A97 /* EstimatedProgressTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BAB7C91196C45A300A09A97 /* EstimatedProgressTableViewCell.m */; };
+		3BAB7C96196C4CA200A09A97 /* DPEstProgressViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BAB7C95196C4CA200A09A97 /* DPEstProgressViewController.m */; };
 		3BABCB7A19327CB600465719 /* BSStatisticsTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BABCB7919327CB600465719 /* BSStatisticsTableViewController.m */; };
 		3BABCB7D19327CEE00465719 /* CalorieCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BABCB7C19327CEE00465719 /* CalorieCalculator.m */; };
 		3BBB30AE19519B7E00B880CC /* DietGoal+Helper.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BBB30AD19519B7E00B880CC /* DietGoal+Helper.m */; };
@@ -237,6 +240,11 @@
 		3BA58B7119377E3B0012DE95 /* BodyStatTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BodyStatTableViewCell.xib; sourceTree = "<group>"; };
 		3BA58B75193797390012DE95 /* ProgressPhotoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressPhotoViewController.h; sourceTree = "<group>"; };
 		3BA58B76193797390012DE95 /* ProgressPhotoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressPhotoViewController.m; sourceTree = "<group>"; };
+		3BAB7C8E196C427000A09A97 /* EstimatedProgressTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = EstimatedProgressTableViewCell.xib; sourceTree = "<group>"; };
+		3BAB7C90196C45A300A09A97 /* EstimatedProgressTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EstimatedProgressTableViewCell.h; sourceTree = "<group>"; };
+		3BAB7C91196C45A300A09A97 /* EstimatedProgressTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EstimatedProgressTableViewCell.m; sourceTree = "<group>"; };
+		3BAB7C94196C4CA200A09A97 /* DPEstProgressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DPEstProgressViewController.h; sourceTree = "<group>"; };
+		3BAB7C95196C4CA200A09A97 /* DPEstProgressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DPEstProgressViewController.m; sourceTree = "<group>"; };
 		3BABCB7819327CB600465719 /* BSStatisticsTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BSStatisticsTableViewController.h; sourceTree = "<group>"; };
 		3BABCB7919327CB600465719 /* BSStatisticsTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BSStatisticsTableViewController.m; sourceTree = "<group>"; };
 		3BABCB7B19327CEE00465719 /* CalorieCalculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalorieCalculator.h; sourceTree = "<group>"; };
@@ -325,8 +333,8 @@
 				3BEBDFE31933515A0013C66C /* BSProfileViewController.m */,
 				3BABCB7819327CB600465719 /* BSStatisticsTableViewController.h */,
 				3BABCB7919327CB600465719 /* BSStatisticsTableViewController.m */,
-				3B7F033119557ABA0065003A /* GoalProgressViewController.h */,
 				3B7F033219557ABA0065003A /* GoalProgressViewController.m */,
+				3B7F033119557ABA0065003A /* GoalProgressViewController.h */,
 			);
 			name = "Statistics section";
 			sourceTree = "<group>";
@@ -456,6 +464,7 @@
 		3B7C0711193B0C320008DE46 /* Diet Planner Section */ = {
 			isa = PBXGroup;
 			children = (
+				3BAB7C93196C45B900A09A97 /* EstimatedProgressTableViewCell */,
 				3B7C0721193B34F20008DE46 /* Diet plan tableview cell */,
 				3B488D90194E3CCC0030FCC2 /* DIetPlanTableViewController.h */,
 				3B488D91194E3CCC0030FCC2 /* DIetPlanTableViewController.m */,
@@ -465,6 +474,8 @@
 				3B7C070F193B0BBE0008DE46 /* DietPlanDayViewController.m */,
 				3B9ABBED194E0B8F002F6EFF /* DietPlannerMenuTableViewController.h */,
 				3B9ABBEE194E0B8F002F6EFF /* DietPlannerMenuTableViewController.m */,
+				3BAB7C94196C4CA200A09A97 /* DPEstProgressViewController.h */,
+				3BAB7C95196C4CA200A09A97 /* DPEstProgressViewController.m */,
 			);
 			name = "Diet Planner Section";
 			sourceTree = "<group>";
@@ -614,6 +625,16 @@
 			name = "stock images";
 			sourceTree = "<group>";
 		};
+		3BAB7C93196C45B900A09A97 /* EstimatedProgressTableViewCell */ = {
+			isa = PBXGroup;
+			children = (
+				3BAB7C8E196C427000A09A97 /* EstimatedProgressTableViewCell.xib */,
+				3BAB7C90196C45A300A09A97 /* EstimatedProgressTableViewCell.h */,
+				3BAB7C91196C45A300A09A97 /* EstimatedProgressTableViewCell.m */,
+			);
+			name = EstimatedProgressTableViewCell;
+			sourceTree = "<group>";
+		};
 		3BBB30A21951987400B880CC /* Core Data Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -743,6 +764,7 @@
 				3B4FAADC193F7D3F0059D9C8 /* bannerFailure@2x.png in Resources */,
 				3B4FAAE0193F7D3F0059D9C8 /* bannerSuccess@2x.png in Resources */,
 				3B6942141930C99F00FC4431 /* InfoPlist.strings in Resources */,
+				3BAB7C8F196C427000A09A97 /* EstimatedProgressTableViewCell.xib in Resources */,
 				3B5AFB511940FF65007F6A3C /* DietPlanDayTableViewCell.xib in Resources */,
 				3B36FF9D1952415000CFA225 /* DailyScheduleView.xib in Resources */,
 				3B4FAADB193F7D3F0059D9C8 /* bannerFailure.png in Resources */,
@@ -843,6 +865,7 @@
 				3B6942401930CD8800FC4431 /* CoreViewController.m in Sources */,
 				3B953F03194C8DD000803D32 /* GoalColorScheme.m in Sources */,
 				3BDEA499195713B500594CEE /* BSInputMeasurementContainerViewController.m in Sources */,
+				3BAB7C96196C4CA200A09A97 /* DPEstProgressViewController.m in Sources */,
 				3B376B741954DB4B005D213F /* GoalProgressTableViewCell.m in Sources */,
 				3BABCB7A19327CB600465719 /* BSStatisticsTableViewController.m in Sources */,
 				3B953F26194D07F900803D32 /* PNLineChartDataItem.m in Sources */,
@@ -863,6 +886,7 @@
 				3B36FFA3195244CF00CFA225 /* DailyScheduleView.m in Sources */,
 				3BC4F9E61943A80200BCEBF8 /* CoreDataHelper.m in Sources */,
 				3B953F22194D07F900803D32 /* PNCircleChart.m in Sources */,
+				3BAB7C92196C45A300A09A97 /* EstimatedProgressTableViewCell.m in Sources */,
 				3BDEA4901956E6A300594CEE /* BSInputMeasurementTableViewController.m in Sources */,
 				3B7F03771956DF240065003A /* BSInputMainViewController.m in Sources */,
 				3B7850A0195D633F00005AD9 /* UnitConverter.m in Sources */,

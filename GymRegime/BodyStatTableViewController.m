@@ -42,6 +42,7 @@
 @property (nonatomic,strong) CoreDataHelper *dataHelper;
 @property (nonatomic, strong) CalorieCalculator *calculator;
 @property (nonatomic, strong) NSUserDefaults *userDefaults;
+@property (nonatomic) NSInteger scrollViewContentOffset;
 
 @property (nonatomic, strong) NSString *weightUnit;
 @end
@@ -80,23 +81,23 @@
     }
 }
 
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:YES];
     
     self.dataHelper = [[CoreDataHelper alloc]init];
     self.calculator = [[CalorieCalculator alloc]init];
-
+    
     //first check if a diet plan is in progress.
     if ((_currentDietPlan = [_dataHelper fetchCurrentDietPlan])) {
         
         //check if a progress view must be added.
-        if ([NSDate isDate:[NSDate setDateToMidnight:[NSDate date]] inRangeFirstDate:_currentDietPlan.startDate lastDate:_currentDietPlan.endDate] &&
-            _currentDietPlan.dietGoal.count > 0) {
+        if ([NSDate isDate:[NSDate setDateToMidnight:[NSDate date]] inRangeFirstDate:_currentDietPlan.startDate lastDate:_currentDietPlan.endDate]
+            && _currentDietPlan.dietGoal.count > 0) {
             //add a progress circlechart instead of a title
             [self addProgressChart];
         } else {
             //add a title instead of the progress chart.
+            self.progressView = nil;
             [self setNavigationBarTitleWithTextColor:[UIColor whiteColor] title:@"Logbook"];
         }
         
@@ -319,17 +320,14 @@
         // More initializations if needed.
     }
     if (selectedIndex == indexPath.section) {
-        
         //set the cell UI to the expanded style
         [cell expandedStyle];
     }
     else {
-        //set the cell UI to the non-expanded style.
         [cell nonExpandedStyle];
     }
     //make sure the tableview clips the labels to the tablviewcellheight.
     cell.clipsToBounds = YES;
-    
     [cell.progressImageButton addTarget:self action:@selector(checkPhotoButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
     
     return cell;
@@ -446,6 +444,8 @@
                 cell.deficitSurplusLabel.text = @"Deficit:";
             }
             cell.deficitSurplusValueLabel.text = [NSString stringWithFormat:@"%ld", (long)surplusDeficit];
+        } else {
+            cell.deficitSurplusValueLabel.text = @"-";
         }
     } else {
         cell.plannedCaloriesValueLabel.text = @"-";
@@ -497,7 +497,8 @@
 - (IBAction)scheduleButtonTapped:(UIBarButtonItem *)sender {
 
     //init a schedule view and set the labels to the current dietplan day.
-    self.scheduleView = [[DailyScheduleView alloc]initWithFrame:CGRectMake(40, 30, 250, 300)];
+    //get the scrollviewcontentoffset to get the correct position.
+    self.scheduleView = [[DailyScheduleView alloc]initWithFrame:CGRectMake(40, 30+_scrollViewContentOffset, 250, 300)];
     [self.scheduleView setLabelsForDietPlan:_currentDietPlan];
     
     //add a teap recognizer to close the schedule view on tap.
@@ -507,12 +508,19 @@
     
     //disable the button when the scheduleview is in view.
     self.scheduleButton.enabled = NO;
+    self.tableView.panGestureRecognizer.enabled = NO;
+}
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    //get the position of the tableview so that the schedule can be shown at the correct position.
+    self.scrollViewContentOffset = scrollView.contentOffset.y + 60;
+    
 }
 
 -(void)dismissScheduleView{
     [self.scheduleView removeFromSuperview];
     //reenable the schedule button
     self.scheduleButton.enabled = YES;
+    self.tableView.panGestureRecognizer.enabled = YES;
 }
 
 #pragma mark - TableView Section header.
@@ -527,6 +535,7 @@
 
     //get the bodystat at the section row (there's only one row per section.
     BodyStat *stat = [[sectionInfo objects] objectAtIndex:0];
+    UIView *sectionView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 18)];
     
     //check if the user has a dietplan currently active. if so check if the bodystat is a dietplan start
     // or enddate and set the sectionheader accordingly.
@@ -534,11 +543,10 @@
         //check if the stat corresponds with the end of a diet or the start of the diet, and create custom section if so.
         if ([NSDate daysBetweenDate:stat.date andDate:_currentDietPlan.startDate] == 0 ||
             [NSDate daysBetweenDate:stat.date andDate:_currentDietPlan.endDate] == 0) {
-
             // Convert NSDate to format we want...
             [formatter setDateFormat:@"d MMMM"];
             NSString *formattedDateStr = [formatter stringFromDate:date];
-            UIView *sectionView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 50)];
+            sectionView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 50)];
 
             // get the main goal start, current and goal values.
             DietGoal *goal = [DietGoal getMainDietPlanGoal: _currentDietPlan];
@@ -547,14 +555,13 @@
                NSNumber *startValue = [startCurrentValue objectAtIndex:0];
                NSNumber *currentValue = [startCurrentValue objectAtIndex:1];
                NSNumber *goalValue = [startCurrentValue objectAtIndex:2];
-                
                 sectionView.backgroundColor = [GoalColorScheme colorforGoal:[goalValue floatValue]
                                                                   startStat:[startValue floatValue]
                                                                 currentStat:[currentValue floatValue]];
             } else {
                 sectionView.backgroundColor = [UIColor darkGrayColor];
             }
-
+            
             //create labels to hold the section header text.
             UILabel *dateLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 0, 70, 50)];
             UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(90, 5, tableView.frame.size.width, 18)];
@@ -592,23 +599,26 @@
             [sectionView addSubview:dateLabel];
             
             return sectionView;
+        } else {
+            DietPlanDay *day = [_currentDietPlan returnDietPlanDayForDate:date];
+            UILabel *dayLabel = [[UILabel alloc]initWithFrame:CGRectMake(250, 0, tableView.frame.size.width, 18)];
+            dayLabel.text = day.name;
+            [dayLabel setFont:[UIFont boldSystemFontOfSize:13]];
+            [sectionView addSubview:dayLabel];
+            
         }
-}
-    
-    
+    }
+
     //else add the ordinary section header: the bodystat date.
     // Convert NSDate to format we want...
     [formatter setDateFormat:@"d MMMM yyyy"];
     NSString *formattedDateStr = [formatter stringFromDate:date];
     
-    UIView *sectionView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, tableView.frame.size.width, 18)];
-    
     //Add label to view
-    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, tableView.frame.size.width, 18)];
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 2, tableView.frame.size.width, 18)];
     titleLabel.text = formattedDateStr;
-    [titleLabel setFont:[UIFont systemFontOfSize:13]];
+    [titleLabel setFont:[UIFont boldSystemFontOfSize:13]];
     [sectionView addSubview:titleLabel];
-    
     return sectionView;
 }
 

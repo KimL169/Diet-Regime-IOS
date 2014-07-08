@@ -125,8 +125,8 @@
 
 - (void)createImperialHeightFields {
     //initialize the feet and inch textfields
-    _feetField = [[UITextField alloc]initWithFrame:CGRectMake(160, 170, 58, 30)];
-    _inchField = [[UITextField alloc]initWithFrame:CGRectMake(246, 170, 55, 30)];
+    _feetField = [[UITextField alloc]initWithFrame:CGRectMake(160, 148, 58, 30)];
+    _inchField = [[UITextField alloc]initWithFrame:CGRectMake(246, 148, 55, 30)];
     _inchField.borderStyle = UITextBorderStyleRoundedRect;
     _feetField.borderStyle = UITextBorderStyleRoundedRect;
     _feetField.keyboardType = UIKeyboardTypeNumberPad;
@@ -152,7 +152,7 @@
 
 - (void)createMetricHeightField {
     //initialize the cm textfield
-    _cmTextField = [[UITextField alloc]initWithFrame:CGRectMake(160, 170, 141, 30)];
+    _cmTextField = [[UITextField alloc]initWithFrame:CGRectMake(160, 148, 141, 30)];
     
     [self.view addSubview:_cmTextField];
     

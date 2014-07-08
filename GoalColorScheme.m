@@ -35,7 +35,12 @@
     //get the percentage acheived.
     float total = goalStat - startStat;
     float achieved = currentStat - startStat;
-    float percentageAchieved = achieved / total;
+    float percentageAchieved;
+    if (total != 0) {
+        percentageAchieved = achieved / total;
+    } else {
+        return [UIColor darkGrayColor];
+    }
 
     //calculate the colors based on the progress.
     float currentRed = redStartVariable - (redChangeVariable * percentageAchieved);

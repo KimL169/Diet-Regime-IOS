@@ -168,17 +168,17 @@
         title = @"Succes";
         style = ALAlertBannerStyleSuccess;
     } else {
-        message = @"Something went wrong";
-        title = @"Failure";
-        style = ALAlertBannerStyleFailure;
+        message = @"Something went wrong, Perhaps you have not made a logbook entry yet?";
+        title = @"Unsuccesful";
+        style = ALAlertBannerStyleNotify;
     }
     self.alertBanner = [ALAlertBanner alertBannerForView:self.view
-                                                        style:style
+                                                        style:(int)style
                                                      position:ALAlertBannerPositionTop
                                                         title:title
                                                      subtitle:message];
     
-    _alertBanner.secondsToShow = 1.5;
+    _alertBanner.secondsToShow = 2;
     [_alertBanner show];
 
 }
