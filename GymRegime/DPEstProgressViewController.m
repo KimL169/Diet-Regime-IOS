@@ -10,7 +10,6 @@
 
 @interface DPEstProgressViewController ()
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
-@property (nonatomic, strong) UITableView *tableView;
 @end
 
 @implementation DPEstProgressViewController
